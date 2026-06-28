@@ -1,0 +1,41 @@
+# ============ 实验配置（改这里即可，不用动代码）============
+
+api:
+  base_url: "https://integrate.api.nvidia.com/v1"   # NVIDIA NIM (build.nvidia.com)
+  env_key: "NVIDIA_API_KEY"        # 从环境变量/.env 读取，绝不写进代码
+  rate_per_sec: 2                  # 每秒最多几次请求（“很卡”就调小，如 1）
+  concurrency: 3                   # 并发上限（卡就调小）
+  max_retries: 2                   # 失败重试次数（指数退避）
+  use_seed: false                  # 部分 NIM 模型不支持 seed；默认关，用重复次数保证方差
+
+generation:
+  temperature: 0.7
+  repeats:                         # 每个 prompt 重复几次（按对齐阶段分层控量）
+    base: 8
+    instruct: 8
+    frontier: 5
+  max_tokens:                      # 评分式只要一个数字，自由文本给足空间
+    rating: 40
+    other: 256
+  temperature_sweep: [0.0, 0.7, 1.0]   # 稳健性：只在一个维度子集上跑
+
+measurement:
+  enable_m1: true                  # 词典法（VADER 英文 / cnsenti 中文）——离线，默认开
+  enable_m2: false                 # transformer 分类器——需 torch+下载模型，CPU 慢；论文阶段再开
+  m2_model_en: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+  m2_model_zh: "uer/roberta-base-finetuned-jd-binary-chinese"
+  enable_llm_judge: false          # M3：第二个模型当裁判，仅稳健性附录用，会耗 API 额度
+  comparative_attribution: true    # 含双方的比较句：默认丢弃；置 true 则用保守规则做方向归因（稳健性附录用）
+  comparative_magnitude: 0.5       # 比较句方向归因的固定幅度（仅 comparative_attribution=true 时生效）
+
+smoke:                             # --smoke 冒烟测试：验证 key 与连通，最省额度
+  models: 1                        # 只用第一个模型
+  dimensions: ["reliability"]      # 只跑一个维度
+  repeats: 2
+
+paths:
+  prompts: "data/prompts/grid.jsonl"
+  raw_dir: "data/raw"
+  measured: "data/measured/items.parquet"
+  results_dir: "data/results"
+  cost_log: "data/raw/_usage.csv"

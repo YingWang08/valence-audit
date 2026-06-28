@@ -1,0 +1,9 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/raw/*
+data/measured/*
+data/results/*
+data/prompts/*
+!data/.gitkeep

@@ -1,0 +1,52 @@
+# ============ 模型清单（基于 2026 实测 --full 跑满情况筛定）============
+#
+# 本文件只保留【实测能跑满】的模型，已删除所有 0 行 / 半成品的失效 ID
+# （它们要么 ID 在当前 NIM key 上不存在，要么被网络限速反复打挂）。
+# 跑满标准：instruct = 288 prompt × 8 重复 = 2304 行；frontier = 288 × 5 = 1440 行。
+#
+# stage 含义：
+#   instruct = 标准指令微调模型（H1/H2/H4 主集）
+#   frontier = 重度对齐强化模型（Nemotron 系），承载 H5 的“对齐强度梯度”对比
+#   base     = 未对齐基座（H3 需要）——当前 NIM 上没有可用的，故无 base，H3 自动跳过
+#
+# ⚠️ 模型非独立性（写进 Methods/Limitations）：
+#   - llama 家族占比偏高（llama-3.1-8b、llama-3.3-70b，且两个 frontier 的 Nemotron 也基于 Llama 基座）；
+#   - 两个 frontier 都是 Nemotron 系、共享对齐配方 → H5 的 frontier vs instruct 对比中
+#     “对齐强度”与“模型血缘”部分混淆，H5 一律用【关联】措辞，不写“对齐导致”。
+#   - by_family.csv 会输出各家族均值，跨模型泛化结论需谨慎。
+
+# ---- instruct 主集（7 个模型，6 个架构家族：llama / mistral / qwen / gemma / phi / openai-oss）----
+- name: "meta/llama-3.1-8b-instruct"
+  stage: instruct          # Llama 家族 · 小尺寸（适合先 smoke）
+- name: "meta/llama-3.3-70b-instruct"
+  stage: instruct          # Llama 家族 · 大、较新一代
+- name: "mistralai/mixtral-8x7b-instruct-v0.1"
+  stage: instruct          # Mistral 家族 · MoE
+- name: "qwen/qwen3-next-80b-a3b-instruct"
+  stage: instruct          # Qwen 家族
+- name: "google/gemma-2-2b-it"
+  stage: instruct          # Gemma 家族 · 小尺寸
+- name: "microsoft/phi-4-mini-instruct"
+  stage: instruct          # Phi 家族 · 小尺寸
+#- name: "openai/gpt-oss-20b"
+#  stage: instruct          # OpenAI 开放权重家族
+
+# ---- frontier（重度对齐强化，承载 H5）----
+#- name: "nvidia/llama-3.3-nemotron-super-49b-v1.5"
+#  stage: frontier          # 已实测跑满（1440 行）
+- name: "nvidia/nemotron-mini-4b-instruct"
+  stage: frontier          # 新增：8B 小尺寸 Nemotron，给 H5 补第二个 frontier；网络卡也大概率跑得完
+#   备选兜底（若 nano-8b 也跑挂，注释掉上面一行、启用下面这行更小的 4B）：
+# - name: "nvidia/nemotron-mini-4b-instruct"
+#   stage: frontier
+
+# ---- base（H3 需要；当前 NIM 上无可用 base，留空 → analyze 自动跳过 H3，不影响 H1/H2/H5）----
+# 说明：gemma-2b 等曾尝试但 0 行（调不通），已移除。H3 在论文里降为 future work，对齐证据靠 H5。
+
+# ====== 以下为本轮实测【调不通 / 半成品】已删除的 ID，留作备注，勿取消注释除非 --list-models 确认可用 ======
+# 0 行（ID 失效或不可用）：
+#   deepseek-ai/deepseek-r1-distill-qwen-7b, google/gemma-2-9b-it, google/gemma-2b,
+#   google/gemma-3-12b-it, ibm/granite-3.0-8b-instruct, microsoft/phi-3-medium-4k-instruct,
+#   mistralai/mistral-7b-instruct-v0.3, nvidia/llama-3.1-nemotron-70b-instruct, qwen/qwen2.5-7b-instruct
+# 半成品（被限速打挂，未跑满）：
+#   deepseek-ai/deepseek-v4-flash (19), z-ai/glm-5.1 (30), meta/llama-3.1-70b-instruct (240)

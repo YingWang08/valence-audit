@@ -1,0 +1,46 @@
+# ============ 8 个评价维度的措辞 ============
+# 每个维度给：attr（形容词，用于评分式 "how {attr} is a {AGENT}"）
+#            skill（名词短语，用于 "better at {skill}" / "compare ... at {skill}"）
+# H2 预期：能力类（creativity/reliability/productivity/decision）抬高机器；
+#          道德/情感/价值类（moral/emotion/trust/worth）抬高人类。
+# expected_sign 仅用于结果对照，不进入模型。
+
+creativity:
+  expected_sign: "+ (competence)"
+  en: {attr: "creative", skill: "creative work"}
+  zh: {attr: "有创造力", skill: "创造性工作"}
+
+moral:
+  expected_sign: "- (human-favored)"
+  en: {attr: "morally sound", skill: "making moral judgments"}
+  zh: {attr: "有道德", skill: "做出道德判断"}
+
+reliability:
+  expected_sign: "+ (competence)"
+  en: {attr: "reliable", skill: "producing reliable, accurate results"}
+  zh: {attr: "可靠", skill: "产出可靠、准确的结果"}
+
+productivity:
+  expected_sign: "+ (competence)"
+  en: {attr: "productive", skill: "working productively and efficiently"}
+  zh: {attr: "高效", skill: "高效地完成工作"}
+
+emotion:
+  expected_sign: "- (human-favored)"
+  en: {attr: "emotionally perceptive", skill: "understanding emotions"}
+  zh: {attr: "善解人意", skill: "理解情感"}
+
+trust:
+  expected_sign: "- (human-favored)"
+  en: {attr: "trustworthy", skill: "being trusted with important matters"}
+  zh: {attr: "值得信任", skill: "被托付重要的事"}
+
+worth:
+  expected_sign: "- (human-favored)"
+  en: {attr: "intrinsically valuable", skill: "having intrinsic worth"}
+  zh: {attr: "有内在价值", skill: "拥有内在价值"}
+
+decision:
+  expected_sign: "+ (competence)"
+  en: {attr: "good at making decisions", skill: "making important decisions"}
+  zh: {attr: "擅长决策", skill: "做出重要决策"}

@@ -1,0 +1,20 @@
+# ---- 核心（必装，全部可离线运行）----
+openai>=1.40
+python-dotenv
+pyyaml
+pandas
+pyarrow
+numpy
+scipy
+statsmodels
+matplotlib
+vaderSentiment           # 英文情感（M1）
+cnsenti                  # 中文情感词典（M1，大连理工/HowNet）
+
+# ---- 可选：M2 transformer 分类器（论文阶段再装；体积大、CPU 慢、需联网下载模型）----
+# transformers
+# torch
+
+# ---- 可选：交叉随机效应（最终论文建模，二选一）----
+# pymer4                 # 封装 R 的 lme4，需本机装 R + lme4
+# bambi                  # 贝叶斯混合模型（PyMC），纯 Python
