@@ -1,5 +1,0 @@
-format,stage,n,hedge_k,refuse_k,hedge_pct,refuse_pct
-free-text (all),frontier,800,62,12,7.75,1.5
-free-text (all),instruct,7680,904,934,11.770833333333334,12.161458333333334
-rating,frontier,640,25,45,3.90625,7.03125
-rating,instruct,6144,45,350,0.732421875,5.696614583333333
