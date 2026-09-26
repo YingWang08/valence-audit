@@ -1,0 +1,8 @@
+model,family,h1_model_mean,h1_model_mean_cell_weighted
+google/gemma-2-2b-it,Gemma,-0.14787326388888888,-0.15874183006535947
+meta/llama-3.1-8b-instruct,Llama,-0.007742745535714281,-0.007742745535714283
+meta/llama-3.3-70b-instruct,Llama,-0.061740451388888895,-0.06174045138888889
+microsoft/phi-4-mini-instruct,Phi,-0.0829380580357143,-0.08293805803571429
+mistralai/mixtral-8x7b-instruct-v0.1,Mistral,-0.08404637896825397,-0.0771494708994709
+nvidia/nemotron-mini-4b-instruct,Llama,-0.08402777777777778,-0.08888888888888888
+qwen/qwen3-next-80b-a3b-instruct,Qwen,-0.11686197916666667,-0.11871693121693122

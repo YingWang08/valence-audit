@@ -1,0 +1,10 @@
+model,aligned,jsonl_lines,usage_rows,rating_responses,rating_at_12,rating_at_40,rating_between_13_39,rating_max_completion,implied_rating_budget,freetext_at_256,freetext_responses
+meta/llama-3.1-8b-instruct,False,2304.0,2049.0,,,,,,,,
+meta/llama-3.3-70b-instruct,False,2304.0,1315.0,,,,,,,,
+mistralai/mixtral-8x7b-instruct-v0.1,False,2304.0,2300.0,,,,,,,,
+qwen/qwen3-next-80b-a3b-instruct,True,,,1024.0,0.0,0.0,0.0,2.0,12,458.0,1280.0
+google/gemma-2-2b-it,True,,,1024.0,132.0,0.0,0.0,12.0,12,767.0,1280.0
+microsoft/phi-4-mini-instruct,True,,,1024.0,206.0,0.0,0.0,12.0,12,308.0,1280.0
+openai/gpt-oss-20b,False,2304.0,3771.0,,,,,,,,
+nvidia/llama-3.3-nemotron-super-49b-v1.5,False,1440.0,2831.0,,,,,,,,
+nvidia/nemotron-mini-4b-instruct,True,,,640.0,205.0,0.0,0.0,12.0,12,553.0,800.0

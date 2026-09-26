@@ -1,0 +1,12 @@
+category,language,legacy_value,n
+hedge,en,1.0,1
+hedge,zh,1.0,1
+malformed,zh,1.0,1
+out_of_range,zh,1.0,2
+out_of_range,zh,7.0,1
+refusal,zh,1.0,1
+truncated,en,1.0,3
+truncated,en,6.0,1
+truncated,zh,1.0,6
+truncated,zh,7.0,1
+truncated,zh,5.0,1

@@ -1,0 +1,8 @@
+model,family,total,invalid,pct_invalid,empty,refusal,hedge,truncated,out_of_range,multiple,malformed
+google/gemma-2-2b-it,Gemma,1024,132,12.890625,0,90,18,16,0,0,8
+meta/llama-3.1-8b-instruct,Llama,1024,1,0.09765625,0,1,0,0,0,0,0
+meta/llama-3.3-70b-instruct,Llama,1024,2,0.1953125,0,0,0,0,2,0,0
+microsoft/phi-4-mini-instruct,Phi,1024,84,8.203125,0,55,6,21,2,0,0
+mistralai/mixtral-8x7b-instruct-v0.1,Mistral,1024,500,48.828125,0,204,21,256,8,0,11
+nvidia/nemotron-mini-4b-instruct,Llama,640,205,32.03125,0,45,25,115,0,0,20
+qwen/qwen3-next-80b-a3b-instruct,Qwen,1024,8,0.78125,0,0,0,0,6,0,2

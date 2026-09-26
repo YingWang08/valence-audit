@@ -1,0 +1,15 @@
+model,language,n_ai,invalid_ai,pct_invalid_ai,n_human,invalid_human,pct_invalid_human,fisher_p
+google/gemma-2-2b-it,en,256,23,8.984375,256,69,26.953125,1.3599352518632725e-07
+google/gemma-2-2b-it,zh,256,28,10.9375,256,12,4.6875,0.012646025362776005
+meta/llama-3.1-8b-instruct,en,256,0,0.0,256,0,0.0,1.0
+meta/llama-3.1-8b-instruct,zh,256,0,0.0,256,1,0.390625,1.0
+meta/llama-3.3-70b-instruct,en,256,0,0.0,256,0,0.0,1.0
+meta/llama-3.3-70b-instruct,zh,256,2,0.78125,256,0,0.0,0.4990215264187867
+microsoft/phi-4-mini-instruct,en,256,40,15.625,256,36,14.0625,0.7094103292789826
+microsoft/phi-4-mini-instruct,zh,256,2,0.78125,256,6,2.34375,0.28519081256709394
+mistralai/mixtral-8x7b-instruct-v0.1,en,256,239,93.359375,256,212,82.8125,0.0003259764885161418
+mistralai/mixtral-8x7b-instruct-v0.1,zh,256,46,17.96875,256,3,1.171875,9.869641126490017e-12
+nvidia/nemotron-mini-4b-instruct,en,160,30,18.75,160,55,34.375,0.0022740027911746113
+nvidia/nemotron-mini-4b-instruct,zh,160,60,37.5,160,60,37.5,1.0
+qwen/qwen3-next-80b-a3b-instruct,en,256,8,3.125,256,0,0.0,0.0073907006324915375
+qwen/qwen3-next-80b-a3b-instruct,zh,256,0,0.0,256,0,0.0,1.0

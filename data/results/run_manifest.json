@@ -1,0 +1,40 @@
+{
+  "timestamp_utc": "2026-09-26T05:46:45+00:00",
+  "git_commit": "72028a2e56086f2ad4e6dd328750efaa0ff0d188",
+  "git_describe": "v1.0.0-1-g72028a2",
+  "code_uncommitted": false,
+  "code_uncommitted_files": [],
+  "inputs_uncommitted": false,
+  "inputs_uncommitted_files": [],
+  "python": "3.14.3",
+  "packages": {
+    "numpy": "2.5.0",
+    "pandas": "3.0.3",
+    "scipy": "1.18.0",
+    "statsmodels": "0.14.6",
+    "matplotlib": "3.11.0"
+  },
+  "rating_parser": "strict",
+  "excluded_models": [
+    "openai/gpt-oss-20b",
+    "nvidia/llama-3.3-nemotron-super-49b-v1.5"
+  ],
+  "input_sha256": {
+    "google_gemma-2-2b-it.jsonl": "61beda7f6d87df7fe947ccfee27d80562d8795158e759e4b350bce314050ecbb",
+    "meta_llama-3.1-8b-instruct.jsonl": "051a24f00baaf8743b3ad084dc316c3355ab60635ab6cd5bb23e3e6b15f7cbc2",
+    "meta_llama-3.3-70b-instruct.jsonl": "f38e17f8acf8ab6d51d4c51513120917fb9c787aaee32115ca6e6ef726120903",
+    "microsoft_phi-4-mini-instruct.jsonl": "c7282403e66442b4f26961595797094d3d48c034d724cb2b484ec9e8bb09801d",
+    "mistralai_mixtral-8x7b-instruct-v0.1.jsonl": "f6c690fa3901cfbc44ab9112d61008c0e1b81784c52e6d9357174d947b65c037",
+    "nvidia_llama-3.3-nemotron-super-49b-v1.5.jsonl": "a00cdf200b635dbb6d5d77e9f8c27eb41ccc425e512e658437b01d3788ff1707",
+    "nvidia_nemotron-mini-4b-instruct.jsonl": "d0bbeacb6b66dbabff47bae66f2b28e5c71de1552ba39e61dd5f915896860773",
+    "openai_gpt-oss-20b.jsonl": "9fca0be8da5ff03b28984d6504a33b635f5b2a092842025ffbc165639306606c",
+    "qwen_qwen3-next-80b-a3b-instruct.jsonl": "4ec8da7685948211433c79f754b2544ddde9ed54bbfeff69cba47eb01504bb4a"
+  },
+  "n_models": 7,
+  "n_rating_responses": 6784,
+  "n_invalid": 932,
+  "n_cells": 369,
+  "n_cells_legacy": 372,
+  "n_rating_prompts": 128,
+  "n_freetext_prompts": 160
+}

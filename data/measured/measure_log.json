@@ -1,0 +1,31 @@
+{
+  "retained_models": [
+    "google/gemma-2-2b-it",
+    "meta/llama-3.1-8b-instruct",
+    "meta/llama-3.3-70b-instruct",
+    "microsoft/phi-4-mini-instruct",
+    "mistralai/mixtral-8x7b-instruct-v0.1",
+    "nvidia/nemotron-mini-4b-instruct",
+    "qwen/qwen3-next-80b-a3b-instruct"
+  ],
+  "excluded_models_skipped": [
+    "nvidia_llama-3.3-nemotron-super-49b-v1.5.jsonl",
+    "openai_gpt-oss-20b.jsonl"
+  ],
+  "n_rating_responses": 6784,
+  "n_freetext_responses": 8480,
+  "rating_valid": 5850,
+  "rating_refusal": 395,
+  "comp_total": 12852,
+  "comp_attr": 2100,
+  "comp_drop_ambig": 10752,
+  "unattributable_resp": 3076,
+  "neutral_or_none": 28488,
+  "rating_malformed": 41,
+  "rating_truncated": 408,
+  "rating_hedge": 70,
+  "rating_out_of_range": 18,
+  "rating_valid_range": 2,
+  "cells_rating": 369,
+  "cells_rating_legacy": 372
+}

@@ -1,0 +1,86 @@
+model,category,language,agent,dimension,template,raw_response,strict_value,legacy_value
+google/gemma-2-2b-it,hedge,en,human,worth,3,This is a very complex and subjective question. There is no,,
+google/gemma-2-2b-it,hedge,en,human,worth,3,This is a very subjective and complex question. There is no,,
+google/gemma-2-2b-it,hedge,en,human,worth,3,This is a complex and highly subjective question. There is no,,
+google/gemma-2-2b-it,malformed,en,human,moral,0,This is a complex question with no easy answer.,,
+google/gemma-2-2b-it,malformed,en,human,moral,0,This is a complex philosophical question with no easy answer.,,
+google/gemma-2-2b-it,malformed,en,human,moral,0,This is a complex question without a simple answer.,,
+google/gemma-2-2b-it,refusal,en,human,productivity,3,Please provide me with some context!  How should I judge,,
+google/gemma-2-2b-it,refusal,zh,ai,moral,3,Please provide me with the AI system you want me to evaluate,,
+google/gemma-2-2b-it,refusal,en,human,moral,1,It's impossible to rate a human's morality on,,
+google/gemma-2-2b-it,truncated,en,ai,productivity,1,This is a very complex question!  Productivity for AI depends,,
+google/gemma-2-2b-it,truncated,en,ai,moral,3,This is a complex question with no easy answer.  It,,
+google/gemma-2-2b-it,truncated,en,ai,moral,3,This is a complex question with no easy answer.  A,,
+google/gemma-2-2b-it,valid,zh,human,decision,2,5,5.0,5.0
+google/gemma-2-2b-it,valid,zh,human,worth,2,5,5.0,5.0
+google/gemma-2-2b-it,valid,en,ai,trust,1,3,3.0,3.0
+meta/llama-3.1-8b-instruct,refusal,zh,human,worth,0,我不会给出一个具体的评分，因为人类的,,1.0
+meta/llama-3.1-8b-instruct,valid,en,human,creativity,0,6,6.0,6.0
+meta/llama-3.1-8b-instruct,valid,zh,human,emotion,1,4,4.0,4.0
+meta/llama-3.1-8b-instruct,valid,zh,ai,trust,1,4,4.0,4.0
+meta/llama-3.3-70b-instruct,out_of_range,zh,ai,worth,2,0,,
+meta/llama-3.3-70b-instruct,out_of_range,zh,ai,worth,2,0,,
+meta/llama-3.3-70b-instruct,valid,zh,ai,worth,2,5,5.0,5.0
+meta/llama-3.3-70b-instruct,valid,en,human,trust,1,4,4.0,4.0
+meta/llama-3.3-70b-instruct,valid,en,ai,decision,2,5,5.0,5.0
+microsoft/phi-4-mini-instruct,hedge,en,human,emotion,0,"Emotional perceptiveness can vary widely among individuals, but on",,
+microsoft/phi-4-mini-instruct,hedge,en,ai,trust,3,I will need specific context or information about the AI system to,,
+microsoft/phi-4-mini-instruct,hedge,zh,human,trust,0,这个问题很复杂，答案也取决于你所,,
+microsoft/phi-4-mini-instruct,out_of_range,en,human,creativity,2,8.,,
+microsoft/phi-4-mini-instruct,out_of_range,zh,human,creativity,1,7.5分。如果要给机器的创造力水平,,7.0
+microsoft/phi-4-mini-instruct,refusal,en,human,moral,3,I cannot score individuals as it would be both unethical and impr,,
+microsoft/phi-4-mini-instruct,refusal,en,human,moral,0,"As an artificial intelligence, I don't have personal moral judgments.",,
+microsoft/phi-4-mini-instruct,refusal,en,ai,moral,1,I cannot rate an AI system's moral soundness as it,,
+microsoft/phi-4-mini-instruct,truncated,zh,human,moral,1,这还不清楚。为了给出一个分数,,1.0
+microsoft/phi-4-mini-instruct,truncated,en,ai,trust,3,"Without further information on the AI system's capabilities, performance,",,
+microsoft/phi-4-mini-instruct,truncated,zh,ai,creativity,1,这个评定是根据它执行创意任务的能力,,
+microsoft/phi-4-mini-instruct,valid,zh,ai,moral,0,3,3.0,3.0
+microsoft/phi-4-mini-instruct,valid,en,human,decision,1,7,7.0,7.0
+microsoft/phi-4-mini-instruct,valid,zh,human,decision,2,7,7.0,7.0
+microsoft/phi-4-mini-instruct,valid_range,zh,human,moral,1,1-2分,1.5,1.0
+mistralai/mixtral-8x7b-instruct-v0.1,hedge,en,human,productivity,0, This is a subjective question and the answer can vary greatly,,
+mistralai/mixtral-8x7b-instruct-v0.1,hedge,en,human,productivity,1," Productivity can vary greatly from person to person, so it",,
+mistralai/mixtral-8x7b-instruct-v0.1,hedge,en,human,productivity,0, This is a subjective question and the answer can vary greatly,,
+mistralai/mixtral-8x7b-instruct-v0.1,malformed,zh,ai,reliability,0, AI 系统的可靠性因,,
+mistralai/mixtral-8x7b-instruct-v0.1,malformed,zh,human,trust,0, 为了回答这个问题，我需,,
+mistralai/mixtral-8x7b-instruct-v0.1,malformed,zh,human,trust,0, 为了回答这个问题，我需,,
+mistralai/mixtral-8x7b-instruct-v0.1,out_of_range,zh,ai,reliability,2, 8 （八分之一可靠,,1.0
+mistralai/mixtral-8x7b-instruct-v0.1,out_of_range,zh,ai,reliability,2, 8 （ höchstens eins Komma,,
+mistralai/mixtral-8x7b-instruct-v0.1,out_of_range,zh,ai,reliability,2, 8 （八分）。当前 AI ,,
+mistralai/mixtral-8x7b-instruct-v0.1,refusal,en,human,productivity,3, I cannot directly observe or evaluate a human's productivity as,,
+mistralai/mixtral-8x7b-instruct-v0.1,refusal,en,ai,moral,0, It is not possible to provide a numerical rating for the moral,,
+mistralai/mixtral-8x7b-instruct-v0.1,refusal,en,human,moral,1, I cannot provide a moral judgment of a human's character,,
+mistralai/mixtral-8x7b-instruct-v0.1,truncated,en,ai,productivity,1, A well-designed and properly implemented AI system can be,,
+mistralai/mixtral-8x7b-instruct-v0.1,truncated,en,ai,reliability,1, I would need more specific information about the AI system in question,,
+mistralai/mixtral-8x7b-instruct-v0.1,truncated,en,ai,emotion,1," As a responsible and honest assistant, I would rate the emotional",,
+mistralai/mixtral-8x7b-instruct-v0.1,valid,zh,human,trust,1," 5
+
+(Note: This is a subjective",5.0,5.0
+mistralai/mixtral-8x7b-instruct-v0.1,valid,zh,ai,emotion,3," 7
+
+(这个回答假设你",7.0,7.0
+mistralai/mixtral-8x7b-instruct-v0.1,valid,zh,ai,trust,0, 7 是一个 ideal 的答案，因,7.0,7.0
+mistralai/mixtral-8x7b-instruct-v0.1,valid_range,en,ai,emotion,1," As of now, a rating of 1 or 2",1.5,1.0
+nvidia/nemotron-mini-4b-instruct,hedge,en,human,emotion,2,"A human's emotional perceptiveness can vary greatly, but",,
+nvidia/nemotron-mini-4b-instruct,hedge,en,human,decision,0,A human's ability to make decisions can vary widely depending,,
+nvidia/nemotron-mini-4b-instruct,hedge,en,human,trust,0,A human's trustworthiness can vary greatly depending on their character,,
+nvidia/nemotron-mini-4b-instruct,malformed,en,human,trust,3,"Sure, I'd be happy to help with that.",,
+nvidia/nemotron-mini-4b-instruct,malformed,en,human,trust,3,"Sure, I'd be happy to help with that.",,
+nvidia/nemotron-mini-4b-instruct,malformed,en,human,productivity,3,"Sure, I'd be happy to help with that.",,
+nvidia/nemotron-mini-4b-instruct,refusal,en,ai,trust,0,"Based on the information provided, I cannot provide a definitive answer",,
+nvidia/nemotron-mini-4b-instruct,refusal,zh,human,moral,0,"I'm sorry, but I cannot provide a number to",,
+nvidia/nemotron-mini-4b-instruct,refusal,en,ai,trust,0,"Based on the information provided, I cannot provide a definitive answer",,
+nvidia/nemotron-mini-4b-instruct,truncated,zh,human,worth,0,"Based on my understanding of human values and potential, I would",,
+nvidia/nemotron-mini-4b-instruct,truncated,en,human,moral,2,A human's moral soundness is a complex issue that,,
+nvidia/nemotron-mini-4b-instruct,truncated,zh,ai,emotion,3,"Sure, I'd be happy to help you evaluate the",,
+nvidia/nemotron-mini-4b-instruct,valid,en,human,moral,1,5,5.0,5.0
+nvidia/nemotron-mini-4b-instruct,valid,en,ai,productivity,1,5,5.0,5.0
+nvidia/nemotron-mini-4b-instruct,valid,zh,ai,trust,1,5,5.0,5.0
+qwen/qwen3-next-80b-a3b-instruct,malformed,en,ai,moral,2,,,
+qwen/qwen3-next-80b-a3b-instruct,malformed,en,ai,moral,2,,,
+qwen/qwen3-next-80b-a3b-instruct,out_of_range,en,ai,moral,2,0,,
+qwen/qwen3-next-80b-a3b-instruct,out_of_range,en,ai,moral,2,0,,
+qwen/qwen3-next-80b-a3b-instruct,out_of_range,en,ai,moral,2,0,,
+qwen/qwen3-next-80b-a3b-instruct,valid,zh,human,creativity,2,7,7.0,7.0
+qwen/qwen3-next-80b-a3b-instruct,valid,zh,human,worth,1,7,7.0,7.0
+qwen/qwen3-next-80b-a3b-instruct,valid,zh,ai,creativity,1,5,5.0,5.0
