@@ -1,6 +1,6 @@
 # Validation protocol: rating-response parser (registered before coding)
 
-Created (UTC): 2026-09-26T11:52:40+00:00
+Created (UTC): 2026-09-26T14:10:56+00:00
 
 ## Purpose
 Estimate how accurately the automated parsers (strict parser used in the revision; legacy parser
@@ -24,6 +24,7 @@ Population-level accuracy uses weights = stratum population / stratum sample.
 One coder (the author), the only coder available. The coder follows the written codebook
 (tools/coding_manual_zh.md), sees only the response text and its language, and is blind to
 model, referent (human or AI system), dimension, template, and both parsers' outputs.
+The response text itself sometimes names the referent or the attribute; this is not masked.
 The coder knows the study hypotheses. No AI tool is used for any coding decision.
 Training: 20 practice items outside the sample, not scored.
 
@@ -48,10 +49,14 @@ All coded items are published with their text, codes and parser outputs.
 3. The first-round codes are not edited after they are committed; re-coding does not replace them.
 
 ## File hashes (SHA-256)
+Text files are hashed with line endings normalized to LF (the form stored in the git repository,
+GitHub and Zenodo; on a downloaded copy, `sha256sum <file>` reproduces the value). The blank
+workbook (.xlsx, binary) is hashed byte for byte. Repository commit at export: 01b439991deeb7c496e118e19c784fc76f08bdaf.
+
 | File | SHA-256 |
 |---|---|
-| rating_coder_A.xlsx (blank) | `1672ec71d6d6224b4679ded5f12a838f197248702f8c2f2b4228a22eebf4255a` |
+| rating_coder_A.xlsx (blank) | `caec547a1b89156a8999ec2439df2620cd76162b2ae3c659eb0ffe854c8fd4a3` |
 | tools/coding_manual_zh.md | `67ac9feaff4e9f586ddc29ddefd911af40e04d0bad163b00ecfee05d5a393b95` |
-| tools/validation.py | `3cd80d04362dde9b5c0cb575b14745160187444338b968592f4ff7a43676ff01` |
+| tools/validation.py | `e12615207025ac2d8c906433f941ec5f88dbde6648768b7c96bfef7beff9b12f` |
 | src/rating_parse.py | `13dcbc9c915bc84da3bd116d0a0ec406b24847f6f2b156449a246497936374ae` |
-| rating_responses.csv | `3f6bbcc7e0bf0a092494f979f77e9fd7f93383f02c844c5bfdcdd20f5cef370d` |
+| rating_responses.csv | `5268e72184363b95f3e639e2b3bcfe176d9a1c209a116adfdb1a8fa32f333b26` |

@@ -1,6 +1,7 @@
 {
-  "created_utc": "2026-09-26T11:52:40+00:00",
+  "created_utc": "2026-09-26T14:10:56+00:00",
   "seed": 7,
+  "git_commit": "01b439991deeb7c496e118e19c784fc76f08bdaf",
   "population_rating_responses": 6784,
   "population_strata": {
     "parsers_disagree": 26,
@@ -17,10 +18,10 @@
   "n_recode": 68,
   "n_practice": 20,
   "sha256": {
-    "rating_coder_A.xlsx (blank)": "1672ec71d6d6224b4679ded5f12a838f197248702f8c2f2b4228a22eebf4255a",
+    "rating_coder_A.xlsx (blank)": "caec547a1b89156a8999ec2439df2620cd76162b2ae3c659eb0ffe854c8fd4a3",
     "tools/coding_manual_zh.md": "67ac9feaff4e9f586ddc29ddefd911af40e04d0bad163b00ecfee05d5a393b95",
-    "tools/validation.py": "3cd80d04362dde9b5c0cb575b14745160187444338b968592f4ff7a43676ff01",
+    "tools/validation.py": "e12615207025ac2d8c906433f941ec5f88dbde6648768b7c96bfef7beff9b12f",
     "src/rating_parse.py": "13dcbc9c915bc84da3bd116d0a0ec406b24847f6f2b156449a246497936374ae",
-    "rating_responses.csv": "3f6bbcc7e0bf0a092494f979f77e9fd7f93383f02c844c5bfdcdd20f5cef370d"
+    "rating_responses.csv": "5268e72184363b95f3e639e2b3bcfe176d9a1c209a116adfdb1a8fa32f333b26"
   }
 }
