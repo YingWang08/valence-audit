@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use these data or this code, please cite them as below."
+title: "Data and code for: Dimension-dependent human-AI valence asymmetry in open-weight language models"
+type: dataset
+version: "2.0.0"
+license: CC-BY-4.0
+doi: 10.5281/zenodo.20998809
+repository-code: "https://github.com/YingWang08/valence-audit"
+authors:
+  - family-names: Tian
+    given-names: Wenjun
+    affiliation: "School of Marxism, Northeastern University, Shenyang, Liaoning, China"
+    orcid: "https://orcid.org/0009-0001-3762-2650"
+    email: tianwenjunneu@outlook.com
+keywords:
+  - large language models
+  - model audit
+  - human-AI evaluation
+  - rating asymmetry

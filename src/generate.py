@@ -1,22 +1,32 @@
-"""生成阶段：对每个模型、每条 prompt、每次重复，调用模型并落盘。
-特性：断点续跑（跳过已完成）、并发、限速、模型不可用自动跳过、用量日志。
-输出：data/raw/<model>.jsonl
+"""Generation: query every model with every prompt and repetition, append to JSONL.
+Resumable (skips (prompt_id, repeat) already on disk), rate-limited, concurrent.
+
+Each record now stores the generation parameters actually used (max_tokens,
+temperature, system prompt flag), the API's finish_reason, token usage and the
+length of any separate reasoning channel, plus a UTC timestamp and a collection
+id. v1.0.0 stored none of these per record, which is why the June data can only
+be screened for truncation heuristically (see tools/diagnose_usage.py).
+
+Output: <data root>/raw/<model>.jsonl
 """
 import json
 import csv
 import time
 import asyncio
+import datetime as dt
 import pathlib
 from src import config
 from src.providers import get_provider, ModelUnavailable, CallFailed
 
 
-def _load_prompts(filter_dims=None):
+def load_prompts(grid_path, filter_dims=None, formats=None):
     prompts = []
-    with open(config.path("prompts"), encoding="utf-8") as f:
+    with open(grid_path, encoding="utf-8") as f:
         for line in f:
             r = json.loads(line)
             if filter_dims and r["dimension"] not in filter_dims:
+                continue
+            if formats and r["format"] not in formats:
                 continue
             prompts.append(r)
     return prompts
@@ -24,8 +34,9 @@ def _load_prompts(filter_dims=None):
 
 def _done_keys(out_path):
     done = set()
-    if pathlib.Path(out_path).exists():
-        with open(out_path, encoding="utf-8") as f:
+    p = pathlib.Path(out_path)
+    if p.exists():
+        with open(p, encoding="utf-8") as f:
             for line in f:
                 try:
                     r = json.loads(line)
@@ -35,126 +46,112 @@ def _done_keys(out_path):
     return done
 
 
-def _guard_against_mock_contamination():
-    """防止 data/raw/ 里残留的 --mock 假数据被悄悄混进真实分析。
-    mock 模式硬编码模型名为 mock/llama-base、mock/llama-instruct（见上方 if mock 分支），
-    文件名落地后是 mock_llama-base.jsonl / mock_llama-instruct.jsonl。
-    真实（非 mock）运行前若发现这些文件残留，直接中止并提示清理——
-    宁可多一步手动确认，也不要让分析结果掺进假数据却让人毫无察觉。"""
-    leftovers = sorted(p.name for p in config.raw_dir().glob("mock_*.jsonl"))
-    if leftovers:
-        names = "、".join(leftovers)
-        raise SystemExit(
-            f"\n⚠️  检测到 data/raw/ 下有 --mock 残留的假数据文件：{names}\n"
-            f"   继续跑真实数据会让 measure.py 把它们也读进去，悄悄污染分析结果（H1/H2/H3/H5 全部不可信）。\n"
-            f"   请先清理后重跑，例如：\n"
-            f"     rm -rf data        # 最彻底，连同 prompts/measured/results 一起重建（推荐）\n"
-            f"   或只删 mock 残留：\n"
-            f"     rm data/raw/mock_*.jsonl\n"
-        )
+def _max_tokens_for(fmt, gen, override):
+    table = dict(gen["max_tokens"])
+    if override and "max_tokens" in override:
+        mt = override["max_tokens"]
+        if isinstance(mt, dict):
+            table.update(mt)
+        else:
+            return int(mt)
+    if fmt in table:
+        return int(table[fmt])
+    return int(table["rating"] if fmt == "rating" else table.get("other", 256))
 
 
-async def _run_one_model(provider, model, stage, prompts, repeats, out_path, cost_writer):
+async def _run_one_model(provider, model, stage, prompts, repeats, out_path, cost_writer,
+                         gen, override, collection):
     done = _done_keys(out_path)
-    gen = config.EXP["generation"]
     sem = asyncio.Semaphore(config.EXP["api"]["concurrency"])
     fout = open(out_path, "a", encoding="utf-8")
-    skip_model = {"flag": False}
-
+    state = {"skip": False, "n": 0, "ok": 0, "fail": 0, "t0": time.monotonic()}
     total = len(prompts) * repeats
-    already_done = sum(1 for p in prompts for rep in range(repeats) if (p["prompt_id"], rep) in done)
-    # 进度心跳：每完成约 1/10 总量打印一次，且不少于 50 次一报，避免刷屏也避免长时间静默
-    heartbeat_every = max(50, total // 10)
-    progress = {"n": 0, "ok": 0, "fail": 0, "skip_done": already_done, "t0": time.monotonic()}
+    already = sum(1 for p in prompts for rep in range(repeats) if (p["prompt_id"], rep) in done)
+    beat = max(50, total // 10)
+    system_prompt = (override or {}).get("system_prompt")
+    extra_body = (override or {}).get("extra_body")
 
-    def _tick(kind):
-        progress["n"] += 1
-        progress[kind] = progress.get(kind, 0) + 1
-        if progress["n"] % heartbeat_every == 0 or progress["n"] == total:
-            elapsed = time.monotonic() - progress["t0"]
-            done_total = progress["skip_done"] + progress["n"]
-            rate = progress["n"] / elapsed if elapsed > 0 else 0
-            remain = (total - done_total) / rate if rate > 0 else float("inf")
-            print(f"     [进度] {model}: {done_total}/{total}"
-                  f"（本次新完成 {progress['n']}，成功 {progress['ok']}，失败 {progress['fail']}）"
-                  f"  已用时 {elapsed/60:.1f} 分钟  预计剩余 ~{remain/60:.1f} 分钟")
+    def tick(kind):
+        state["n"] += 1
+        state[kind] += 1
+        if state["n"] % beat == 0:
+            el = time.monotonic() - state["t0"]
+            print(f"     [progress] {model}: {already + state['n']}/{total} "
+                  f"(ok {state['ok']}, failed {state['fail']}), {el / 60:.1f} min")
 
     async def one(p, rep):
-        if skip_model["flag"]:
+        if state["skip"] or (p["prompt_id"], rep) in done:
             return
-        if (p["prompt_id"], rep) in done:
-            return
-        mt = gen["max_tokens"]["rating"] if p["format"] == "rating" else gen["max_tokens"]["other"]
+        mt = _max_tokens_for(p["format"], gen, override)
         async with sem:
             try:
-                text, usage = await provider.call(model, p["text"], gen["temperature"], mt, seed_hint=rep)
+                text, meta = await provider.call(model, p["text"], gen["temperature"], mt, seed_hint=rep,
+                                                 system_prompt=system_prompt, extra_body=extra_body)
             except ModelUnavailable:
-                skip_model["flag"] = True
-                print(f"  [跳过] 模型不可用：{model}")
+                state["skip"] = True
+                print(f"  [skip] model unavailable: {model}")
                 return
             except CallFailed as e:
-                print(f"  [失败] {model} 一条调用最终失败：{str(e)[:80]}")
-                _tick("fail")
+                print(f"  [failed] {model}: {str(e)[:80]}")
+                tick("fail")
                 return
-        rec = {**p, "model": model, "alignment_stage": stage,
-               "temperature": gen["temperature"], "repeat": rep, "raw_response": text}
+        rec = {**p, "model": model, "alignment_stage": stage, "temperature": gen["temperature"],
+               "repeat": rep, "raw_response": text, "max_tokens": mt,
+               "finish_reason": meta.get("finish_reason"), "prompt_tokens": meta.get("prompt_tokens"),
+               "completion_tokens": meta.get("completion_tokens"),
+               "reasoning_chars": meta.get("reasoning_chars", 0),
+               "reasoning_content": meta.get("reasoning_content", ""),
+               "system_prompt": system_prompt or "", "collection": collection,
+               "timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
         fout.write(json.dumps(rec, ensure_ascii=False) + "\n")
         fout.flush()
         if cost_writer:
-            cost_writer.writerow([model, usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)])
-        _tick("ok")
+            cost_writer.writerow([model, meta.get("prompt_tokens", 0), meta.get("completion_tokens", 0)])
+        tick("ok")
 
-    if already_done:
-        print(f"     [续跑] {model}: 已有 {already_done}/{total} 条历史记录，将跳过这些、只补剩余的。")
+    if already:
+        print(f"     [resume] {model}: {already}/{total} already on disk")
     tasks = [one(p, rep) for p in prompts for rep in range(repeats)]
-    # 先探测一条，模型不可用则整模型跳过，避免无谓并发
     if tasks:
         await tasks[0]
-        if not skip_model["flag"]:
+        if not state["skip"]:
             await asyncio.gather(*tasks[1:])
     fout.close()
-    return skip_model["flag"]
+    return state["skip"]
 
 
-async def run(mock=False, smoke=False):
-    if not mock:
-        _guard_against_mock_contamination()          # 先拦截污染，再连接 API
+async def run(mock=False, smoke=False, grid_path=None, models=None, repeats=None, formats=None,
+              gen_overrides=None, model_overrides=None, collection="june2026"):
     provider = get_provider(mock=mock)
-    models = config.MODELS
-    gen = config.EXP["generation"]
-    repeats_map = gen["repeats"]
-
-    if mock:
-        models = [{"name": "mock/llama-base", "stage": "base"},
-                  {"name": "mock/llama-instruct", "stage": "instruct"}]
+    gen = dict(config.EXP["generation"])
+    if gen_overrides:
+        gen.update(gen_overrides)
+    grid_path = grid_path or config.path("prompts")
+    if models is None:
+        models = config.MODELS
+        if mock:
+            models = [{"name": n, "stage": ("frontier" if n.endswith("-d") else "instruct")}
+                      for n in (await provider.list_models())]
+    filter_dims = None
     if smoke:
         sk = config.EXP["smoke"]
         models = models[:sk["models"]]
-        prompts = _load_prompts(filter_dims=set(sk["dimensions"]))
-        repeats_override = sk["repeats"]
-    else:
-        prompts = _load_prompts()
-        repeats_override = None
-
-    print(f"[generate] 模型数={len(models)}  prompt 数={len(prompts)}  mock={mock} smoke={smoke}")
-    cost_path = config.path("cost_log")
-    cost_f = open(cost_path, "a", newline="")
+        filter_dims = set(sk["dimensions"])
+        repeats = sk["repeats"]
+    prompts = load_prompts(grid_path, filter_dims=filter_dims, formats=formats)
+    print(f"[generate] models={len(models)} prompts={len(prompts)} mock={mock} collection={collection}")
+    cost_f = open(config.path("cost_log"), "a", newline="")
     cost_writer = csv.writer(cost_f)
-
     used = 0
     for m in models:
-        stage = m["stage"]
-        repeats = repeats_override if repeats_override is not None else repeats_map.get(stage, 5)
+        stage = m.get("stage", "instruct")
+        reps = repeats if repeats is not None else m.get("repeats") or gen["repeats"].get(stage, 5)
         out_path = config.raw_dir() / (m["name"].replace("/", "_") + ".jsonl")
-        print(f"  -> {m['name']} (stage={stage}, repeats={repeats})")
-        skipped = await _run_one_model(provider, m["name"], stage, prompts, repeats, out_path, cost_writer)
-        if not skipped:
-            used += 1
+        override = dict((model_overrides or {}).get(m["name"], {}) or {})
+        override.update({k: v for k, v in m.items() if k in ("max_tokens", "system_prompt", "extra_body")})
+        print(f"  -> {m['name']} (stage={stage}, repeats={reps}, overrides={ {k: v for k, v in override.items() if k != 'extra_body'} })")
+        skipped = await _run_one_model(provider, m["name"], stage, prompts, reps, out_path, cost_writer,
+                                       gen, override, collection)
+        used += 0 if skipped else 1
     cost_f.close()
-    print(f"[generate] 完成。成功使用 {used}/{len(models)} 个模型。原始数据在 {config.raw_dir()}")
-    if used == 0 and not mock:
-        print("  ⚠️ 没有任何模型成功。先运行 `python run_all.py --list-models` 看可用模型，再改 config/models.yaml。")
-
-
-if __name__ == "__main__":
-    asyncio.run(run())
+    print(f"[generate] done. {used}/{len(models)} models used. Raw data in {config.raw_dir()}")

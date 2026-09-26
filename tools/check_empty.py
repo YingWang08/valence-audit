@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
-"""诊断空回复的范围（零成本，纯本地扫描，不调用任何 API）。
-
-用法： python check_empty.py
-
-回答的问题：gpt-oss-20b / nemotron-super-49b 这类"几乎全失败"的模型，
-空回复是只发生在 rating 格式（→ 大概率是 max_tokens 太小，思考型模型把预算耗在隐藏推理上，
-调大 max_tokens 重跑即可救回，零额外花费），还是发生在所有格式（→ 这两个模型这次调用本身就不稳定，
-调 max_tokens 也救不了，该模型直接从主分析剔除更省事更诚实）。
+"""Empty-response diagnosis by model x format (used during the June 2026 collection; unchanged).
+Usage:  python -m tools.check_empty
 """
 import os
 import json
 import glob
 from collections import defaultdict
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from src import config
 
 

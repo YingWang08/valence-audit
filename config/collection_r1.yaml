@@ -1,0 +1,60 @@
+# ============ Revision-round data collection (PONE-D-26-32490, round 1) ============
+# Two parts, both run with:  python run_all.py --collect-r1
+#   A. Anchor study (Reviewer 1 #5; Reviewer 2 #4): the seven retained models rate the
+#      original human and AI referents (exact June wording, a direct replication) plus
+#      anchor referents, each in an isolated prompt, and also all referents together in
+#      one prompt (joint condition = explicit common scale).
+#   B. Re-collection of the two excluded reasoning models on the original rating prompts
+#      with an adequate token budget (Reviewer 1 #8).
+# Output goes to data/r1/ and never mixes with the June data in data/.
+# Check first that every model is still served:  python run_all.py --list-models
+
+collection_id: "r1_2026"
+data_root: "data/r1"
+
+generation:
+  temperature: 0.7
+  max_tokens: {rating: 150, joint: 300, other: 256}   # 150 >> 40 so that truncation can be checked directly
+
+anchor_study:
+  enabled: true
+  repeats: 4
+  models:
+    - {name: "meta/llama-3.1-8b-instruct", stage: instruct}
+    - {name: "meta/llama-3.3-70b-instruct", stage: instruct}
+    - {name: "mistralai/mixtral-8x7b-instruct-v0.1", stage: instruct}
+    - {name: "qwen/qwen3-next-80b-a3b-instruct", stage: instruct}
+    - {name: "google/gemma-2-2b-it", stage: instruct}
+    - {name: "microsoft/phi-4-mini-instruct", stage: instruct}
+    - {name: "nvidia/nemotron-mini-4b-instruct", stage: frontier}
+
+# Referent phrases, INCLUDING the article. `null` = not used in that language.
+referents:
+  human:         {en: "a human",       zh: "人类"}      # June wording
+  ai_original:   {en: "a AI system",   zh: "AI系统"}    # June wording, article error kept for exact replication
+  ai_corrected:  {en: "an AI system",  zh: null}        # tests whether the article error mattered
+  dog:           {en: "a dog",         zh: "狗"}
+  calculator:    {en: "a calculator",  zh: "计算器"}
+  corporation:   {en: "a corporation", zh: "公司"}
+  professional:  {per_dimension: true}                  # from config/dimensions.yaml
+  individual_zh: {en: null,            zh: "一个人"}    # individual reading, matching English "a human" (Reviewer 1 #12)
+
+joint:
+  enabled: true
+  orders: 4          # 4 different random item orders per dimension x language (one per repeat)
+  items: [human, ai, dog, calculator, corporation, professional]   # "ai" = "an AI system" (EN) / "AI系统" (ZH)
+  template:
+    en: "Rate how {ATTR} each of the following is, on a scale from 1 (not at all) to 7 (extremely). Rate each item on its own. Reply with one line per item in the form \"letter: number\" and nothing else."
+    zh: "请用1分（完全不）到7分（极其）为下列每一项的「{ATTR}」程度打分，逐项独立评分。每行按“字母: 数字”的格式作答，不要输出其他内容。"
+
+rerun_excluded:
+  enabled: true
+  repeats_by_stage: {instruct: 8, frontier: 5}
+  models:
+    # Reasoning is left at the model default (no system prompt), as for all other models;
+    # the answer is read from `content`, the reasoning channel is logged separately.
+    - {name: "openai/gpt-oss-20b", stage: instruct, max_tokens: 4096}
+    - {name: "nvidia/llama-3.3-nemotron-super-49b-v1.5", stage: frontier, max_tokens: 4096}
+  # Optional secondary variant (reasoning OFF via the documented system prompt). Leave disabled
+  # unless the default run still fails; it changes the prompt conditions for this model.
+  nemotron_no_think_variant: false

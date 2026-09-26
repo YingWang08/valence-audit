@@ -1,272 +1,462 @@
-"""分析阶段。读 items.parquet，跑 H1/H2/H3/H5 + 收敛效度（含 ICC 测量间信度）+ 稳健性，结果存 data/results/。
+"""Analysis (revision R1). Reads the per-response tables written by src/measure.py and
+writes every table used in the manuscript and S1 File to <data root>/results/.
 
-统计口径（与稿件一致）：
-  - 分析单元 = 模型；H1/H2 用 cluster bootstrap（重抽样模型）给均值/95%CI/双侧 p；H2 再 FDR(BH) 校正；并报 Cohen's d。
-  - H3：base/instruct 子集，关联（非因果）；缺 base 时干净跳过，不影响 H1/H2/H5。
-  - H5：对冲/拒答率按对齐阶段。
-  - 收敛效度：rating↔text_m1（及 m1↔m2）在 model×dim×lang cell 上的相关 + 测量间信度 ICC（construct validity）。
-  - by_family：按架构家族聚合（模型非独立性的 Limitations 证据）。留一模型稳健性。
-交叉随机效应（model+frame 同时）最终用 R 的 lme4；见 README / analyze_lme4.R。
+Unit of analysis = model, each model weighted equally (Reviewer 3). For each dimension,
+the model-level value is the mean of that model's cell asymmetries; H1 is the mean over
+models of each model's dimension-balanced mean. Primary inference: t(G-1) with
+Benjamini-Hochberg correction over the eight dimensions. Sensitivity: exact sign-flip,
+Webb wild cluster bootstrap-t, family level, leave-one-model/family-out, language,
+template, parser, missing-data imputations and worst-case bounds.
 
-★ 本文件可整文件替换旧 analyze.py。只依赖 numpy/pandas/scipy/statsmodels（requirements 里已有），无新依赖。
+Main outputs (file prefix -> manuscript use)
+  T1_models.csv                  Table 1 (per-model outcome rates)
+  T2_accounting.csv              design and observation accounting (R1 #9, R2 #5)
+  T3_H2_model_level.csv          Table 3 (primary)
+  H1_overall.csv, H1_per_model.csv
+  S_family_level.csv, S_loo_model.csv, S_loo_family.csv, S_sensitivity_long.csv,
+  S_sensitivity_wide.csv, S_model_by_dimension.csv, S_language_by_dimension.csv
+  M1..M8_*.csv                   missingness decomposition (R1 #4, R2 #2)
+  H5_*.csv                       exploratory hedging / refusal (R2 #7)
+  X_convergence.csv              exploratory rating vs free-text agreement
+  C_submitted_vs_revised.csv     continuity: submitted numbers reproduced with the legacy parser
+  results_summary.md, run_manifest.json
 """
+import os
+import json
+import hashlib
+import platform
+import subprocess
+import datetime as dt
 import warnings
 import numpy as np
 import pandas as pd
 from scipy import stats
-import statsmodels.formula.api as smf
-from statsmodels.stats.multitest import multipletests
 from src import config
+from src.stats_utils import full_summary, t_summary, signflip_p, bh, fmt_p
+from src.rating_parse import VALID_CATEGORIES, INVALID_CATEGORIES
 
 warnings.filterwarnings("ignore")
-rng = np.random.default_rng(42)
-BOOT = 3000                                  # cluster bootstrap 次数
+KEY = ["model", "family", "alignment_stage", "dimension", "language", "template"]
 
 
-def _primary(df):
-    """主指标优先用 rating；没有 rating 就退回 text_m1。"""
-    if (df["measure"] == "rating").any():
-        return df[df["measure"] == "rating"].copy(), "rating"
-    return df[df["measure"] == "text_m1"].copy(), "text_m1"
+# ----------------------------------------------------------------------------- helpers
+def dim_order():
+    order = config.EXP.get("analysis", {}).get("dimension_order")
+    return order or list(config.DIMENSIONS)
 
 
-def _safe_mixed(formula, data, group="model"):
-    """模型组数<2 时 statsmodels 无法拟合，退回 OLS。返回 (params, pvalues)。（仅 H3 用）"""
-    if data[group].nunique() >= 2 and len(data) > data[group].nunique():
+def load():
+    rr = pd.read_csv(config.path("rating_responses"), low_memory=False)
+    rr = rr[~rr["model"].isin(config.excluded_models())].copy()
+    rr["valid"] = rr["category"].isin(VALID_CATEGORIES)
+    fr_path = config.path("freetext_responses")
+    fr = pd.read_csv(fr_path, low_memory=False) if os.path.exists(fr_path) else pd.DataFrame()
+    if not fr.empty:
+        fr = fr[~fr["model"].isin(config.excluded_models())].copy()
+    return rr, fr
+
+
+def value_column():
+    return "legacy_value" if config.EXP["measurement"].get("rating_parser", "strict") == "legacy" else "strict_value"
+
+
+def make_cells(rr, col="strict_value", valid=None, min_frac=None):
+    """Cell asymmetry a = (mean AI - mean human) / 6 from response rows with a value in `col`."""
+    d = rr[rr["agent"].isin(["ai", "human"])]
+    ok = d[col].notna() if valid is None else valid.loc[d.index]
+    d = d[ok]
+    g = d.groupby(KEY + ["agent"])[col].agg(["mean", "size"]).unstack("agent")
+    g = g.dropna(subset=[("mean", "ai"), ("mean", "human")])
+    out = pd.DataFrame({"mean_ai": g[("mean", "ai")], "mean_human": g[("mean", "human")],
+                        "n_ai": g[("size", "ai")], "n_human": g[("size", "human")]}).reset_index()
+    out["a"] = (out["mean_ai"] - out["mean_human"]) / 6.0
+    if min_frac is not None and len(out):
+        reps = rr.groupby("model")["repeat"].max() + 1
+        need = out["model"].map(reps) * min_frac
+        out = out[(out["n_ai"] >= need) & (out["n_human"] >= need)]
+    return out
+
+
+def model_dim(cells):
+    return cells.groupby(["model", "family", "dimension"])["a"].mean().reset_index()
+
+
+def h2_table(md, label="primary"):
+    rows = []
+    for d in dim_order():
+        v = md.loc[md["dimension"] == d, "a"].values
+        s = full_summary(v)
+        exp = config.expected_sign(d)
+        rows.append(dict(spec=label, dimension=d, expected_sign=exp, **s,
+                         matches_prediction=bool(exp != 0 and np.sign(s["mean"]) == exp)))
+    t = pd.DataFrame(rows)
+    t["p_t_BH"] = bh(t["p_t"].values)
+    t["p_signflip_BH"] = bh(t["p_signflip"].values)
+    t["p_wild_webb_BH"] = bh(t["p_wild_webb"].values)
+    return t
+
+
+def h1_per_model(md):
+    return md.groupby(["model", "family"])["a"].mean().reset_index().rename(columns={"a": "h1_model_mean"})
+
+
+def quick(md, label):
+    """Light version for sensitivity grids: mean, 95% CI, p_t, k/G per dimension and H1."""
+    rows = []
+    for d in dim_order():
+        s = t_summary(md.loc[md["dimension"] == d, "a"].values)
+        rows.append(dict(spec=label, dimension=d, G=s["G"], mean=s["mean"], ci_lo=s["ci_lo"],
+                         ci_hi=s["ci_hi"], p_t=s["p_t"], k_same_sign=s["k_same_sign"]))
+    h1 = t_summary(h1_per_model(md)["h1_model_mean"].values) if len(md) else t_summary([])
+    rows.append(dict(spec=label, dimension="H1_overall", G=h1["G"], mean=h1["mean"], ci_lo=h1["ci_lo"],
+                     ci_hi=h1["ci_hi"], p_t=h1["p_t"], k_same_sign=h1["k_same_sign"]))
+    return rows
+
+
+# ------------------------------------------------------------------ imputations and bounds
+def imputed_cells(rr, mode):
+    d = rr[rr["agent"].isin(["ai", "human"])].copy()
+    d["v"] = d["strict_value"].where(d["valid"])
+    if mode == "neutral":
+        # referent-neutral: model x dimension x language mean of valid ratings pooled over both referents
+        d["v"] = d["v"].fillna(d.groupby(["model", "dimension", "language"])["v"].transform("mean"))
+    elif mode == "midpoint":
+        d["v"] = d["v"].fillna(4.0)
+    elif mode in ("bound_human", "bound_machine"):
+        ai_fill, hu_fill = (1.0, 7.0) if mode == "bound_human" else (7.0, 1.0)
+        d.loc[d["v"].isna() & (d["agent"] == "ai"), "v"] = ai_fill
+        d.loc[d["v"].isna() & (d["agent"] == "human"), "v"] = hu_fill
+    return make_cells(d, col="v")
+
+
+# ----------------------------------------------------------------------- missingness
+def missingness(rr, rd):
+    rr = rr.copy()
+    rr["invalid"] = (~rr["valid"]).astype(int)
+    cats = list(VALID_CATEGORIES) + list(INVALID_CATEGORIES)
+
+    m1 = pd.crosstab(rr["model"], rr["category"]).reindex(columns=cats, fill_value=0)
+    m1["total"] = m1[cats].sum(axis=1)
+    m1["invalid"] = m1[list(INVALID_CATEGORIES)].sum(axis=1)
+    m1.loc["ALL"] = m1.sum(numeric_only=True)
+    m1["pct_invalid"] = 100 * m1["invalid"] / m1["total"]
+    m1["pct_invalid_excl_empty"] = 100 * (m1["invalid"] - m1["empty"]) / m1["total"]
+    m1.to_csv(rd / "M1_outcomes_by_model.csv")
+
+    rows = []
+    for (m, lang), g in rr.groupby(["model", "language"]):
+        a, h = g[g["agent"] == "ai"], g[g["agent"] == "human"]
+        tab = [[int(a["invalid"].sum()), int(len(a) - a["invalid"].sum())],
+               [int(h["invalid"].sum()), int(len(h) - h["invalid"].sum())]]
+        p = stats.fisher_exact(tab)[1] if len(a) and len(h) else np.nan
+        rows.append(dict(model=m, language=lang, n_ai=len(a), invalid_ai=tab[0][0],
+                         pct_invalid_ai=100 * a["invalid"].mean() if len(a) else np.nan,
+                         n_human=len(h), invalid_human=tab[1][0],
+                         pct_invalid_human=100 * h["invalid"].mean() if len(h) else np.nan, fisher_p=p))
+    pd.DataFrame(rows).to_csv(rd / "M2_invalid_by_model_referent_language.csv", index=False)
+
+    gap = rr.groupby(["model", "dimension", "agent"])["invalid"].mean().unstack("agent")
+    gap["gap"] = gap["ai"] - gap["human"]
+    gap = gap.reset_index()
+    rows = []
+    for d in ["ALL"] + dim_order():
+        sub = gap if d == "ALL" else gap[gap["dimension"] == d]
+        v = sub.groupby("model")["gap"].mean().values
+        s = t_summary(v)
+        rows.append(dict(dimension=d, G=s["G"], mean_gap_pp=100 * s["mean"], ci_lo_pp=100 * s["ci_lo"],
+                         ci_hi_pp=100 * s["ci_hi"], p_t=s["p_t"], p_signflip=signflip_p(v),
+                         k_same_sign=s["k_same_sign"],
+                         mean_invalid_ai_pct=100 * sub.groupby("model")["ai"].mean().mean(),
+                         mean_invalid_human_pct=100 * sub.groupby("model")["human"].mean().mean()))
+    m3 = pd.DataFrame(rows)
+    m3["p_t_BH_dims"] = np.nan
+    m3.loc[m3["dimension"] != "ALL", "p_t_BH_dims"] = bh(m3.loc[m3["dimension"] != "ALL", "p_t"].values)
+    m3.to_csv(rd / "M3_referent_gap_by_dimension.csv", index=False)
+
+    rr.groupby(["model", "dimension", "agent", "language", "template", "category"]).size() \
+        .rename("n").reset_index().to_csv(rd / "M4_crosstab_model_dimension_referent_language_template.csv", index=False)
+    rr.groupby(["model", "dimension", "agent", "language"])["invalid"].agg(["size", "sum", "mean"]) \
+        .rename(columns={"size": "n", "sum": "invalid", "mean": "rate"}).reset_index() \
+        .to_csv(rd / "M5_invalid_rate_model_dimension_referent_language.csv", index=False)
+
+    fp = rr[rr["legacy_value"].notna() & ~rr["valid"]]
+    mm = rr[rr["valid"] & rr["legacy_value"].notna() & (rr["legacy_value"] != rr["strict_value"])]
+    grp = ["model", "language", "agent"]
+    m6 = pd.DataFrame({"n_responses": rr.groupby(grp).size(),
+                       "legacy_false_positive": fp.groupby(grp).size(),
+                       "legacy_fp_mean_value": fp.groupby(grp)["legacy_value"].mean(),
+                       "legacy_value_differs_on_valid": mm.groupby(grp).size()}) \
+        .fillna({"legacy_false_positive": 0, "legacy_value_differs_on_valid": 0}).reset_index()
+    m6.to_csv(rd / "M6_legacy_vs_strict_parser.csv", index=False)
+    fp.groupby(["category", "language"])["legacy_value"].value_counts().rename("n").reset_index() \
+        .to_csv(rd / "M6b_legacy_false_positive_values.csv", index=False)
+
+    pd.crosstab([rr["model"], rr["category"]], rr["trunc_flag"]) \
+        .rename(columns={0: "not_truncated", 1: "truncated_flag"}).to_csv(rd / "M7_truncation_by_category.csv")
+
+    m8 = rr.groupby(["model", "template", "agent"])["invalid"].agg(["size", "sum", "mean"]).reset_index()
+    m8.columns = ["model", "template", "agent", "n", "invalid", "rate"]
+    m8.to_csv(rd / "M8_invalid_by_template_referent.csv", index=False)
+    return m1, m3, fp
+
+
+# ------------------------------------------------------------------------ accounting
+def accounting(rr, fr, cells, cells_legacy, rd):
+    grid_p = config.path("prompts")
+    if os.path.exists(grid_p):
+        g = pd.read_json(grid_p, lines=True)
+        n_rp, n_fp = int((g["format"] == "rating").sum()), int((g["format"] != "rating").sum())
+    else:
+        n_rp = int(rr["prompt_id"].nunique())
+        n_fp = int(fr["prompt_id"].nunique()) if not fr.empty else 0
+    n_cells_design = n_rp // 2
+    rows = []
+    for m, g in rr.groupby("model"):
+        reps = int(g["repeat"].max()) + 1
+        n_complete = int((cells["model"] == m).sum())
+        sides = g[g["valid"]].groupby(["dimension", "language", "template"])["agent"].nunique()
+        n_one = int((sides == 1).sum())
+        f = fr[fr["model"] == m] if not fr.empty else pd.DataFrame()
+        rows.append(dict(model=m, family=g["family"].iloc[0], stage=g["alignment_stage"].iloc[0], repeats=reps,
+                         rating_calls_designed=n_rp * reps, rating_responses=len(g),
+                         rating_empty=int((g["category"] == "empty").sum()), rating_valid=int(g["valid"].sum()),
+                         rating_invalid_nonempty=int((~g["valid"] & (g["category"] != "empty")).sum()),
+                         pct_rating_invalid=round(100 * (~g["valid"]).mean(), 1),
+                         cells_designed=n_cells_design, cells_complete=n_complete, cells_one_sided=n_one,
+                         cells_no_valid=n_cells_design - n_complete - n_one,
+                         cells_complete_legacy=int((cells_legacy["model"] == m).sum()),
+                         freetext_calls_designed=n_fp * reps, freetext_responses=len(f),
+                         freetext_empty=int(f["empty"].sum()) if len(f) else 0,
+                         freetext_text_m1=int(f["text_m1"].notna().sum()) if len(f) else 0))
+    t = pd.DataFrame(rows)
+    tot = t.drop(columns=["repeats"]).select_dtypes("number").sum()
+    tot["pct_rating_invalid"] = round(100 * (1 - tot["rating_valid"] / tot["rating_responses"]), 1)
+    t = pd.concat([t, pd.DataFrame([{"model": "TOTAL", **tot.to_dict()}])], ignore_index=True)
+    t.to_csv(rd / "T2_accounting.csv", index=False)
+    return t, n_rp, n_fp
+
+
+# ------------------------------------------------------------------------------ H5
+def h5(rr, fr, rd):
+    out = []
+    if not fr.empty:
+        for (m, st), g in fr.groupby(["model", "alignment_stage"]):
+            out.append(dict(model=m, stage=st, format="free-text (all)", n=len(g),
+                            hedge_k=int(g["hedge"].sum()), refuse_k=int(g["refuse"].sum())))
+    for (m, st), g in rr.groupby(["model", "alignment_stage"]):
+        out.append(dict(model=m, stage=st, format="rating", n=len(g),
+                        hedge_k=int((g["category"] == "hedge").sum()), refuse_k=int((g["category"] == "refusal").sum())))
+    t = pd.DataFrame(out)
+    t["hedge_pct"] = 100 * t["hedge_k"] / t["n"]
+    t["refuse_pct"] = 100 * t["refuse_k"] / t["n"]
+    t.to_csv(rd / "H5_by_model.csv", index=False)
+    st = t.groupby(["format", "stage"])[["n", "hedge_k", "refuse_k"]].sum().reset_index()
+    st["hedge_pct"] = 100 * st["hedge_k"] / st["n"]
+    st["refuse_pct"] = 100 * st["refuse_k"] / st["n"]
+    st.to_csv(rd / "H5_by_stage.csv", index=False)
+    if not fr.empty:
+        fr.groupby(["model", "format"])[["hedge", "refuse"]].mean().mul(100).reset_index() \
+            .to_csv(rd / "H5_freetext_by_model_format.csv", index=False)
+    return t, st
+
+
+# ------------------------------------------------------------------------ exploratory
+def _icc(X):
+    X = np.asarray(X, float)
+    n, k = X.shape
+    grand = X.mean()
+    SSR = k * ((X.mean(1) - grand) ** 2).sum()
+    SSC = n * ((X.mean(0) - grand) ** 2).sum()
+    SSE = ((X - grand) ** 2).sum() - SSR - SSC
+    MSR, MSC, MSE = SSR / (n - 1), SSC / (k - 1), SSE / ((n - 1) * (k - 1))
+    return dict(ICC2_1=(MSR - MSE) / (MSR + (k - 1) * MSE + k * (MSC - MSE) / n),
+                ICC2_k=(MSR - MSE) / (MSR + (MSC - MSE) / n))
+
+
+def convergence(cells, fr, rd):
+    if fr.empty or fr["text_m1"].notna().sum() == 0:
+        return None
+    a = cells.groupby(["model", "dimension", "language"])["a"].mean()
+    b = fr.dropna(subset=["text_m1"]).groupby(["model", "dimension", "language"])["text_m1"].mean()
+    j = pd.concat([a.rename("rating"), b.rename("text_m1")], axis=1).dropna()
+    if len(j) < 3 or j["text_m1"].std() == 0 or j["rating"].std() == 0:
+        return None
+    z = (j - j.mean()) / j.std(ddof=0)
+    res = dict(n_cells=len(j), pearson=stats.pearsonr(j["rating"], j["text_m1"])[0],
+               spearman=stats.spearmanr(j["rating"], j["text_m1"])[0], **_icc(z.values))
+    pd.DataFrame([res]).to_csv(rd / "X_convergence.csv", index=False)
+    return res
+
+
+# ------------------------------------------------------------------------- manifest
+def manifest(rd, extra):
+    def sha(p):
+        h = hashlib.sha256()
+        with open(p, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+
+    def git(*a):
         try:
-            m = smf.mixedlm(formula, data, groups=data[group]).fit(method="lbfgs")
-            return m.fe_params, m.pvalues
+            return subprocess.check_output(["git", *a], cwd=config.ROOT, stderr=subprocess.DEVNULL).decode().strip()
+        except Exception:
+            return None
+
+    vers = {}
+    for mod in ("numpy", "pandas", "scipy", "statsmodels", "matplotlib"):
+        try:
+            vers[mod] = __import__(mod).__version__
         except Exception:
             pass
-    m = smf.ols(formula, data).fit()
-    return m.params, m.pvalues
+    # Outputs under data/ are rewritten by every run, so "dirty" is judged on code and inputs only.
+    code_changes = git("status", "--porcelain", "--", ".", ":(exclude)data", ":(exclude)data_mock")
+    input_changes = git("status", "--porcelain", "--", "data/raw", "data/prompts", "data/raw_quarantine")
+    man = dict(timestamp_utc=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+               git_commit=git("rev-parse", "HEAD"), git_describe=git("describe", "--tags", "--always"),
+               code_uncommitted=None if code_changes is None else bool(code_changes),
+               code_uncommitted_files=(code_changes or "").splitlines()[:30],
+               inputs_uncommitted=None if input_changes is None else bool(input_changes),
+               inputs_uncommitted_files=(input_changes or "").splitlines()[:30],
+               python=platform.python_version(), packages=vers,
+               rating_parser=config.EXP["measurement"].get("rating_parser"),
+               excluded_models=config.excluded_models(),
+               input_sha256={p.name: sha(p) for p in sorted(config.raw_dir().glob("*.jsonl"))}, **extra)
+    with open(rd / "run_manifest.json", "w", encoding="utf-8") as f:
+        json.dump(man, f, indent=2, ensure_ascii=False, default=str)
+    return man
 
 
-def _cohen_d(x):
-    """单样本 Cohen's d（相对 0）：mean/sd。"""
-    x = np.asarray(x, dtype=float)
-    x = x[~np.isnan(x)]
-    if len(x) < 2:
-        return np.nan
-    sd = x.std(ddof=1)
-    return float(x.mean() / sd) if sd > 1e-12 else np.nan
+def _md_table(df):
+    cols = [str(c) for c in df.columns]
+    out = ["| " + " | ".join([df.index.name or ""] + cols) + " |", "|" + "---|" * (len(cols) + 1)]
+    for idx, row in df.iterrows():
+        out.append("| " + " | ".join([str(idx)] + [str(x) for x in row.values]) + " |")
+    return "\n".join(out)
 
 
-def _boot_ci_p(d, by="model", value="asymmetry", B=BOOT):
-    """Cluster bootstrap：重抽样 `by`（模型）这一聚类单元，返回 (mean, lo, hi, p_two_sided)。
-    分析单元落在模型而非题项，从根上避免伪重复。模型数<2 时退回行级 percentile bootstrap。"""
-    obs = float(d[value].mean()) if len(d) else np.nan
-    groups = d[by].unique()
-    if len(groups) >= 2:
-        arrs = {g: d.loc[d[by] == g, value].values for g in groups}
-        means = np.empty(B)
-        for i in range(B):
-            pick = rng.choice(groups, size=len(groups), replace=True)
-            means[i] = np.concatenate([arrs[g] for g in pick]).mean()
-    else:
-        vals = d[value].values
-        if len(vals) < 2:
-            return obs, np.nan, np.nan, np.nan
-        means = np.array([rng.choice(vals, len(vals), replace=True).mean() for _ in range(B)])
-    lo, hi = np.percentile(means, [2.5, 97.5])
-    p = 2.0 * min((means <= 0).mean(), (means >= 0).mean())   # 双侧 bootstrap p
-    p = min(1.0, max(p, 1.0 / B))                             # 下限地板，避免报 0
-    return obs, float(lo), float(hi), float(p)
-
-
-def _family(model_name):
-    """由模型名解析架构家族（血缘/蒸馏优先），用于模型非独立性分析。"""
-    s = str(model_name).lower()
-    if "nemotron" in s:                                  return "llama"   # Nemotron 基于 Llama
-    if "distill-qwen" in s or ("deepseek" in s and "qwen" in s): return "qwen"
-    if "llama" in s:                                     return "llama"
-    if "mixtral" in s or "mistral" in s:                 return "mistral"
-    if "qwen" in s:                                      return "qwen"
-    if "gemma" in s:                                     return "gemma"
-    if "phi" in s:                                       return "phi"
-    if "granite" in s:                                   return "granite"
-    if "deepseek" in s:                                  return "deepseek"
-    if "gpt-oss" in s or "gpt_oss" in s:                 return "openai-oss"
-    if "glm" in s:                                       return "glm"
-    if s.startswith("yi") or "yi-" in s:                 return "yi"
-    if "mock" in s:                                      return "mock"
-    return s.split("/")[0] if "/" in s else "other"
-
-
-# ─────────────────── 测量间信度 ICC（construct validity）───────────────────
-def _icc(matrix):
-    """Shrout & Fleiss (1979) ICC，输入 n×k 矩阵（n=cell 行，k=测量列）。无外部依赖。
-    数值已与 pingouin 交叉验证一致（ICC2_1≡ICC(A,1)，ICC3_1≡ICC(C,1) ...）。"""
-    X = np.asarray(matrix, dtype=float)
-    n, k = X.shape
-    if n < 2 or k < 2:
-        return None
-    grand = X.mean()
-    row_means = X.mean(axis=1)
-    col_means = X.mean(axis=0)
-    SST = float(((X - grand) ** 2).sum())
-    SSR = float(k * ((row_means - grand) ** 2).sum())
-    SSC = float(n * ((col_means - grand) ** 2).sum())
-    SSE = SST - SSR - SSC
-    SSW = SST - SSR
-    MSR = SSR / (n - 1)
-    MSC = SSC / (k - 1)
-    MSE = SSE / ((n - 1) * (k - 1)) if (n - 1) * (k - 1) > 0 else np.nan
-    MSW = SSW / (n * (k - 1)) if n * (k - 1) > 0 else np.nan
-
-    def _d(num, den):
-        if den is None or np.isnan(den) or den == 0:
-            return np.nan
-        return float(num / den)
-
-    return {"n_cells": n, "k_measures": k,
-            "ICC1_1": _d(MSR - MSW, MSR + (k - 1) * MSW),
-            "ICC2_1": _d(MSR - MSE, MSR + (k - 1) * MSE + k * (MSC - MSE) / n),
-            "ICC3_1": _d(MSR - MSE, MSR + (k - 1) * MSE),
-            "ICC1_k": _d(MSR - MSW, MSR),
-            "ICC2_k": _d(MSR - MSE, MSR + (MSC - MSE) / n),
-            "ICC3_k": _d(MSR - MSE, MSR)}
-
-
-def convergence_icc(df, rd, cell_keys=("model", "dimension", "language"),
-                    measures=("rating", "text_m1", "text_m2")):
-    """测量间信度：每个测量在 cell 上求均值、按测量 z 标准化后，以测量为 rater、cell 为 subject 算 ICC。
-    写 convergence_icc.csv 并打印；返回 headline ICC(2,1)。可用测量<2 个时返回 None。"""
-    cols = {}
-    for m in measures:
-        s = df[df["measure"] == m]
-        if s.empty:
-            continue
-        cm = s.groupby(list(cell_keys))["asymmetry"].mean()
-        sd = cm.std(ddof=0)
-        if sd and sd > 1e-9:
-            cm = (cm - cm.mean()) / sd
-        cols[m] = cm
-    if len(cols) < 2:
-        print("\n[ICC] 可用测量不足 2 个（默认 rating+text_m1；开 M2 后 3 个），跳过测量间信度。")
-        return None
-    mat = pd.concat(cols, axis=1).dropna()
-    if len(mat) < 2:
-        print("\n[ICC] 公共 cell 不足，跳过。")
-        return None
-    res = _icc(mat.values)
-    res = {"measures": "+".join(mat.columns), **res}
-    pd.DataFrame([res]).to_csv(rd / "convergence_icc.csv", index=False)
-    print(f"\n[ICC] 测量间信度（{res['measures']}, n_cells={res['n_cells']}, k={res['k_measures']}）:")
-    print(f"      ICC(2,1) 绝对一致·单测量 = {res['ICC2_1']:.3f}   ← 稿件 {{ICC_measures}} 用这个（最保守）")
-    print(f"      ICC(2,k) 绝对一致·k测量均值 = {res['ICC2_k']:.3f}")
-    print(f"      ICC(3,1) = {res['ICC3_1']:.3f}   ICC(3,k) = {res['ICC3_k']:.3f}")
-    return res["ICC2_1"]
-
-
+# ------------------------------------------------------------------------------ run
 def run():
     rd = config.results_dir()
-    df = pd.read_parquet(config.path("measured"))
-    prim, prim_name = _primary(df)
-    summary = []
-    print(f"\n========== 分析（主指标 = {prim_name}, cluster bootstrap B={BOOT}）==========")
+    rr, fr = load()
+    col = value_column()
+    G = rr["model"].nunique()
+    print(f"\n========== analysis: {G} models, {len(rr)} rating responses, parser = "
+          f"{config.EXP['measurement'].get('rating_parser')} ==========")
 
-    # ---- H1 总体不对称：bootstrap 均值/CI/p + Cohen's d ----
-    mean, lo, hi, p = _boot_ci_p(prim)
-    d_h1 = _cohen_d(prim["asymmetry"].values)
-    print(f"[H1] 总体不对称 = {mean:+.3f}  95%CI[{lo:+.3f}, {hi:+.3f}]  p={p:.2g}  d={d_h1:+.2f}  (>0 抬高机器)")
-    summary.append(["H1_overall_asymmetry", mean, lo, hi, p, d_h1])
+    valid_mask = rr["valid"] if col == "strict_value" else rr["legacy_value"].notna()
+    cells = make_cells(rr, col=col, valid=valid_mask)
+    cells_legacy = make_cells(rr, col="legacy_value", valid=rr["legacy_value"].notna())
+    cells.to_csv(rd / "cells_primary.csv", index=False)
+    md = model_dim(cells)
 
-    # ---- H2 分维度：bootstrap CI + p → FDR(BH) + Cohen's d ----
-    rows = []
-    for dim in sorted(prim["dimension"].unique()):
-        sub = prim[prim["dimension"] == dim]
-        m, dlo, dhi, dp = _boot_ci_p(sub)
-        dd = _cohen_d(sub["asymmetry"].values)
-        exp = config.DIMENSIONS.get(dim, {}).get("expected_sign", "")
-        rows.append([dim, m, dlo, dhi, dp, dd, exp])
-    h2 = pd.DataFrame(rows, columns=["dimension", "asymmetry", "ci_lo", "ci_hi", "p_raw", "cohen_d", "expected"])
-    rej, p_fdr, _, _ = multipletests(h2["p_raw"].fillna(1.0).values, method="fdr_bh")
-    h2["p_fdr"], h2["sig"] = p_fdr, rej
+    # ---- H2 and H1 (primary) ----
+    t3 = h2_table(md)
+    t3.to_csv(rd / "T3_H2_model_level.csv", index=False)
+    pm = h1_per_model(md).merge(cells.groupby("model")["a"].mean().rename("h1_model_mean_cell_weighted"), on="model")
+    pm.to_csv(rd / "H1_per_model.csv", index=False)
+    h1 = full_summary(pm["h1_model_mean"].values)
+    h1_cw = full_summary(pm["h1_model_mean_cell_weighted"].values)
+    pd.DataFrame([dict(version="dimension-balanced model means (primary)", **h1),
+                  dict(version="cell-weighted within model", **h1_cw),
+                  dict(version="pooled over cells (as submitted; no inference)", G=len(cells), mean=cells["a"].mean())]) \
+        .to_csv(rd / "H1_overall.csv", index=False)
+    md.pivot_table(index="dimension", columns="model", values="a").reindex(dim_order()).to_csv(rd / "S_model_by_dimension.csv")
 
-    def _exp_sign(e):
-        e = str(e).strip()
-        return 1 if e.startswith("+") else (-1 if e.startswith("-") else 0)
-    h2["matches_expected"] = [(_exp_sign(e) != 0 and np.sign(a) == _exp_sign(e))
-                              for a, e in zip(h2["asymmetry"], h2["expected"])]
-    h2 = h2.sort_values("asymmetry", ascending=False)[
-        ["dimension", "asymmetry", "ci_lo", "ci_hi", "p_fdr", "sig", "cohen_d", "expected", "matches_expected"]]
-    h2.to_csv(rd / "H2_by_dimension.csv", index=False)
-    print("\n[H2] 分维度不对称（cluster bootstrap + FDR + Cohen's d）:")
-    for _, r in h2.iterrows():
-        ok = "✓" if r["matches_expected"] else " "
-        print(f"   {r['dimension']:12s} {r['asymmetry']:+.3f} [{r['ci_lo']:+.3f},{r['ci_hi']:+.3f}] "
-              f" p_FDR={r['p_fdr']:.2g} {'*' if r['sig'] else ' '}  d={r['cohen_d']:+.2f}  期望:{r['expected']} {ok}")
+    print(f"[H1] mean of model means = {h1['mean']:+.3f}  95% CI [{h1['ci_lo']:+.3f}, {h1['ci_hi']:+.3f}]  "
+          f"t({h1['df']}) = {h1['t']:.2f}, p = {fmt_p(h1['p_t'])}; sign-flip p = {fmt_p(h1['p_signflip'])}; "
+          f"{h1['k_same_sign']}/{h1['G']} same sign; per-model range {pm['h1_model_mean'].min():+.3f} to "
+          f"{pm['h1_model_mean'].max():+.3f}")
+    print("[H2] dimension      mean    95% CI             p_t(BH)  signflip   wild   k/G   d_z   predicted")
+    for _, r in t3.iterrows():
+        print(f"     {r['dimension']:13s} {r['mean']:+.3f}  [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}]  "
+              f"{fmt_p(r['p_t_BH']):>7s}  {fmt_p(r['p_signflip']):>7s}  {fmt_p(r['p_wild_webb']):>6s}  "
+              f"{int(r['k_same_sign'])}/{int(r['G'])}  {r['d_z']:+.2f}  {'match' if r['matches_prediction'] else 'no'}")
 
-    # ---- H3 base vs instruct（关联，非因果）----
-    stages = set(prim["alignment_stage"].unique())
-    if {"base", "instruct"}.issubset(stages):
-        pair = prim[prim["alignment_stage"].isin(["base", "instruct"])]
-        params, pv = _safe_mixed("asymmetry ~ C(alignment_stage)", pair)
-        key = "C(alignment_stage)[T.instruct]"
-        delta = float(params.get(key, np.nan)); pval = float(pv.get(key, np.nan))
-        print(f"\n[H3] instruct vs base 关联 = {delta:+.3f} (p={pval:.2g}) —— 报为关联，非因果（强混淆，探索性）")
-        summary.append(["H3_instruct_vs_base_assoc", delta, np.nan, np.nan, pval, np.nan])
-    else:
-        print(f"\n[H3] 跳过：缺 base/instruct 配对（当前 stage={stages}）。H1/H2 不受影响；H3 见 README，对齐证据靠 H5。")
-        summary.append(["H3_skipped_no_base_models", np.nan, np.nan, np.nan, np.nan, np.nan])
+    # ---- family level (hierarchical sensitivity, Reviewer 1 #13) ----
+    fam = md.groupby(["family", "dimension"])["a"].mean().reset_index()
+    ft = h2_table(fam.rename(columns={"family": "model"}).assign(family="-"), label="family_level")
+    ft = pd.concat([ft, pd.DataFrame([dict(spec="family_level", dimension="H1_overall",
+                                           **full_summary(fam.groupby("family")["a"].mean().values))])])
+    ft.to_csv(rd / "S_family_level.csv", index=False)
 
-    # ---- H5 对冲/拒答率 ----
-    for kind in ["hedge", "refuse"]:
-        sub = df[df["measure"] == kind]
-        if not sub.empty:
-            by_stage = sub.groupby("alignment_stage")["asymmetry"].mean()
-            print(f"\n[H5] {kind} 率（按对齐阶段）:")
-            for st, v in by_stage.items():
-                print(f"   {st:10s} {v:.1%}")
-            by_stage.to_csv(rd / f"H5_{kind}_rate.csv")
+    # ---- leave-one-out ----
+    pd.DataFrame([r for m in sorted(md["model"].unique()) for r in quick(md[md["model"] != m], f"without {m}")]) \
+        .to_csv(rd / "S_loo_model.csv", index=False)
+    pd.DataFrame([r for f_ in sorted(md["family"].unique()) for r in quick(md[md["family"] != f_], f"without family {f_}")]) \
+        .to_csv(rd / "S_loo_family.csv", index=False)
 
-    # ---- 收敛效度（model×dim×lang cell）：相关 + ICC ----
-    def cell_mean(measure):
-        s = df[df["measure"] == measure]
-        if s.empty:
-            return None
-        return s.groupby(["model", "dimension", "language"])["asymmetry"].mean()
+    # ---- sensitivity grid ----
+    sens = quick(md, "primary")
+    sens += quick(model_dim(cells_legacy), "legacy parser (as submitted)")
+    for lang in ("en", "zh"):
+        sens += quick(model_dim(cells[cells["language"] == lang]), f"language {lang}")
+    for tp in sorted(cells["template"].unique()):
+        sens += quick(model_dim(cells[cells["template"] == tp]), f"template {tp}")
+    hm = config.EXP.get("analysis", {}).get("high_missingness_models", []) or []
+    sens += quick(model_dim(cells[~cells["model"].isin(hm)]), "excluding high-missingness models")
+    sens += quick(model_dim(make_cells(rr, col="strict_value", valid=rr["valid"], min_frac=0.5)),
+                  "cells with >= 50% valid on both sides")
+    for mode, lab in (("neutral", "impute invalid: referent-neutral mean"), ("midpoint", "impute invalid: 4"),
+                      ("bound_human", "bound: invalid AI=1, human=7"), ("bound_machine", "bound: invalid AI=7, human=1")):
+        sens += quick(model_dim(imputed_cells(rr, mode)), lab)
+    sl = pd.DataFrame(sens)
+    sl.to_csv(rd / "S_sensitivity_long.csv", index=False)
+    sl["cell"] = [f"{m:+.3f}{'*' if (pd.notna(p) and p < 0.05) else ''} ({int(k)}/{int(g)})" if pd.notna(m) and pd.notna(k) else "NA"
+                  for m, p, k, g in zip(sl["mean"], sl["p_t"], sl["k_same_sign"], sl["G"])]
+    sw = sl.pivot(index="dimension", columns="spec", values="cell").reindex(dim_order() + ["H1_overall"])[list(dict.fromkeys(sl["spec"]))]
+    sw.to_csv(rd / "S_sensitivity_wide.csv")
+    pd.concat([h2_table(model_dim(cells[cells["language"] == lang]), label=f"language {lang}") for lang in ("en", "zh")]) \
+        .to_csv(rd / "S_language_by_dimension.csv", index=False)
 
-    conv_rows = []
-    for a, b in [("rating", "text_m1"), ("text_m1", "text_m2")]:
-        ca, cb = cell_mean(a), cell_mean(b)
-        if ca is not None and cb is not None:
-            j = pd.concat([ca.rename("a"), cb.rename("b")], axis=1).dropna()
-            if len(j) >= 3:
-                rp = stats.pearsonr(j["a"], j["b"])[0]
-                rs = stats.spearmanr(j["a"], j["b"])[0]
-                conv_rows.append([f"{a}__vs__{b}", len(j), rp, rs])
-                print(f"\n[收敛效度] {a} vs {b}: n={len(j)}  Pearson={rp:.2f}  Spearman={rs:.2f}")
-    if conv_rows:
-        pd.DataFrame(conv_rows, columns=["pair", "n", "pearson", "spearman"]).to_csv(
-            rd / "convergence.csv", index=False)
-    icc = convergence_icc(df, rd)
-    if icc is not None:
-        summary.append(["convergence_ICC2_1", icc, np.nan, np.nan, np.nan, np.nan])
+    # ---- missingness, accounting, H5, exploratory ----
+    m1, m3, fp = missingness(rr, rd)
+    acc, n_rp, n_fp = accounting(rr, fr, cells, cells_legacy, rd)
+    t1 = m1.drop(index="ALL").reset_index()[["model", "total", "invalid", "pct_invalid", "empty", "refusal", "hedge",
+                                             "truncated", "out_of_range", "multiple", "malformed"]]
+    t1.insert(1, "family", t1["model"].map(config.family))
+    t1.to_csv(rd / "T1_models.csv", index=False)
+    h5(rr, fr, rd)
+    conv = convergence(cells, fr, rd)
 
-    # ---- by_family（模型非独立性）----
-    fam = prim.copy()
-    fam["model_family"] = fam["model"].map(_family)
-    bf = fam.groupby("model_family")["asymmetry"].agg(["mean", "count"]).reset_index()
-    bf.to_csv(rd / "by_family.csv", index=False)
-    print("\n[by_family] 各家族不对称均值（模型非独立性）:")
-    for _, r in bf.iterrows():
-        print(f"   {r['model_family']:12s} {r['mean']:+.3f}  (n={int(r['count'])})")
+    # ---- continuity with the submitted analysis ----
+    lm = model_dim(cells_legacy)
+    cont = [dict(dimension=d, pooled_cells_legacy_as_submitted=cells_legacy.loc[cells_legacy["dimension"] == d, "a"].mean(),
+                 model_level_legacy=lm.loc[lm["dimension"] == d, "a"].mean(),
+                 model_level_strict=md.loc[md["dimension"] == d, "a"].mean()) for d in dim_order()]
+    cont.append(dict(dimension="H1_overall", pooled_cells_legacy_as_submitted=cells_legacy["a"].mean(),
+                     model_level_legacy=h1_per_model(lm)["h1_model_mean"].mean(), model_level_strict=h1["mean"]))
+    pd.DataFrame(cont).to_csv(rd / "C_submitted_vs_revised.csv", index=False)
 
-    # ---- 留一模型稳健性（H1）----
-    loo = []
-    for m in prim["model"].unique():
-        sub = prim[prim["model"] != m]
-        if not sub.empty:
-            loo.append([m, float(sub["asymmetry"].mean())])
-    pd.DataFrame(loo, columns=["left_out_model", "H1_without_it"]).to_csv(
-        rd / "robustness_loo.csv", index=False)
-
-    pd.DataFrame(summary, columns=["metric", "value", "ci_lo", "ci_hi", "p", "cohen_d"]).to_csv(
-        rd / "summary.csv", index=False)
-    print(f"\n[analyze] 结果表已写到 {rd}")
-    return h2
+    # ---- summary ----
+    n, inv = len(rr), int((~rr["valid"]).sum())
+    lines = ["# Results summary (auto-generated by src/analyze.py)", "",
+             f"- Models: {G}; rating responses: {n}; invalid (strict parser): {inv} ({100 * inv / n:.1f}%); "
+             f"complete cells: {len(cells)} of {G * (n_rp // 2)} designed",
+             f"- Legacy (v1.0.0) parser: {len(cells_legacy)} complete cells; it assigned a number to {len(fp)} responses "
+             f"that the strict parser classifies as non-ratings",
+             f"- H1: {h1['mean']:+.3f} [{h1['ci_lo']:+.3f}, {h1['ci_hi']:+.3f}], t({h1['df']}) = {h1['t']:.2f}, "
+             f"p = {fmt_p(h1['p_t'])}; sign-flip p = {fmt_p(h1['p_signflip'])}; {h1['k_same_sign']}/{G} models share the sign", "",
+             "| Dimension | Mean a | 95% CI (t) | 1-7 points | p (t, BH) | p sign-flip | p wild (Webb) | k/G | d_z | Predicted |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
+    for _, r in t3.iterrows():
+        lines.append(f"| {r['dimension']} | {r['mean']:+.3f} | [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}] | {r['scale_points']:+.2f} | "
+                     f"{fmt_p(r['p_t_BH'])} | {fmt_p(r['p_signflip'])} | {fmt_p(r['p_wild_webb'])} | "
+                     f"{int(r['k_same_sign'])}/{int(r['G'])} | {r['d_z']:+.2f} | "
+                     f"{'+' if r['expected_sign'] > 0 else '-'} ({'match' if r['matches_prediction'] else 'no match'}) |")
+    g0 = m3.iloc[0]
+    lines += ["", f"- Invalid-rate gap, AI minus human referent (model-level, percentage points): {g0['mean_gap_pp']:+.1f} "
+                  f"[{g0['ci_lo_pp']:+.1f}, {g0['ci_hi_pp']:+.1f}], p = {fmt_p(g0['p_t'])}, {int(g0['k_same_sign'])}/{int(g0['G'])} same sign",
+              "", "## Sensitivity (mean, * = unadjusted t p < 0.05, k/G = models sharing the sign)", "", _md_table(sw)]
+    if conv:
+        lines += ["", f"- Exploratory rating vs free-text: n = {conv['n_cells']}, r = {conv['pearson']:.2f}, ICC(2,1) = {conv['ICC2_1']:.3f}"]
+    with open(rd / "results_summary.md", "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    manifest(rd, dict(n_models=G, n_rating_responses=n, n_invalid=inv, n_cells=len(cells),
+                      n_cells_legacy=len(cells_legacy), n_rating_prompts=n_rp, n_freetext_prompts=n_fp))
+    print(f"\n[analyze] {n} responses -> {len(cells)} complete cells; invalid {100 * inv / n:.1f}%")
+    print(f"[analyze] tables written to {rd} (start with results_summary.md)")
+    return t3
 
 
 if __name__ == "__main__":

@@ -1,41 +1,79 @@
-# ============ 实验配置（改这里即可，不用动代码）============
+# ======================= Experiment configuration =======================
+# June 2026 collection (the data analysed in the manuscript) used exactly the
+# `api` and `generation` settings below, with ONE documented exception:
+#   generation.max_tokens.rating was 12 during the first full pass; responses
+#   that came back EMPTY were moved to data/raw_quarantine/ (tools/quarantine_empty.py)
+#   and re-queried with max_tokens.rating = 40. Non-empty responses from the first
+#   pass were kept. Run `python -m tools.diagnose_usage` to see, per model, how many
+#   completions hit the 12- and 40-token budgets (data/raw/_usage.csv).
+# NOTE: v1.0.0 listed `temperature_sweep: [0.0, 0.7, 1.0]` here, but no code ever
+#   used it and no temperature sweep was run. The key has been removed.
 
 api:
   base_url: "https://integrate.api.nvidia.com/v1"   # NVIDIA NIM (build.nvidia.com)
-  env_key: "NVIDIA_API_KEY"        # 从环境变量/.env 读取，绝不写进代码
-  rate_per_sec: 2                  # 每秒最多几次请求（“很卡”就调小，如 1）
-  concurrency: 3                   # 并发上限（卡就调小）
-  max_retries: 2                   # 失败重试次数（指数退避）
-  use_seed: false                  # 部分 NIM 模型不支持 seed；默认关，用重复次数保证方差
+  env_key: "NVIDIA_API_KEY"        # read from the environment / .env; never commit keys
+  rate_per_sec: 2
+  concurrency: 3
+  max_retries: 2
+  use_seed: false
 
 generation:
   temperature: 0.7
-  repeats:                         # 每个 prompt 重复几次（按对齐阶段分层控量）
+  repeats:                          # repetitions per prompt, by alignment stage label
     base: 8
     instruct: 8
-    frontier: 5
-  max_tokens:                      # 评分式只要一个数字，自由文本给足空间
-    rating: 40
+    frontier: 5                     # legacy label = the heavily safety-tuned model (Nemotron-Mini-4B)
+  max_tokens:
+    rating: 40                      # see header note (first pass used 12)
     other: 256
-  temperature_sweep: [0.0, 0.7, 1.0]   # 稳健性：只在一个维度子集上跑
 
 measurement:
-  enable_m1: true                  # 词典法（VADER 英文 / cnsenti 中文）——离线，默认开
-  enable_m2: false                 # transformer 分类器——需 torch+下载模型，CPU 慢；论文阶段再开
+  enable_m1: true                   # free-text lexicon sentiment (VADER / cnsenti); exploratory only
+  enable_m2: false
   m2_model_en: "cardiffnlp/twitter-roberta-base-sentiment-latest"
   m2_model_zh: "uer/roberta-base-finetuned-jd-binary-chinese"
-  enable_llm_judge: false          # M3：第二个模型当裁判，仅稳健性附录用，会耗 API 额度
-  comparative_attribution: true    # 含双方的比较句：默认丢弃；置 true 则用保守规则做方向归因（稳健性附录用）
-  comparative_magnitude: 0.5       # 比较句方向归因的固定幅度（仅 comparative_attribution=true 时生效）
+  enable_llm_judge: false
+  comparative_attribution: true
+  comparative_magnitude: 0.5
+  rating_parser: strict             # strict (revision, primary) | legacy (as submitted in v1.0.0)
+  truncation_heuristic:             # used only when finish_reason was not logged (June data)
+    en_min_words: 6
+    zh_min_chars: 12
 
-smoke:                             # --smoke 冒烟测试：验证 key 与连通，最省额度
-  models: 1                        # 只用第一个模型
-  dimensions: ["reliability"]      # 只跑一个维度
+analysis:
+  # Models queried in June but excluded from all analyses (empty responses; see S1 File).
+  exclude_models:
+    - "openai/gpt-oss-20b"
+    - "nvidia/llama-3.3-nemotron-super-49b-v1.5"
+  # Explicit lineage map used for family-level (hierarchical) sensitivity analyses.
+  families:
+    "meta/llama-3.1-8b-instruct": "Llama"
+    "meta/llama-3.3-70b-instruct": "Llama"
+    "nvidia/nemotron-mini-4b-instruct": "Llama"
+    "mistralai/mixtral-8x7b-instruct-v0.1": "Mistral"
+    "qwen/qwen3-next-80b-a3b-instruct": "Qwen"
+    "google/gemma-2-2b-it": "Gemma"
+    "microsoft/phi-4-mini-instruct": "Phi"
+    "openai/gpt-oss-20b": "GPT-OSS"
+    "nvidia/llama-3.3-nemotron-super-49b-v1.5": "Llama"
+  # Models with the highest rating-format missingness (sensitivity: drop them).
+  high_missingness_models:
+    - "mistralai/mixtral-8x7b-instruct-v0.1"
+    - "nvidia/nemotron-mini-4b-instruct"
+  # Pre-specified directions (copied from config/dimensions.yaml; used only for reporting).
+  dimension_order: [productivity, decision, trust, reliability, moral, emotion, creativity, worth]
+
+smoke:
+  models: 1
+  dimensions: ["reliability"]
   repeats: 2
 
-paths:
+paths:                              # relative to the data root (data/, or data_mock/ with --mock)
   prompts: "data/prompts/grid.jsonl"
   raw_dir: "data/raw"
+  quarantine_dir: "data/raw_quarantine"
   measured: "data/measured/items.parquet"
+  rating_responses: "data/measured/rating_responses.csv"
+  freetext_responses: "data/measured/freetext_responses.csv"
   results_dir: "data/results"
   cost_log: "data/raw/_usage.csv"

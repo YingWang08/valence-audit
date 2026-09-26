@@ -1,11 +1,16 @@
-"""把 维度 × 提示式 × 语言 × 改写模板 组合成 prompt 网格，写到 data/prompts/grid.jsonl。
+"""Prompt grids.
 
-提示式（format）：
-  rating  评分式（主测量，最干净）—— 对 human / AI 各生成一条，解析 1-7 数字
-  forced  强制选择 + 说理（对冲/拒答来源）
-  compare 自由比较（自由文本测量，收敛效度）
-  reflect 第一人称反思
-  scenario 情景式
+build()     reproduces the June 2026 grid exactly (288 prompts = 8 dimensions x 2 languages
+            x [4 rating templates x 2 referents + 10 free-text prompts]); prompt_id is a hash
+            of the text, so ids are identical to those in the deposited raw data.
+            Note (disclosed in the revision): the English rating templates read "a {AGENT}",
+            so AI-referent prompts say "a AI system"; template 3 refers to the referent as "it";
+            the Chinese referent is the generic noun 人类 ("humans/humankind"), whereas the
+            English referent is "a human" (an individual).
+build_r1()  builds the revision-round grid from config/collection_r1.yaml: the rating
+            templates with additional anchor referents (isolated prompts), including the exact
+            June wording for human and AI, plus a joint condition that rates all referents in
+            one prompt on a common 1-7 scale.
 """
 import json
 import hashlib
@@ -70,6 +75,13 @@ FRAMES = {
 AGENTS = {"en": {"human": "human", "ai": "AI system"},
           "zh": {"human": "人类", "ai": "AI系统"}}
 
+# Rating templates with the referent phrase (including its article) substituted as a whole.
+# For REF = "a human" / "a AI system" these reproduce the June prompts byte for byte.
+RATING_REF = {
+    "en": [t.replace("a {AGENT}", "{REF}").replace("Score a {AGENT}", "Score {REF}") for t in FRAMES["en"]["rating"]],
+    "zh": [t.replace("{AGENT}", "{REF}") for t in FRAMES["zh"]["rating"]],
+}
+
 
 def _pid(s):
     return hashlib.sha1(s.encode("utf-8")).hexdigest()[:16]
@@ -99,7 +111,58 @@ def build():
                                        language=lang, template=t_idx, agent="both", text=text)
                             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                             n += 1
-    print(f"[build_prompts] 写出 {n} 条 prompt -> {out}")
+    print(f"[build_prompts] wrote {n} prompts -> {out}")
+    return n
+
+
+def _referent_phrase(ref_cfg, dim, lang):
+    if ref_cfg.get("per_dimension"):
+        return (config.DIMENSIONS[dim].get("professional") or {}).get(lang)
+    return ref_cfg.get(lang)
+
+
+def build_r1(cfg, out_path):
+    """Revision-round grid: isolated rating prompts for every referent, plus joint prompts."""
+    import random
+    n = 0
+    with open(out_path, "w", encoding="utf-8") as f:
+        for dim, dcfg in config.DIMENSIONS.items():
+            for lang in ("en", "zh"):
+                attr = dcfg[lang]["attr"]
+                for t_idx, tmpl in enumerate(RATING_REF[lang]):
+                    for ref_key, ref_cfg in cfg["referents"].items():
+                        phrase = _referent_phrase(ref_cfg, dim, lang)
+                        if not phrase:
+                            continue
+                        text = tmpl.replace("{REF}", phrase).replace("{ATTR}", attr)
+                        rec = dict(prompt_id=_pid(text), dimension=dim, format="rating", language=lang,
+                                   template=t_idx, agent=ref_key, referent_text=phrase, condition="isolated",
+                                   text=text)
+                        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                        n += 1
+                jc = cfg.get("joint", {})
+                if jc.get("enabled"):
+                    items = jc["items"]
+                    for rep in range(int(jc.get("orders", 4))):
+                        rnd = random.Random(f"{dim}|{lang}|{rep}|{cfg.get('collection_id', 'r1')}")
+                        order = items[:]
+                        rnd.shuffle(order)
+                        letters = "ABCDEFGH"[:len(order)]
+                        lines, mapping = [], {}
+                        for L, key in zip(letters, order):
+                            if key == "ai":
+                                refs = cfg["referents"]
+                                phrase = refs.get("ai_corrected", {}).get(lang) or refs["ai_original"][lang]
+                            else:
+                                phrase = _referent_phrase(cfg["referents"][key], dim, lang)
+                            lines.append(f"{L}. {phrase}")
+                            mapping[L] = key
+                        text = jc["template"][lang].replace("{ATTR}", attr) + "\n" + "\n".join(lines)
+                        rec = dict(prompt_id=_pid(text), dimension=dim, format="joint", language=lang,
+                                   template=rep, agent="joint", condition="joint", joint_items=mapping, text=text)
+                        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                        n += 1
+    print(f"[build_prompts] revision grid: {n} prompts -> {out_path}")
     return n
 
 

@@ -1,28 +1,17 @@
 #!/usr/bin/env python3
-"""把空/空白 raw_response 从 data/raw/*.jsonl 隔离出去（零成本，不调用任何 API）。
-
-原理：generate.py 的断点续跑靠 `_done_keys()` 读取 jsonl 里已有的 (prompt_id, repeat)；
-凡是已经写进文件的行，无论内容是不是空字符串，都会被当成"已完成"而跳过，不会重试。
-本脚本把空回复的行【移出】jsonl（搬到 data/raw_quarantine/ 备查），这样下次跑
-`python run_all.py --full` 时，generate.py 会发现这些 (prompt_id, repeat) 还没做，
-自动【只】重新调用这些坑——不影响任何已经成功拿到内容的样本，不浪费额度。
-
-用法：
-  python quarantine_empty.py                # 只看会动多少行（dry-run，不改任何文件）
-  python quarantine_empty.py --apply         # 真正执行隔离
-  python quarantine_empty.py --apply --model meta/llama-3.1-8b-instruct   # 只处理指定模型
-
-建议流程：
-  1) 先 dry-run 看一眼数字是否符合预期（应该约等于 check_empty.py 报告的空回复数）。
-  2) 改 config/experiment.yaml：generation.max_tokens.rating 从 12 调到 40（仍是免费额度，零花费）。
-  3) 再 --apply 真正隔离。
-  4) python run_all.py --full   —— 断点续跑会自动只补这些坑。
+"""Move empty responses out of data/raw/*.jsonl into data/raw_quarantine/ so that a resumed
+run re-queries only those (prompt, repeat) positions. This is the procedure used in June 2026:
+the first full pass used max_tokens.rating = 12; empty responses were quarantined with this
+script and re-queried with max_tokens.rating = 40; non-empty responses were kept.
+Usage:  python -m tools.quarantine_empty [--apply] [--model MODEL_ID]
 """
 import os
 import sys
 import json
 import glob
 import shutil
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from src import config
 
 

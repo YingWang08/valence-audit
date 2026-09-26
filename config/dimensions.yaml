@@ -1,46 +1,57 @@
-# ============ 8 个评价维度的措辞 ============
-# 每个维度给：attr（形容词，用于评分式 "how {attr} is a {AGENT}"）
-#            skill（名词短语，用于 "better at {skill}" / "compare ... at {skill}"）
-# H2 预期：能力类（creativity/reliability/productivity/decision）抬高机器；
-#          道德/情感/价值类（moral/emotion/trust/worth）抬高人类。
-# expected_sign 仅用于结果对照，不进入模型。
+# ================= Eight evaluative dimensions (wording used in June 2026) =================
+# attr  : adjective for the rating templates ("how {attr} is {REF}")
+# skill : noun phrase for free-text templates
+# expected_sign: pre-specified direction (+ machine-favoured, - human-favoured); reporting only.
+# professional : "a professional in the relevant field" anchor referent for the revision-round
+#                anchor study (Reviewer 1 #5). EDIT BEFORE COLLECTING if you prefer other wording.
+# Translation notes for the revision (Reviewer 1 #12): the Chinese attr for `emotion`
+# (善解人意, "considerate/understanding of others") and for `worth` (有内在价值) are not
+# literal equivalents of "emotionally perceptive" / "intrinsically valuable"; see S1 File.
 
 creativity:
   expected_sign: "+ (competence)"
   en: {attr: "creative", skill: "creative work"}
   zh: {attr: "有创造力", skill: "创造性工作"}
+  professional: {en: "a professional artist", zh: "职业艺术家"}
 
 moral:
   expected_sign: "- (human-favored)"
   en: {attr: "morally sound", skill: "making moral judgments"}
   zh: {attr: "有道德", skill: "做出道德判断"}
+  professional: {en: "a professional ethicist", zh: "职业伦理学家"}
 
 reliability:
   expected_sign: "+ (competence)"
   en: {attr: "reliable", skill: "producing reliable, accurate results"}
   zh: {attr: "可靠", skill: "产出可靠、准确的结果"}
+  professional: {en: "a professional engineer", zh: "专业工程师"}
 
 productivity:
   expected_sign: "+ (competence)"
   en: {attr: "productive", skill: "working productively and efficiently"}
   zh: {attr: "高效", skill: "高效地完成工作"}
+  professional: {en: "a skilled professional worker", zh: "熟练的专业从业者"}
 
 emotion:
   expected_sign: "- (human-favored)"
   en: {attr: "emotionally perceptive", skill: "understanding emotions"}
   zh: {attr: "善解人意", skill: "理解情感"}
+  professional: {en: "a professional therapist", zh: "心理咨询师"}
 
 trust:
   expected_sign: "- (human-favored)"
   en: {attr: "trustworthy", skill: "being trusted with important matters"}
   zh: {attr: "值得信任", skill: "被托付重要的事"}
+  professional: {en: "a professional doctor", zh: "执业医生"}
 
 worth:
   expected_sign: "- (human-favored)"
   en: {attr: "intrinsically valuable", skill: "having intrinsic worth"}
   zh: {attr: "有内在价值", skill: "拥有内在价值"}
+  professional: {en: "a skilled professional", zh: "专业人士"}
 
 decision:
   expected_sign: "+ (competence)"
   en: {attr: "good at making decisions", skill: "making important decisions"}
   zh: {attr: "擅长决策", skill: "做出重要决策"}
+  professional: {en: "an experienced manager", zh: "资深管理者"}
