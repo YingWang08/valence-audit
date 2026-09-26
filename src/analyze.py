@@ -295,11 +295,10 @@ def convergence(cells, fr, rd):
 # ------------------------------------------------------------------------- manifest
 def manifest(rd, extra):
     def sha(p):
-        h = hashlib.sha256()
-        with open(p, "rb") as f:
-            for chunk in iter(lambda: f.read(1 << 20), b""):
-                h.update(chunk)
-        return h.hexdigest()
+        # CRLF normalized to LF: the form git stores and GitHub/Zenodo serve, so the value is the same
+        # on Windows (text files checked out with CRLF) and elsewhere, and `sha256sum` on a
+        # downloaded copy reproduces it. All hashed inputs here are text (.jsonl).
+        return hashlib.sha256(open(p, "rb").read().replace(b"\r\n", b"\n")).hexdigest()
 
     def git(*a):
         try:
@@ -325,6 +324,7 @@ def manifest(rd, extra):
                python=platform.python_version(), packages=vers,
                rating_parser=config.EXP["measurement"].get("rating_parser"),
                excluded_models=config.excluded_models(),
+               input_sha256_note="SHA-256 with CRLF normalized to LF (the form stored in git, GitHub and Zenodo)",
                input_sha256={p.name: sha(p) for p in sorted(config.raw_dir().glob("*.jsonl"))}, **extra)
     with open(rd / "run_manifest.json", "w", encoding="utf-8") as f:
         json.dump(man, f, indent=2, ensure_ascii=False, default=str)

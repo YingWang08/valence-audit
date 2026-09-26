@@ -55,12 +55,18 @@ def _vdir():
     return d
 
 
+TEXT_SUFFIXES = {".csv", ".json", ".jsonl", ".md", ".py", ".r", ".txt", ".yaml", ".yml"}
+
+
 def _sha(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    """SHA-256 of a file. Text files are hashed with CRLF normalized to LF, i.e. in the form git
+    stores them (and GitHub/Zenodo serve them), so the hash is the same on Windows (where git
+    checks text files out with CRLF) and on Linux/macOS, and can be checked with `sha256sum` on a
+    downloaded copy. Binary files (e.g. .xlsx) are hashed byte for byte."""
+    b = open(path, "rb").read()
+    if str(path).lower().endswith(tuple(TEXT_SUFFIXES)):
+        b = b.replace(b"\r\n", b"\n")
+    return hashlib.sha256(b).hexdigest()
 
 
 # ----------------------------------------------------------------------------- workbook
@@ -154,6 +160,11 @@ def _strata(rr):
 
 def export(n_invalid=100, n_valid_not_bare=100, n_practice=20):
     v = _vdir()
+    existing = [p for p in (v / "PROTOCOL.md", v / "coder_A" / "rating_coder_A.xlsx") if p.exists()]
+    if existing and "--force" not in sys.argv:
+        sys.exit("export has already been run; re-running would overwrite the coding workbook and the registered\n"
+                 "protocol. Existing: " + ", ".join(str(p) for p in existing) + "\n"
+                 "Use --force only if coding has NOT started and the protocol has NOT been registered.")
     rr = _load_rr()
     st = _strata(rr)
     take_n = {"parsers_disagree": None, "strict_invalid": n_invalid, "strict_valid_not_bare": n_valid_not_bare}
@@ -187,7 +198,13 @@ def export(n_invalid=100, n_valid_not_bare=100, n_practice=20):
     (cd / "人工编码手册.md").write_text(manual.read_text(encoding="utf-8"), encoding="utf-8")
 
     pop = {k: int(m.sum()) for k, m in st.items()}
-    info = dict(created_utc=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), seed=SEED,
+    try:
+        import subprocess
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=config.ROOT,
+                                         stderr=subprocess.DEVNULL).decode().strip()
+    except Exception:
+        commit = None
+    info = dict(created_utc=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), seed=SEED, git_commit=commit,
                 population_rating_responses=len(rr), population_strata=pop,
                 sample_strata={k: int((s["stratum"] == k).sum()) for k in take_n}, n_sample=len(s),
                 n_recode=int(s["recode"].sum()), n_practice=len(prac),
@@ -233,6 +250,7 @@ Population-level accuracy uses weights = stratum population / stratum sample.
 One coder (the author), the only coder available. The coder follows the written codebook
 (tools/coding_manual_zh.md), sees only the response text and its language, and is blind to
 model, referent (human or AI system), dimension, template, and both parsers' outputs.
+The response text itself sometimes names the referent or the attribute; this is not masked.
 The coder knows the study hypotheses. No AI tool is used for any coding decision.
 Training: {info['n_practice']} practice items outside the sample, not scored.
 
@@ -257,6 +275,10 @@ All coded items are published with their text, codes and parser outputs.
 3. The first-round codes are not edited after they are committed; re-coding does not replace them.
 
 ## File hashes (SHA-256)
+Text files are hashed with line endings normalized to LF (the form stored in the git repository,
+GitHub and Zenodo; on a downloaded copy, `sha256sum <file>` reproduces the value). The blank
+workbook (.xlsx, binary) is hashed byte for byte. Repository commit at export: {info.get('git_commit') or 'n/a'}.
+
 | File | SHA-256 |
 |---|---|
 {h}
@@ -268,19 +290,29 @@ def export_recode():
     v = _vdir()
     key = pd.read_csv(v / "key_DO_NOT_SHARE" / "key_rating.csv", dtype={"id": str}, keep_default_na=False, na_values=[""])
     first = v / "coder_A" / "rating_coder_A.xlsx"
-    info = json.loads((v / "key_DO_NOT_SHARE" / "sample_info.json").read_text(encoding="utf-8"))
-    days = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(info["created_utc"])).days
+    out = v / "coder_A" / "rating_recode_A.xlsx"
+    if out.exists() and "--force" not in sys.argv:
+        sys.exit(f"{out} already exists; re-running would overwrite the re-coding workbook. "
+                 "Use --force only if re-coding has NOT started.")
+    coded = _read_book(first)
+    if coded is None or coded["code_category"].isna().all():
+        sys.exit(f"{first} has no codes yet; finish and commit the first round before exporting the re-code.")
+    # The protocol requires at least 7 days after the FIRST CODING (not after export). The last save
+    # of the first-round workbook is taken as the end of first-round coding.
+    first_done = dt.datetime.fromtimestamp(first.stat().st_mtime, dt.timezone.utc)
+    days = (dt.datetime.now(dt.timezone.utc) - first_done).days
     if days < 7:
-        print(f"WARNING: only {days} day(s) since export; the protocol specifies at least 7.")
+        sys.exit(f"Only {days} day(s) since the first-round workbook was last saved ({first_done:%Y-%m-%d %H:%M} UTC); "
+                 "the registered protocol requires at least 7.")
     r = key[key["recode"].astype(str).str.lower().isin(["true", "1"])].sample(frac=1, random_state=SEED + 3)
     r = r.assign(response=r["raw_response"].fillna(""))
-    out = v / "coder_A" / "rating_recode_A.xlsx"
     _write_book(out, r)
     log = dict(recode_exported_utc=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-               days_since_export=days, n_items=len(r),
+               first_round_last_saved_utc=first_done.isoformat(timespec="seconds"),
+               days_since_first_round=days, n_items=len(r),
                first_round_sha256=_sha(first) if first.exists() else None)
     (v / "key_DO_NOT_SHARE" / "recode_log.json").write_text(json.dumps(log, indent=2), encoding="utf-8")
-    print(f"{len(r)} items -> {out} ({days} days after export)")
+    print(f"{len(r)} items -> {out} ({days} days after the first round was last saved)")
 
 
 # -------------------------------------------------------------------------------- score
@@ -350,7 +382,7 @@ def score():
         add("test-retest (same coder)", "kappa: category", kappa(t["code_category"], t["code_category_re"]), len(t))
         log = v / "key_DO_NOT_SHARE" / "recode_log.json"
         if log.exists():
-            add("test-retest (same coder)", "days between export and re-coding", json.loads(log.read_text())["days_since_export"], len(t))
+            add("test-retest (same coder)", "days between end of first round and re-coding export", json.loads(log.read_text())["days_since_first_round"], len(t))
 
     b = _read_book(v / "coder_B" / "rating_coder_B.xlsx")
     if b is not None and b["code_category"].notna().any():

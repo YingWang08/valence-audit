@@ -78,7 +78,17 @@ records the commit, package versions and SHA-256 hashes of every raw file used.
   excluded reasoning models with an adequate token budget) and its analysis.
 - `tools/`: token-budget diagnosis, raw-response examples, blinded coding validation of the rating
   parser: registered protocol, blinded single coder, 7-day test-retest (`tools/validation.py`,
-  codebook `tools/coding_manual_zh.md`).
+  codebook `tools/coding_manual_zh.md`). `export` and `export-recode` refuse to overwrite an
+  existing workbook or protocol (`--force` overrides); the 7-day test-retest interval is counted
+  from the last save of the first-round workbook, as the protocol states, not from the export.
+  An earlier, unused two-coder export (`data/validation/rating_sample*.csv`,
+  `freetext_sample*.csv`, `CODING_GUIDE.txt`), committed by mistake in 1a8d410, was removed
+  before the registered sample was drawn; no item in it was coded.
+- SHA-256 hashes (`run_manifest.json`, validation `PROTOCOL.md`) are computed on text files with
+  CRLF normalized to LF, the form stored in git and served by GitHub and Zenodo. Earlier manifests
+  were written on Windows, where git checks text files out with CRLF, so their hashes could not be
+  reproduced from a downloaded copy. `sha256sum` on a downloaded file now reproduces every value.
+  No data or result changed.
 - Generation now logs `max_tokens`, `finish_reason`, token usage, reasoning-channel length and a
   timestamp for every call.
 
