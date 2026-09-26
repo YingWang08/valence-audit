@@ -1,7 +1,7 @@
 {
-  "timestamp_utc": "2026-09-26T11:15:14+00:00",
-  "git_commit": "1a8d41067ad22b52539a57ab2d5f62a669a73138",
-  "git_describe": "v1.0.0-4-g1a8d410",
+  "timestamp_utc": "2026-09-26T14:03:38+00:00",
+  "git_commit": "7863fbfe8f95f7a4329be8e35a5df17e82724df0",
+  "git_describe": "v1.0.0-9-g7863fbf",
   "code_uncommitted": false,
   "code_uncommitted_files": [],
   "inputs_uncommitted": false,
@@ -19,16 +19,17 @@
     "openai/gpt-oss-20b",
     "nvidia/llama-3.3-nemotron-super-49b-v1.5"
   ],
+  "input_sha256_note": "SHA-256 with CRLF normalized to LF (the form stored in git, GitHub and Zenodo)",
   "input_sha256": {
-    "google_gemma-2-2b-it.jsonl": "61beda7f6d87df7fe947ccfee27d80562d8795158e759e4b350bce314050ecbb",
-    "meta_llama-3.1-8b-instruct.jsonl": "051a24f00baaf8743b3ad084dc316c3355ab60635ab6cd5bb23e3e6b15f7cbc2",
-    "meta_llama-3.3-70b-instruct.jsonl": "f38e17f8acf8ab6d51d4c51513120917fb9c787aaee32115ca6e6ef726120903",
-    "microsoft_phi-4-mini-instruct.jsonl": "c7282403e66442b4f26961595797094d3d48c034d724cb2b484ec9e8bb09801d",
-    "mistralai_mixtral-8x7b-instruct-v0.1.jsonl": "f6c690fa3901cfbc44ab9112d61008c0e1b81784c52e6d9357174d947b65c037",
-    "nvidia_llama-3.3-nemotron-super-49b-v1.5.jsonl": "a00cdf200b635dbb6d5d77e9f8c27eb41ccc425e512e658437b01d3788ff1707",
-    "nvidia_nemotron-mini-4b-instruct.jsonl": "d0bbeacb6b66dbabff47bae66f2b28e5c71de1552ba39e61dd5f915896860773",
-    "openai_gpt-oss-20b.jsonl": "9fca0be8da5ff03b28984d6504a33b635f5b2a092842025ffbc165639306606c",
-    "qwen_qwen3-next-80b-a3b-instruct.jsonl": "4ec8da7685948211433c79f754b2544ddde9ed54bbfeff69cba47eb01504bb4a"
+    "google_gemma-2-2b-it.jsonl": "f21fe4e450802b55f5656a061290577c7a5eab0fc059bd16c1e644b2913dbab2",
+    "meta_llama-3.1-8b-instruct.jsonl": "a5ff24b7932e8c07252cf598e4df77bb79119dcd3c402b054b9625e675470f5b",
+    "meta_llama-3.3-70b-instruct.jsonl": "8a7acaf1fb1cf28cb22141cabbcc1188de6bf374c7e58308ef819c4f70539f27",
+    "microsoft_phi-4-mini-instruct.jsonl": "eb1e054082090d65cdff8dcfe419cc78264cfc20cd8df76b800cd792af4c4adb",
+    "mistralai_mixtral-8x7b-instruct-v0.1.jsonl": "dfc303a527018f83bc7ded522dc12e16f8abd334a6b34b726c5a5df0548c119c",
+    "nvidia_llama-3.3-nemotron-super-49b-v1.5.jsonl": "a9796de75427be9d27350419f041652e55515279c38e2f8e60fd3c44a86c32f1",
+    "nvidia_nemotron-mini-4b-instruct.jsonl": "0fa6c0bfdde7e6a58f1191e96bdfb4d9171201f854dd72ff239aa2386474a8a3",
+    "openai_gpt-oss-20b.jsonl": "eecb791eb7220f442bb51be668a15e010d1fc0d9f58c7bdb27a361deec4e5b7d",
+    "qwen_qwen3-next-80b-a3b-instruct.jsonl": "191a0686cb83ce544c16c14ce2b2f33f1c723816a7ed484634a3a39e56ced7ad"
   },
   "n_models": 7,
   "n_rating_responses": 6784,
