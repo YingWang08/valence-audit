@@ -45,14 +45,23 @@ records the commit, package versions and SHA-256 hashes of every raw file used.
 
 ### Documented, not changed (the June 2026 data are what they are)
 
-- Rating prompts used `max_tokens` 12 in the first full pass; empty responses were moved to
-  `data/raw_quarantine/` and re-queried with 40; non-empty first-pass responses were kept.
-  `tools/diagnose_usage.py` counts completions that hit each budget.
+- Every rating call used `max_tokens` 12, including the re-query of the excluded models' empty
+  responses; v1.0.0's configuration file showed 40, a value set after collection. The token log
+  (`tools/diagnose_usage.py`) shows that nearly all invalid rating responses reached the 12-token cap.
 - English AI-referent rating prompts read "a AI system", and template 3 refers to the referent
   as "it". The Chinese referent 人类 denotes humans collectively, whereas "a human" denotes an
   individual. The revision-round collection tests the first and third points directly.
 - Model identifiers that were attempted but unavailable or rate-limited are listed in
   `config/models.yaml`; their (mostly empty) files are in `data/raw_excluded/`.
+
+### Removed from the reported analyses
+
+- Free-text lexicon measures (hedging and refusal flags, VADER / cnsenti sentiment), the
+  rating-versus-free-text convergence check, and the pre-specified H5 (hedging and refusal by
+  alignment stage). The lexicons were never validated against human coding; many free-text
+  responses were cut at 256 tokens; and rating-format "refusals" were largely produced by the
+  12-token budget. The code remains (`analysis.report_freetext`), and all free-text responses are
+  deposited.
 
 ### Added
 
@@ -67,7 +76,9 @@ records the commit, package versions and SHA-256 hashes of every raw file used.
 - `src/r1.py` and `config/collection_r1.yaml`: revision-round collection (anchor referents,
   joint rating condition, exact replication of the June prompts, re-collection of the two
   excluded reasoning models with an adequate token budget) and its analysis.
-- `tools/`: token-budget diagnosis, raw-response examples, blind human-coding validation.
+- `tools/`: token-budget diagnosis, raw-response examples, blinded coding validation of the rating
+  parser: registered protocol, blinded single coder, 7-day test-retest (`tools/validation.py`,
+  codebook `tools/coding_manual_zh.md`).
 - Generation now logs `max_tokens`, `finish_reason`, token usage, reasoning-channel length and a
   timestamp for every call.
 

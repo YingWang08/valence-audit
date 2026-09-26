@@ -6,8 +6,8 @@ Fig2  per-model overall asymmetry (H1) with the equal-weight pooled estimate and
 Fig3  dimension-level asymmetry: (A) model-level means with t(G-1) 95% CIs and each model's value,
       (B) English vs Chinese
 Fig4  rating-response outcomes by model and referent (missingness; Reviewer 1 #4, Reviewer 2 #2)
-S1_Fig exploratory hedging / refusal rates by model (H5)
-S2_Fig sensitivity analyses (dimension means under each specification)
+S1_Fig sensitivity analyses (dimension means under each specification)
+(S2_Fig: revision-round referent profiles, written by src/r1.py)
 Output: <data root>/results/figures/
 """
 import os
@@ -57,7 +57,7 @@ def fig1(outdir, n_models, n_families, n_prompts=288, n_rating=128):
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 50)
     ax.axis("off")
-    boxes = [("Prompt grid", f"8 dimensions x\n2 languages\n{n_rating} rating prompts\n(+{n_prompts - n_rating} free-text,\nexploratory)"),
+    boxes = [("Prompt grid", f"8 dimensions x\n2 languages\n{n_rating} rating prompts\n(+{n_prompts - n_rating} free-text,\nnot analysed)"),
              ("Models", f"{n_models} instruction-\ntuned open-\nweight LLMs\n({n_families} families)"),
              ("Measurement", "1-7 rating of\n'a human' and\n'an AI system'\nin separate\nprompts"),
              ("Asymmetry", "a = [v(AI) -\nv(human)] / 6\nper cell\n>0 machine\n<0 human"),
@@ -177,6 +177,12 @@ def fig4(outdir, rd):
 
 
 def s_figs(outdir, rd):
+    if config.EXP.get("analysis", {}).get("report_freetext", False) and (rd / "H5_by_model.csv").exists():
+        _h5_fig(outdir, rd)
+    _sensitivity_fig(outdir, rd)
+
+
+def _h5_fig(outdir, rd):
     h5 = pd.read_csv(rd / "H5_by_model.csv")
     fig, axes = plt.subplots(1, 2, figsize=(6.4, 3.0), sharey=True)
     for ax, fmt in zip(axes, ["free-text (all)", "rating"]):
@@ -189,8 +195,10 @@ def s_figs(outdir, rd):
         ax.set_xlabel(f"% of {fmt} responses")
         ax.set_title("A" if fmt.startswith("free") else "B", loc="left", fontweight="bold")
     axes[1].legend(frameon=False)
-    _save(fig, outdir, "S1_Fig")
+    _save(fig, outdir, "S_H5_Fig_exploratory")
 
+
+def _sensitivity_fig(outdir, rd):
     sl = pd.read_csv(rd / "S_sensitivity_long.csv")
     sl = sl[sl["dimension"] != "H1_overall"]
     specs = list(dict.fromkeys(sl["spec"]))
@@ -209,7 +217,7 @@ def s_figs(outdir, rd):
     ax.set_yticklabels([DIM_LABELS.get(d, d) for d in dims])
     ax.set_xlabel("Model-level mean asymmetry a")
     ax.legend(fontsize=6, frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.4, -0.12))
-    _save(fig, outdir, "S2_Fig")
+    _save(fig, outdir, "S1_Fig")
 
 
 def run():
@@ -222,6 +230,8 @@ def run():
     if os.path.exists(gp):
         g = pd.read_json(gp, lines=True)
         n_prompts, n_rating = len(g), int((g["format"] == "rating").sum())
+    for stale in ("S2_Fig.tif", "S2_Fig.png", "S_H5_Fig_exploratory.tif", "S_H5_Fig_exploratory.png"):
+        (outdir / stale).unlink(missing_ok=True)
     fig1(outdir, pm["model"].nunique(), pm["family"].nunique(), n_prompts, n_rating)
     fig2(outdir, rd)
     fig3(outdir, rd)

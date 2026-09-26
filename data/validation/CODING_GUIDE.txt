@@ -1,0 +1,12 @@
+Coding guide
+============
+rating_sample.csv (one prompt asked a model to rate ONE referent on a 1-7 scale):
+  human_value     the rating the response gives, as a number (e.g. 5, or 5.5 for "5-6").
+                  Leave EMPTY if the response gives no rating.
+  human_category  one of: rating | refusal | hedge | truncated | out_of_range | other
+                  (rating = a usable 1-7 rating was given, even if hedged)
+freetext_sample.csv (free-text comparison of humans and AI systems):
+  human_hedge     1 if the response avoids choosing / says it depends / both have merits, else 0
+  human_refuse    1 if the response declines to answer or disclaims ability to judge, else 0
+Second coder: fill human_value_2 / human_category_2 / human_hedge_2 / human_refuse_2.
+Do not open *_key.csv until coding is finished.

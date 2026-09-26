@@ -6,6 +6,9 @@
 #      one prompt (joint condition = explicit common scale).
 #   B. Re-collection of the two excluded reasoning models on the original rating prompts
 #      with an adequate token budget (Reviewer 1 #8).
+#   C. Budget check: the seven retained models answer the June rating prompts again with
+#      the June budget (max_tokens 12). With part A (same prompts, 150 tokens) this separates
+#      the effect of the 12-token budget (C vs A) from change over time (C vs June).
 # Output goes to data/r1/ and never mixes with the June data in data/.
 # Check first that every model is still served:  python run_all.py --list-models
 
@@ -46,6 +49,12 @@ joint:
   template:
     en: "Rate how {ATTR} each of the following is, on a scale from 1 (not at all) to 7 (extremely). Rate each item on its own. Reply with one line per item in the form \"letter: number\" and nothing else."
     zh: "请用1分（完全不）到7分（极其）为下列每一项的「{ATTR}」程度打分，逐项独立评分。每行按“字母: 数字”的格式作答，不要输出其他内容。"
+
+budget_check:
+  enabled: true
+  max_tokens: 12
+  repeats: 4
+  data_subdir: "budget12"          # written to data/r1/budget12/ (keeps resume keys separate from part A)
 
 rerun_excluded:
   enabled: true

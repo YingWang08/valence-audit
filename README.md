@@ -24,7 +24,10 @@ eight repetitions (five for Nemotron-Mini-4B). Each referent was rated in a sepa
 The asymmetry of a cell (model x dimension x language x template) is
 `a = [mean(AI) - mean(human)] / 6`; positive values favour the machine. The unit of
 inference is the model. Free-text prompts (forced choice, comparison, reflection,
-scenario) are analysed only as exploratory material.
+scenario) were also collected and are deposited, but they are not analysed in the revised
+paper: the lexicon-based measures were not validated and many responses were cut at 256
+tokens (set `analysis.report_freetext: true` in `config/experiment.yaml` to regenerate the
+exploratory free-text tables of version 1).
 
 ## Repository layout
 
@@ -71,6 +74,7 @@ Rscript analyze_lme4.R            # mixed-effects sensitivity analyses
 python -m tools.diagnose_usage    # token-budget hits in the June collection
 python -m tools.dump_raw_examples # raw-response examples for the S1 File
 python run_all.py --analyze-r1    # revision-round analyses from data/r1/raw
+python -m tools.validation score   # parser validation from the deposited coding (single blinded coder)
 ```
 
 `python run_all.py --reanalyze --legacy-parser` reproduces the parsing of version 1.0.0.
@@ -86,20 +90,25 @@ Main outputs in `data/results/`:
 | `H1_overall.csv`, `H1_per_model.csv` | overall asymmetry |
 | `S_*.csv` | family level, leave-one-out, language, template, parser, imputation and bound sensitivity |
 | `M1`-`M8` | missingness by model, dimension, referent, language, template; truncation; legacy-parser comparison |
-| `H5_*.csv` | exploratory hedging and refusal rates (per response) |
 | `C_submitted_vs_revised.csv` | submitted (legacy, pooled) versus revised estimates |
 | `lme4_*.csv` | mixed-model tables (from `analyze_lme4.R`) |
 | `run_manifest.json` | commit, package versions, SHA-256 of every raw file |
+| `data/validation/` | coding sample, codebook, coders' files, `validation_results.md` |
 
 ## Collection history (June 2026)
 
-- Settings: temperature 0.7; `max_tokens` 256 for free text; `max_tokens` 12 for the rating
-  format in the first full pass. Empty responses were moved to `data/raw_quarantine/` and
-  re-queried with `max_tokens` 40; non-empty first-pass responses were kept.
-- `openai/gpt-oss-20b` and `nvidia/llama-3.3-nemotron-super-49b-v1.5` returned empty
-  rating responses (reasoning models whose budget was consumed before an answer) and are
-  excluded from all analyses; their responses are deposited. The revision-round
+- Settings: temperature 0.7; `max_tokens` 256 for free text and **12 for every rating call**
+  (verified from the token log with `python -m tools.diagnose_usage`; no rating completion
+  exceeds 12 tokens). Twelve tokens suffice for a bare number, but any rating response that
+  opens with prose is cut off before a number appears; this accounts for nearly all invalid
+  rating responses (`U_rating_tokens_by_category.csv`).
+- `openai/gpt-oss-20b` and `nvidia/llama-3.3-nemotron-super-49b-v1.5` (reasoning models) returned
+  empty rating responses because the budget was consumed by reasoning. Their empty responses were
+  moved to `data/raw_quarantine/` and re-queried with the same budgets, again without success; both
+  models are excluded from all analyses and their responses are deposited. The revision-round
   collection re-queries them with `max_tokens` 4096.
+- Token-usage rows are incomplete for the two Llama models (2,049 and 1,315 of 2,304 calls logged);
+  their rating responses were almost all bare numbers, so the budget did not bind for them.
 - No temperature sweep was run.
 
 ## Re-collecting data (API key required)

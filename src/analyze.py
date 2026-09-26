@@ -122,6 +122,10 @@ def imputed_cells(rr, mode):
         d["v"] = d["v"].fillna(d.groupby(["model", "dimension", "language"])["v"].transform("mean"))
     elif mode == "midpoint":
         d["v"] = d["v"].fillna(4.0)
+    elif mode == "clip_out_of_range":
+        # answers outside 1-7 (e.g. "0" for an AI system) are clipped to the nearest scale end
+        oor = d["category"] == "out_of_range"
+        d.loc[oor, "v"] = d.loc[oor, "strict_raw_number"].clip(1.0, 7.0)
     elif mode in ("bound_human", "bound_machine"):
         ai_fill, hu_fill = (1.0, 7.0) if mode == "bound_human" else (7.0, 1.0)
         d.loc[d["v"].isna() & (d["agent"] == "ai"), "v"] = ai_fill
@@ -397,7 +401,8 @@ def run():
     sens += quick(model_dim(cells[~cells["model"].isin(hm)]), "excluding high-missingness models")
     sens += quick(model_dim(make_cells(rr, col="strict_value", valid=rr["valid"], min_frac=0.5)),
                   "cells with >= 50% valid on both sides")
-    for mode, lab in (("neutral", "impute invalid: referent-neutral mean"), ("midpoint", "impute invalid: 4"),
+    for mode, lab in (("clip_out_of_range", "out-of-range answers clipped to 1-7"),
+                      ("neutral", "impute invalid: referent-neutral mean"), ("midpoint", "impute invalid: 4"),
                       ("bound_human", "bound: invalid AI=1, human=7"), ("bound_machine", "bound: invalid AI=7, human=1")):
         sens += quick(model_dim(imputed_cells(rr, mode)), lab)
     sl = pd.DataFrame(sens)
@@ -416,8 +421,13 @@ def run():
                                              "truncated", "out_of_range", "multiple", "malformed"]]
     t1.insert(1, "family", t1["model"].map(config.family))
     t1.to_csv(rd / "T1_models.csv", index=False)
-    h5(rr, fr, rd)
-    conv = convergence(cells, fr, rd)
+    conv = None
+    if config.EXP.get("analysis", {}).get("report_freetext", False):
+        h5(rr, fr, rd)
+        conv = convergence(cells, fr, rd)
+    else:
+        for stale in ("H5_by_model.csv", "H5_by_stage.csv", "H5_freetext_by_model_format.csv", "X_convergence.csv"):
+            (rd / stale).unlink(missing_ok=True)
 
     # ---- continuity with the submitted analysis ----
     lm = model_dim(cells_legacy)

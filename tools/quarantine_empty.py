@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Move empty responses out of data/raw/*.jsonl into data/raw_quarantine/ so that a resumed
-run re-queries only those (prompt, repeat) positions. This is the procedure used in June 2026:
-the first full pass used max_tokens.rating = 12; empty responses were quarantined with this
-script and re-queried with max_tokens.rating = 40; non-empty responses were kept.
+run re-queries only those (prompt, repeat) positions. This is the procedure used in June 2026
+for the two excluded reasoning models. The token log shows that the re-query used the same
+budgets as the first pass (rating 12, free text 256), so it could not rescue those models.
 Usage:  python -m tools.quarantine_empty [--apply] [--model MODEL_ID]
 """
 import os

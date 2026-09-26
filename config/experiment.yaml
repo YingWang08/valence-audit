@@ -1,11 +1,10 @@
 # ======================= Experiment configuration =======================
 # June 2026 collection (the data analysed in the manuscript) used exactly the
-# `api` and `generation` settings below, with ONE documented exception:
-#   generation.max_tokens.rating was 12 during the first full pass; responses
-#   that came back EMPTY were moved to data/raw_quarantine/ (tools/quarantine_empty.py)
-#   and re-queried with max_tokens.rating = 40. Non-empty responses from the first
-#   pass were kept. Run `python -m tools.diagnose_usage` to see, per model, how many
-#   completions hit the 12- and 40-token budgets (data/raw/_usage.csv).
+# `api` and `generation` settings below.
+# Rating-format budget: max_tokens = 12 for EVERY rating call, including the re-query of
+#   empty responses (tools/quarantine_empty.py). This is verified from data/raw/_usage.csv
+#   with `python -m tools.diagnose_usage`: no logged rating completion exceeds 12 tokens and
+#   none reaches 40. (v1.0.0 of this file showed 40, a value set after collection ended.)
 # NOTE: v1.0.0 listed `temperature_sweep: [0.0, 0.7, 1.0]` here, but no code ever
 #   used it and no temperature sweep was run. The key has been removed.
 
@@ -24,7 +23,7 @@ generation:
     instruct: 8
     frontier: 5                     # legacy label = the heavily safety-tuned model (Nemotron-Mini-4B)
   max_tokens:
-    rating: 40                      # see header note (first pass used 12)
+    rating: 12                      # value used for all June rating calls (see header)
     other: 256
 
 measurement:
@@ -60,6 +59,11 @@ analysis:
   high_missingness_models:
     - "mistralai/mixtral-8x7b-instruct-v0.1"
     - "nvidia/nemotron-mini-4b-instruct"
+  # Free-text measures (lexicon hedging/refusal, lexicon sentiment) and the pre-specified H5
+  # are not reported in the revision: the lexicons were not validated, many free-text
+  # responses were cut at 256 tokens, and rating-format "refusals" were produced by the
+  # 12-token budget. Set to true only for exploratory inspection.
+  report_freetext: false
   # Pre-specified directions (copied from config/dimensions.yaml; used only for reporting).
   dimension_order: [productivity, decision, trust, reliability, moral, emotion, creativity, worth]
 

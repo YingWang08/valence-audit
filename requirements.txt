@@ -5,6 +5,7 @@ scipy>=1.11
 statsmodels>=0.14
 matplotlib>=3.8
 pyarrow>=14
+openpyxl>=3.1
 pyyaml>=6
 python-dotenv>=1.0
 # data collection (NVIDIA NIM, OpenAI-compatible)
