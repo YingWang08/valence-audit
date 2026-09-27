@@ -11,3 +11,5 @@ __pycache__/
 data_mock/
 # NOTE: data/ is deliberately NOT ignored (v1.0.0 ignored data/raw, data/measured,
 # data/results and data/prompts, so the deposit could not reproduce the paper).
+# Excel lock files
+~$*
