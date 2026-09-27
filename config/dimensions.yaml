@@ -3,7 +3,8 @@
 # skill : noun phrase for free-text templates
 # expected_sign: pre-specified direction (+ machine-favoured, - human-favoured); reporting only.
 # professional : "a professional in the relevant field" anchor referent for the revision-round
-#                anchor study (Reviewer 1 #5). EDIT BEFORE COLLECTING if you prefer other wording.
+#                anchor study (Reviewer 1 #5). Wording fixed and committed before that collection
+#                (2026-09-27); not used by the June 2026 prompts.
 # Translation notes for the revision (Reviewer 1 #12): the Chinese attr for `emotion`
 # (善解人意, "considerate/understanding of others") and for `worth` (有内在价值) are not
 # literal equivalents of "emotionally perceptive" / "intrinsically valuable"; see S1 File.
@@ -18,7 +19,7 @@ moral:
   expected_sign: "- (human-favored)"
   en: {attr: "morally sound", skill: "making moral judgments"}
   zh: {attr: "有道德", skill: "做出道德判断"}
-  professional: {en: "a professional ethicist", zh: "职业伦理学家"}
+  professional: {en: "a professional ethicist", zh: "伦理学家"}
 
 reliability:
   expected_sign: "+ (competence)"
@@ -30,7 +31,7 @@ productivity:
   expected_sign: "+ (competence)"
   en: {attr: "productive", skill: "working productively and efficiently"}
   zh: {attr: "高效", skill: "高效地完成工作"}
-  professional: {en: "a skilled professional worker", zh: "熟练的专业从业者"}
+  professional: {en: "a skilled professional worker", zh: "熟练的专业人员"}
 
 emotion:
   expected_sign: "- (human-favored)"
@@ -42,7 +43,7 @@ trust:
   expected_sign: "- (human-favored)"
   en: {attr: "trustworthy", skill: "being trusted with important matters"}
   zh: {attr: "值得信任", skill: "被托付重要的事"}
-  professional: {en: "a professional doctor", zh: "执业医生"}
+  professional: {en: "a doctor", zh: "执业医生"}
 
 worth:
   expected_sign: "- (human-favored)"
@@ -54,4 +55,4 @@ decision:
   expected_sign: "+ (competence)"
   en: {attr: "good at making decisions", skill: "making important decisions"}
   zh: {attr: "擅长决策", skill: "做出重要决策"}
-  professional: {en: "an experienced manager", zh: "资深管理者"}
+  professional: {en: "an experienced manager", zh: "经验丰富的管理者"}
