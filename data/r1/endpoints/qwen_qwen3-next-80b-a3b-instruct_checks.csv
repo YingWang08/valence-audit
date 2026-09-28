@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T16:58:22+00:00,qwen/qwen3-next-80b-a3b-instruct,local,127.0.0.1:8000,qwen/qwen3-next-80b-a3b-instruct,ok,200,13.2,qwen/qwen3-next-80b-a3b-instruct,

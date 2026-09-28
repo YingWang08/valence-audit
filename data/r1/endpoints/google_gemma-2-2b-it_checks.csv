@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T15:39:18+00:00,google/gemma-2-2b-it,local,127.0.0.1:8000,google/gemma-2-2b-it,ok,200,0.2,google/gemma-2-2b-it,

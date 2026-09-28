@@ -1,0 +1,111 @@
+Task exception was never retrieved
+future: <Task finished name='Task-5' coro=<AsyncClient.aclose() done, defined at /usr/local/lib/python3.12/dist-packages/httpx2/_client.py:2198> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/httpx2/_client.py", line 2205, in aclose
+    await self._transport.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpx2/_transports/default.py", line 400, in aclose
+    await self._pool.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/connection_pool.py", line 382, in aclose
+    await self._close_connections(closing_connections)
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/connection_pool.py", line 374, in _close_connections
+    await connection.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/connection.py", line 157, in aclose
+    await self._connection.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/http11.py", line 236, in aclose
+    await self._network_stream.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_backends/anyio.py", line 55, in aclose
+    await self._stream.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 1213, in close
+    super().close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 799, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 545, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Task exception was never retrieved
+future: <Task finished name='Task-1797' coro=<AsyncClient.aclose() done, defined at /usr/local/lib/python3.12/dist-packages/httpx2/_client.py:2198> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/httpx2/_client.py", line 2205, in aclose
+    await self._transport.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpx2/_transports/default.py", line 400, in aclose
+    await self._pool.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/connection_pool.py", line 382, in aclose
+    await self._close_connections(closing_connections)
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/connection_pool.py", line 374, in _close_connections
+    await connection.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/connection.py", line 157, in aclose
+    await self._connection.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_async/http11.py", line 236, in aclose
+    await self._network_stream.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/httpcore2/_backends/anyio.py", line 55, in aclose
+    await self._stream.aclose()
+  File "/usr/local/lib/python3.12/dist-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 1213, in close
+    super().close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 799, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 545, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+[clock] local UTC minus server time: -0.3 s (https://www.aliyun.com)
+[build_prompts] revision grid: 512 prompts -> /mnt/workspace/valence-audit/data/r1/prompts/grid_r1.jsonl
+
+[r1] choosing endpoints (rule in config/collection_r1.yaml)
+  [endpoint] meta/llama-3.3-70b-instruct -> local (meta/llama-3.3-70b-instruct)
+
+[r1] A. anchor study, isolated prompts
+[generate] models=1 prompts=448 mock=False collection=r1_2026
+  -> meta/llama-3.3-70b-instruct (stage=instruct, repeats=4, endpoint=local, api_model=meta/llama-3.3-70b-instruct, overrides={})
+     [progress] meta/llama-3.3-70b-instruct: 179/1792 (ok 179, failed 0), 0.1 min
+     [progress] meta/llama-3.3-70b-instruct: 358/1792 (ok 358, failed 0), 0.2 min
+     [progress] meta/llama-3.3-70b-instruct: 537/1792 (ok 537, failed 0), 0.2 min
+     [progress] meta/llama-3.3-70b-instruct: 716/1792 (ok 716, failed 0), 0.3 min
+     [progress] meta/llama-3.3-70b-instruct: 895/1792 (ok 895, failed 0), 0.4 min
+     [progress] meta/llama-3.3-70b-instruct: 1074/1792 (ok 1074, failed 0), 0.5 min
+     [progress] meta/llama-3.3-70b-instruct: 1253/1792 (ok 1253, failed 0), 0.6 min
+     [progress] meta/llama-3.3-70b-instruct: 1432/1792 (ok 1432, failed 0), 0.6 min
+     [progress] meta/llama-3.3-70b-instruct: 1611/1792 (ok 1611, failed 0), 0.7 min
+     [progress] meta/llama-3.3-70b-instruct: 1790/1792 (ok 1790, failed 0), 0.8 min
+[generate] done. 1/1 models used. Raw data in /mnt/workspace/valence-audit/data/r1/raw
+
+[r1] A. anchor study, joint prompts (each item order is used once)
+[generate] models=1 prompts=64 mock=False collection=r1_2026
+  -> meta/llama-3.3-70b-instruct (stage=instruct, repeats=1, endpoint=local, api_model=meta/llama-3.3-70b-instruct, overrides={})
+     [progress] meta/llama-3.3-70b-instruct: 50/64 (ok 50, failed 0), 0.2 min
+[generate] done. 1/1 models used. Raw data in /mnt/workspace/valence-audit/data/r1/raw
+
+[r1] C. budget check: June rating prompts at max_tokens 12
+[generate] models=1 prompts=128 mock=False collection=r1_2026_budget12
+  -> meta/llama-3.3-70b-instruct (stage=instruct, repeats=4, endpoint=local, api_model=meta/llama-3.3-70b-instruct, overrides={})
+     [progress] meta/llama-3.3-70b-instruct: 51/512 (ok 51, failed 0), 0.0 min
+     [progress] meta/llama-3.3-70b-instruct: 102/512 (ok 102, failed 0), 0.0 min
+     [progress] meta/llama-3.3-70b-instruct: 153/512 (ok 153, failed 0), 0.1 min
+     [progress] meta/llama-3.3-70b-instruct: 204/512 (ok 204, failed 0), 0.1 min
+     [progress] meta/llama-3.3-70b-instruct: 255/512 (ok 255, failed 0), 0.1 min
+     [progress] meta/llama-3.3-70b-instruct: 306/512 (ok 306, failed 0), 0.1 min
+     [progress] meta/llama-3.3-70b-instruct: 357/512 (ok 357, failed 0), 0.1 min
+     [progress] meta/llama-3.3-70b-instruct: 408/512 (ok 408, failed 0), 0.2 min
+     [progress] meta/llama-3.3-70b-instruct: 459/512 (ok 459, failed 0), 0.2 min
+     [progress] meta/llama-3.3-70b-instruct: 510/512 (ok 510, failed 0), 0.2 min
+[generate] done. 1/1 models used. Raw data in /mnt/workspace/valence-audit/data/r1/budget12/raw
+
+[r1] collection pass finished: /mnt/workspace/valence-audit/data/r1
+
+[r1] status (records on disk / expected; no response text is shown)
+  model                                     endpoint    A isolated    A joint   C 12-token  B rerun   
+  google/gemma-2-2b-it                      local       1792/1792     64/64     512/512     -         
+  microsoft/phi-4-mini-instruct             local       1792/1792     64/64     512/512     -         
+  nvidia/nemotron-mini-4b-instruct          local       1792/1792     64/64     512/512     -         
+  meta/llama-3.1-8b-instruct                local       1792/1792     64/64     512/512     -         
+  mistralai/mixtral-8x7b-instruct-v0.1      local       1792/1792     64/64     512/512     -         
+  meta/llama-3.3-70b-instruct               local       1792/1792     64/64     512/512     -         
+  qwen/qwen3-next-80b-a3b-instruct          -           0/1792        0/64      0/512       -         
+  openai/gpt-oss-20b                        -           -             -         -           0/1024    
+  nvidia/llama-3.3-nemotron-super-49b-v1.5  -           -             -         -           0/640     

@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T15:41:56+00:00,microsoft/phi-4-mini-instruct,local,127.0.0.1:8000,microsoft/phi-4-mini-instruct,ok,200,0.1,microsoft/phi-4-mini-instruct,

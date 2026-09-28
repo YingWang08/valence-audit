@@ -1,0 +1,8 @@
+{
+ "model": "microsoft/phi-4-mini-instruct",
+ "endpoint": "local",
+ "api_model": "microsoft/phi-4-mini-instruct",
+ "host": "127.0.0.1:8000",
+ "response_model": "microsoft/phi-4-mini-instruct",
+ "chosen_utc": "2026-09-28T15:41:56+00:00"
+}

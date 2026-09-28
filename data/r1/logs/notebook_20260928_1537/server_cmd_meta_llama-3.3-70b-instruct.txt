@@ -1,0 +1,1 @@
+/usr/bin/python3 -m vllm.entrypoints.openai.api_server --model /mnt/r1work/models/meta_llama-3.3-70b-instruct --served-model-name meta/llama-3.3-70b-instruct --dtype bfloat16 --host 127.0.0.1 --port 8000 --enforce-eager --seed 0 --max-model-len 4096 --gpu-memory-utilization 0.92 --max-num-seqs 64

@@ -1,0 +1,8 @@
+{
+ "model": "mistralai/mixtral-8x7b-instruct-v0.1",
+ "endpoint": "local",
+ "api_model": "mistralai/mixtral-8x7b-instruct-v0.1",
+ "host": "127.0.0.1:8000",
+ "response_model": "mistralai/mixtral-8x7b-instruct-v0.1",
+ "chosen_utc": "2026-09-28T15:59:45+00:00"
+}

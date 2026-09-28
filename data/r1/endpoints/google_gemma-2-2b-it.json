@@ -1,0 +1,8 @@
+{
+ "model": "google/gemma-2-2b-it",
+ "endpoint": "local",
+ "api_model": "google/gemma-2-2b-it",
+ "host": "127.0.0.1:8000",
+ "response_model": "google/gemma-2-2b-it",
+ "chosen_utc": "2026-09-28T15:39:18+00:00"
+}

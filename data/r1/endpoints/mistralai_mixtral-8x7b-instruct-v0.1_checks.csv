@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T15:59:42+00:00,mistralai/mixtral-8x7b-instruct-v0.1,local,127.0.0.1:8000,mistralai/mixtral-8x7b-instruct-v0.1,ok,200,3.2,mistralai/mixtral-8x7b-instruct-v0.1,

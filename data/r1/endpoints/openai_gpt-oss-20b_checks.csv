@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T14:45:07+00:00,openai/gpt-oss-20b,nim,integrate.api.nvidia.com,openai/gpt-oss-20b,ok,200,1.4,openai/gpt-oss-20b,

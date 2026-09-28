@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T15:48:08+00:00,meta/llama-3.1-8b-instruct,local,127.0.0.1:8000,meta/llama-3.1-8b-instruct,ok,200,0.1,meta/llama-3.1-8b-instruct,

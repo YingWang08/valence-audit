@@ -1,0 +1,163 @@
+
+===== vllm  2026-09-28T16:32:17+00:00 =====
+[ERROR] `high_res_size` is part of DeepseekVLHybridImageProcessorKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/deepseek_vl_hybrid/image_processing_deepseek_vl_hybrid.py.
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `high_res_size` is part of DeepseekVLHybridImageProcessorKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/deepseek_vl_hybrid/image_processing_pil_deepseek_vl_hybrid.py.
+[ERROR] `high_res_size` is part of DeepseekVLHybridImageProcessorKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/deepseek_vl_hybrid/image_processing_pil_deepseek_vl_hybrid.py.
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:333] 
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:333]        █     █     █▄   ▄█
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:333]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.28.0
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:333]   █▄█▀ █     █     █     █  model   /mnt/r1work/models/nvidia_llama-3.3-nemotron-super-49b-v1.5
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:333]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:333] 
+(APIServer pid=6397) INFO 09-29 00:32:25 [api_utils.py:272] non-default args: {'host': '127.0.0.1', 'model': '/mnt/r1work/models/nvidia_llama-3.3-nemotron-super-49b-v1.5', 'trust_remote_code': True, 'dtype': 'bfloat16', 'max_model_len': 8192, 'enforce_eager': True, 'served_model_name': ['nvidia/llama-3.3-nemotron-super-49b-v1.5'], 'reasoning_parser': 'deepseek_r1', 'max_num_seqs': 64}
+(APIServer pid=6397) INFO 09-29 00:32:35 [model.py:672] Resolved architecture: DeciLMForCausalLM
+(APIServer pid=6397) INFO 09-29 00:32:35 [model.py:1965] Using max model len 8192
+(APIServer pid=6397) INFO 09-29 00:32:35 [scheduler.py:242] Chunked prefill is enabled with max_num_batched_tokens=16384.
+(APIServer pid=6397) WARNING 09-29 00:32:35 [vllm.py:1285] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+(APIServer pid=6397) WARNING 09-29 00:32:35 [vllm.py:1354] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(APIServer pid=6397) INFO 09-29 00:32:35 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+(APIServer pid=6397) INFO 09-29 00:32:35 [vllm.py:1533] Cudagraph is disabled under eager mode
+(APIServer pid=6397) Traceback (most recent call last):
+(APIServer pid=6397)   File "<frozen runpy>", line 198, in _run_module_as_main
+(APIServer pid=6397)   File "<frozen runpy>", line 88, in _run_code
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 779, in <module>
+(APIServer pid=6397)     uvloop.run(run_server(args))
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=6397)     return __asyncio.run(
+(APIServer pid=6397)            ^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/lib/python3.12/asyncio/runners.py", line 195, in run
+(APIServer pid=6397)     return runner.run(main)
+(APIServer pid=6397)            ^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=6397)     return self._loop.run_until_complete(task)
+(APIServer pid=6397)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=6397)     return await main
+(APIServer pid=6397)            ^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 739, in run_server
+(APIServer pid=6397)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 753, in run_server_worker
+(APIServer pid=6397)     async with build_async_engine_client(
+(APIServer pid=6397)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=6397)     return await anext(self.gen)
+(APIServer pid=6397)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 127, in build_async_engine_client
+(APIServer pid=6397)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=6397)                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=6397)     return await anext(self.gen)
+(APIServer pid=6397)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 151, in build_async_engine_client_from_engine_args
+(APIServer pid=6397)     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+(APIServer pid=6397)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/engine/arg_utils.py", line 2501, in create_engine_config
+(APIServer pid=6397)     config = VllmConfig(
+(APIServer pid=6397)              ^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+(APIServer pid=6397)     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/config/vllm.py", line 1704, in __post_init__
+(APIServer pid=6397)     self.reasoning_config.initialize_token_ids(self.model_config)
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/config/reasoning.py", line 87, in initialize_token_ids
+(APIServer pid=6397)     reasoning_parser = parser_cls(tokenizer)
+(APIServer pid=6397)                        ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6397)   File "/usr/local/lib/python3.12/dist-packages/vllm/reasoning/basic_parsers.py", line 65, in __init__
+(APIServer pid=6397)     raise RuntimeError(
+(APIServer pid=6397) RuntimeError: DeepSeekR1ReasoningParser reasoning parser could not locate think start/end tokens in the tokenizer!
+
+===== vllm TRITON_ATTN 2026-09-28T16:32:47+00:00 =====
+[ERROR] `high_res_size` is part of DeepseekVLHybridImageProcessorKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/deepseek_vl_hybrid/image_processing_deepseek_vl_hybrid.py.
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `high_res_size` is part of DeepseekVLHybridImageProcessorKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/deepseek_vl_hybrid/image_processing_pil_deepseek_vl_hybrid.py.
+[ERROR] `high_res_size` is part of DeepseekVLHybridImageProcessorKwargs, but not documented. Make sure to add it to the docstring of the function in /usr/local/lib/python3.12/dist-packages/transformers/models/deepseek_vl_hybrid/image_processing_pil_deepseek_vl_hybrid.py.
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:333] 
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:333]        █     █     █▄   ▄█
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:333]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.28.0
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:333]   █▄█▀ █     █     █     █  model   /mnt/r1work/models/nvidia_llama-3.3-nemotron-super-49b-v1.5
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:333]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:333] 
+(APIServer pid=6560) INFO 09-29 00:32:55 [api_utils.py:272] non-default args: {'host': '127.0.0.1', 'model': '/mnt/r1work/models/nvidia_llama-3.3-nemotron-super-49b-v1.5', 'trust_remote_code': True, 'dtype': 'bfloat16', 'max_model_len': 8192, 'enforce_eager': True, 'served_model_name': ['nvidia/llama-3.3-nemotron-super-49b-v1.5'], 'reasoning_parser': 'deepseek_r1', 'max_num_seqs': 64}
+(APIServer pid=6560) WARNING 09-29 00:32:55 [envs.py:2213] Unknown vLLM environment variable detected: VLLM_ATTENTION_BACKEND
+(APIServer pid=6560) INFO 09-29 00:32:55 [model.py:672] Resolved architecture: DeciLMForCausalLM
+(APIServer pid=6560) INFO 09-29 00:32:55 [model.py:1965] Using max model len 8192
+(APIServer pid=6560) INFO 09-29 00:32:55 [scheduler.py:242] Chunked prefill is enabled with max_num_batched_tokens=16384.
+(APIServer pid=6560) WARNING 09-29 00:32:55 [vllm.py:1285] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+(APIServer pid=6560) WARNING 09-29 00:32:55 [vllm.py:1354] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(APIServer pid=6560) INFO 09-29 00:32:55 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+(APIServer pid=6560) INFO 09-29 00:32:55 [vllm.py:1533] Cudagraph is disabled under eager mode
+(APIServer pid=6560) Traceback (most recent call last):
+(APIServer pid=6560)   File "<frozen runpy>", line 198, in _run_module_as_main
+(APIServer pid=6560)   File "<frozen runpy>", line 88, in _run_code
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 779, in <module>
+(APIServer pid=6560)     uvloop.run(run_server(args))
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=6560)     return __asyncio.run(
+(APIServer pid=6560)            ^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/lib/python3.12/asyncio/runners.py", line 195, in run
+(APIServer pid=6560)     return runner.run(main)
+(APIServer pid=6560)            ^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=6560)     return self._loop.run_until_complete(task)
+(APIServer pid=6560)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=6560)     return await main
+(APIServer pid=6560)            ^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 739, in run_server
+(APIServer pid=6560)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 753, in run_server_worker
+(APIServer pid=6560)     async with build_async_engine_client(
+(APIServer pid=6560)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=6560)     return await anext(self.gen)
+(APIServer pid=6560)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 127, in build_async_engine_client
+(APIServer pid=6560)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=6560)                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=6560)     return await anext(self.gen)
+(APIServer pid=6560)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/openai/api_server.py", line 151, in build_async_engine_client_from_engine_args
+(APIServer pid=6560)     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+(APIServer pid=6560)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/engine/arg_utils.py", line 2501, in create_engine_config
+(APIServer pid=6560)     config = VllmConfig(
+(APIServer pid=6560)              ^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+(APIServer pid=6560)     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/config/vllm.py", line 1704, in __post_init__
+(APIServer pid=6560)     self.reasoning_config.initialize_token_ids(self.model_config)
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/config/reasoning.py", line 87, in initialize_token_ids
+(APIServer pid=6560)     reasoning_parser = parser_cls(tokenizer)
+(APIServer pid=6560)                        ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=6560)   File "/usr/local/lib/python3.12/dist-packages/vllm/reasoning/basic_parsers.py", line 65, in __init__
+(APIServer pid=6560)     raise RuntimeError(
+(APIServer pid=6560) RuntimeError: DeepSeekR1ReasoningParser reasoning parser could not locate think start/end tokens in the tokenizer!
+
+===== transformers  2026-09-28T16:33:07+00:00 =====
+Traceback (most recent call last):
+  File "/mnt/workspace/valence-audit/tools/notebook/hf_server.py", line 205, in <module>
+    main()
+  File "/mnt/workspace/valence-audit/tools/notebook/hf_server.py", line 197, in main
+    tok, model, defaults, eos, dev = load(a)
+                                     ^^^^^^^
+  File "/mnt/workspace/valence-audit/tools/notebook/hf_server.py", line 43, in load
+    model = AutoModelForCausalLM.from_pretrained(a.model, dtype=a.torch_dtype, **kw)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/models/auto/auto_factory.py", line 378, in from_pretrained
+    model_class = get_class_from_dynamic_module(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/dynamic_module_utils.py", line 623, in get_class_from_dynamic_module
+    return get_class_in_module(class_name, final_module, force_reload=force_download)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/dynamic_module_utils.py", line 309, in get_class_in_module
+    module_spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/root/.cache/huggingface/modules/transformers_modules/nvidia_llama_hyphen_3_dot_3_hyphen_nemotron_hyphen_super_hyphen_49b_hyphen_v1_dot_5/423023298be486d1/modeling_decilm.py", line 30, in <module>
+    from transformers.generation.utils import NEED_SETUP_CACHE_CLASSES_MAPPING, GenerationMixin, GenerateOutput
+ImportError: cannot import name 'NEED_SETUP_CACHE_CLASSES_MAPPING' from 'transformers.generation.utils' (/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py)

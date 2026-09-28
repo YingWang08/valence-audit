@@ -1,0 +1,8 @@
+{
+ "model": "qwen/qwen3-next-80b-a3b-instruct",
+ "endpoint": "local",
+ "api_model": "qwen/qwen3-next-80b-a3b-instruct",
+ "host": "127.0.0.1:8000",
+ "response_model": "qwen/qwen3-next-80b-a3b-instruct",
+ "chosen_utc": "2026-09-28T16:58:36+00:00"
+}

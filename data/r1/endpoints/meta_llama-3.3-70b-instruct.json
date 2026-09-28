@@ -1,0 +1,8 @@
+{
+ "model": "meta/llama-3.3-70b-instruct",
+ "endpoint": "local",
+ "api_model": "meta/llama-3.3-70b-instruct",
+ "host": "127.0.0.1:8000",
+ "response_model": "meta/llama-3.3-70b-instruct",
+ "chosen_utc": "2026-09-28T16:21:04+00:00"
+}

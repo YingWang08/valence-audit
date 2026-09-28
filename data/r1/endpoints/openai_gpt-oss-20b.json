@@ -1,0 +1,8 @@
+{
+ "model": "openai/gpt-oss-20b",
+ "endpoint": "nim",
+ "api_model": "openai/gpt-oss-20b",
+ "host": "integrate.api.nvidia.com",
+ "response_model": "openai/gpt-oss-20b",
+ "chosen_utc": "2026-09-28T14:45:08+00:00"
+}

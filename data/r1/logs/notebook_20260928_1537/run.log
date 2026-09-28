@@ -1,0 +1,67 @@
+[15:37:01Z] Notebook run 20260928_1537; repository /mnt/workspace/valence-audit; work dir /mnt/r1work
+[15:37:09Z] GPU: {'vendor': 'amd', 'name': '', 'memory_mib': 196288, 'driver': 'hip 7.2.53211', 'arch': 'gfx942:sramecc+:xnack-', 'bf16': True, 'torch': '2.12.0+git6bbd260'}; vllm 0.28.0; torch 2.12.0+git6bbd260; transformers 5.15.1
+[15:37:11Z] [google/gemma-2-2b-it] step 1/4 download
+[15:37:11Z]   download attempt 1: LLM-Research/gemma-2-2b-it (9 files, 5.3 GB)
+[15:37:40Z] [google/gemma-2-2b-it] step 2/4 verify 9 files against google/gemma-2-2b-it@299a8560be
+[15:37:44Z] [google/gemma-2-2b-it] step 3/4 start vllm, bf16
+[15:39:15Z] [google/gemma-2-2b-it] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[15:40:15Z] [google/gemma-2-2b-it] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[15:40:21Z] [microsoft/phi-4-mini-instruct] step 1/4 download
+[15:40:21Z]   download attempt 1: LLM-Research/Phi-4-mini-instruct (13 files, 7.7 GB)
+[15:41:03Z] [microsoft/phi-4-mini-instruct] step 2/4 verify 13 files against microsoft/Phi-4-mini-instruct@cfbefacb99
+[15:41:09Z] [microsoft/phi-4-mini-instruct] step 3/4 start vllm, bf16
+[15:41:54Z] [microsoft/phi-4-mini-instruct] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[15:42:51Z] [microsoft/phi-4-mini-instruct] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[15:42:57Z] [nvidia/nemotron-mini-4b-instruct] step 1/4 download
+[15:42:57Z]   download attempt 1: nv-community/Nemotron-Mini-4B-Instruct (6 files, 8.4 GB)
+[15:43:41Z] [nvidia/nemotron-mini-4b-instruct] step 2/4 verify 6 files against nvidia/Nemotron-Mini-4B-Instruct@791833e92e
+[15:43:48Z] [nvidia/nemotron-mini-4b-instruct] step 3/4 start vllm, bf16
+[15:44:38Z] [nvidia/nemotron-mini-4b-instruct] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[15:45:34Z] [nvidia/nemotron-mini-4b-instruct] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[15:45:41Z] [meta/llama-3.1-8b-instruct] step 1/4 download
+[15:45:41Z]   download attempt 1: LLM-Research/Meta-Llama-3.1-8B-Instruct (10 files, 16.1 GB)
+[15:47:03Z] [meta/llama-3.1-8b-instruct] step 2/4 verify 10 files against meta-llama/Llama-3.1-8B-Instruct@0e9e39f249
+[15:47:16Z] [meta/llama-3.1-8b-instruct] step 3/4 start vllm, bf16
+[15:48:06Z] [meta/llama-3.1-8b-instruct] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[15:49:01Z] [meta/llama-3.1-8b-instruct] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[15:49:08Z] [mistralai/mixtral-8x7b-instruct-v0.1] step 1/4 download
+[15:49:08Z]   download attempt 1: mistralai/Mixtral-8x7B-Instruct-v0.1 (26 files, 93.4 GB)
+[15:57:13Z] [mistralai/mixtral-8x7b-instruct-v0.1] step 2/4 verify 26 files against mistralai/Mixtral-8x7B-Instruct-v0.1@eba92302a2
+[15:58:25Z] [mistralai/mixtral-8x7b-instruct-v0.1] step 3/4 start vllm, bf16
+[15:59:40Z] [mistralai/mixtral-8x7b-instruct-v0.1] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[16:03:55Z] [mistralai/mixtral-8x7b-instruct-v0.1] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[16:04:08Z] [meta/llama-3.3-70b-instruct] step 1/4 download
+[16:04:08Z]   download attempt 1: LLM-Research/Llama-3.3-70B-Instruct (36 files, 141.1 GB)
+[16:17:16Z] [meta/llama-3.3-70b-instruct] step 2/4 verify 36 files against meta-llama/Llama-3.3-70B-Instruct@6f6073b423
+[16:19:06Z] [meta/llama-3.3-70b-instruct] step 3/4 start vllm, bf16
+[16:20:56Z] [meta/llama-3.3-70b-instruct] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[16:22:13Z] [meta/llama-3.3-70b-instruct] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[16:22:30Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 1/4 download
+[16:22:30Z]   download attempt 1: nv-community/Llama-3_3-Nemotron-Super-49B-v1_5 (39 files, 99.8 GB)
+[16:31:00Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 2/4 verify 39 files against nvidia/Llama-3_3-Nemotron-Super-49B-v1_5@420ba7d282
+[16:32:17Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 3/4 start vllm, bf16
+[16:32:47Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] vllm did not start (see server_nvidia_llama-3.3-nemotron-super-49b-v1.5.log)
+[16:32:47Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 3/4 start vllm (TRITON_ATTN), bf16
+[16:33:07Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] vllm (TRITON_ATTN) did not start (see server_nvidia_llama-3.3-nemotron-super-49b-v1.5.log)
+[16:33:07Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 3/4 start transformers, bf16
+[16:33:22Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] transformers did not start (see server_nvidia_llama-3.3-nemotron-super-49b-v1.5.log)
+[16:33:22Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] no engine could serve this model; skipped. Send server_nvidia_llama-3.3-nemotron-super-49b-v1.5.log to the assistant.
+[16:33:29Z] [qwen/qwen3-next-80b-a3b-instruct] step 1/4 download
+[16:33:29Z]   download attempt 1: Qwen/Qwen3-Next-80B-A3B-Instruct (48 files, 162.7 GB)
+[16:48:53Z] [qwen/qwen3-next-80b-a3b-instruct] step 2/4 verify 48 files against Qwen/Qwen3-Next-80B-A3B-Instruct@9c7f2fbe84
+[16:51:00Z] [qwen/qwen3-next-80b-a3b-instruct] step 3/4 start vllm, bf16
+[16:53:05Z] [qwen/qwen3-next-80b-a3b-instruct] vllm did not start (see server_qwen_qwen3-next-80b-a3b-instruct.log)
+[16:53:05Z] [qwen/qwen3-next-80b-a3b-instruct] step 3/4 start vllm (TRITON_ATTN), bf16
+[16:55:05Z] [qwen/qwen3-next-80b-a3b-instruct] vllm (TRITON_ATTN) did not start (see server_qwen_qwen3-next-80b-a3b-instruct.log)
+[16:55:05Z] [qwen/qwen3-next-80b-a3b-instruct] step 3/4 start transformers, bf16
+[16:58:20Z] [qwen/qwen3-next-80b-a3b-instruct] step 4/4 collect (A_isolated, A_joint, C_budget12)
+[17:00:13Z] [qwen/qwen3-next-80b-a3b-instruct] pass 1: exit 0; records {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512} of {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z] Summary:
+[17:01:23Z]   google/gemma-2-2b-it                       complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z]   microsoft/phi-4-mini-instruct              complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z]   nvidia/nemotron-mini-4b-instruct           complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z]   meta/llama-3.1-8b-instruct                 complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z]   mistralai/mixtral-8x7b-instruct-v0.1       complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z]   meta/llama-3.3-70b-instruct                complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:23Z]   nvidia/llama-3.3-nemotron-super-49b-v1.5   server failed to start             {'B_rerun': 0}
+[17:01:23Z]   qwen/qwen3-next-80b-a3b-instruct           complete (transformers)            {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
