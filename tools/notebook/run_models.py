@@ -9,8 +9,12 @@ ROCm, runs all seven June checkpoints and the Nemotron-Super re-collection) or a
   3. verify every file against the Hugging Face release (size + SHA-256 / Git object id); stop on any
      mismatch;
   4. serve the model under its June model id: vLLM (bf16); if vLLM cannot start, vLLM with another
-     attention backend; if that fails too, tools/notebook/hf_server.py (transformers, bf16). The engine
-     used is recorded in data/r1/endpoints/<model>_engine.json;
+     attention backend; if that fails too, tools/notebook/hf_server.py (transformers, bf16), and for a
+     model whose own code needs an older transformers (manifest "transformers_version"), hf_server.py
+     with that version installed beside the image's (only for that server). A reasoning model whose
+     reasoning vLLM cannot split (manifest "think_split_proxy") is served by vLLM behind
+     tools/notebook/think_split_proxy.py. The engine used is recorded in
+     data/r1/endpoints/<model>_engine.json;
   5. python run_all.py --collect-r1 --models <id>   (resumable);
   6. stop the server, delete the weights (unless --keep-weights), pack the results so far.
 Everything is logged to data/r1/logs/notebook_<UTC>/. No response text is printed or logged.
@@ -36,7 +40,10 @@ MANIFESTS = ROOT / "tools" / "notebook" / "manifests"
 ORDER = ["google/gemma-2-2b-it", "microsoft/phi-4-mini-instruct", "nvidia/nemotron-mini-4b-instruct",
          "meta/llama-3.1-8b-instruct", "mistralai/mixtral-8x7b-instruct-v0.1", "meta/llama-3.3-70b-instruct",
          "nvidia/llama-3.3-nemotron-super-49b-v1.5", "qwen/qwen3-next-80b-a3b-instruct"]
-PORT = 8000
+PORT = 8000            # what the collection talks to (config/collection_r1.yaml, endpoint `local`)
+UPSTREAM_PORT = 8001   # vLLM's own port when it runs behind think_split_proxy.py
+PIP_INDEX = os.environ.get("PIP_INDEX", "https://mirrors.aliyun.com/pypi/simple/")
+WORK = ROOT.parent / "r1work"   # set from --work in main()
 STAMP = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d_%H%M")
 LOGDIR = ROOT / "data" / "r1" / "logs" / f"notebook_{STAMP}"
 WEIGHTS_CSV = ROOT / "data" / "model_weights" / f"weights_check_{STAMP}.csv"
@@ -220,30 +227,97 @@ _HELP = {}
 
 
 def vllm_supports(flag):
+    """Is `flag` a vLLM server option? Newer vLLM prints only option groups for --help; --help=all lists all."""
     if "text" not in _HELP:
-        r = sh(vllm_base_cmd() + ["--help"])
-        _HELP["text"] = (r.stdout or "") + (r.stderr or "")
+        text = ""
+        for h in ("--help", "--help=all"):
+            try:
+                r = sh(vllm_base_cmd() + [h], timeout=300)
+                text += (r.stdout or "") + (r.stderr or "")
+            except Exception:
+                pass
+        _HELP["text"] = text
     return flag in _HELP["text"]
 
 
-def engine_plan(gpu):
-    """Attempts in order: vLLM default; vLLM with another exact attention backend; transformers."""
+def engine_plan(gpu, man):
+    """Attempts in order: vLLM default; vLLM with another exact attention backend; transformers (the
+    image's version); transformers at the version the model's own code needs, if the manifest names one.
+    Each attempt is (engine, option): the attention backend for vLLM, the pinned version for transformers."""
     alt = "TRITON_ATTN" if (gpu or {}).get("vendor") == "amd" else "FLEX_ATTENTION"
-    return [("vllm", None), ("vllm", alt), ("transformers", None)]
+    plan = [("vllm", None), ("vllm", alt), ("transformers", None)]
+    if man.get("transformers_version"):
+        plan.append(("transformers", man["transformers_version"]))
+    return plan
 
 
-def start_server(man, mdir, engine, backend=None):
+def label(engine, opt):
+    if not opt:
+        return engine
+    return f"{engine} ({opt})" if engine == "vllm" else f"transformers {opt}"
+
+
+def pinned_transformers(man):
+    """The packages in the manifest's "transformers_packages" (exact versions: transformers and the
+    tokenizers / huggingface_hub / accelerate of its time) installed without dependencies into their own
+    folder, which goes first on PYTHONPATH of that one server process only; torch and everything else stay
+    the image's. Returns the folder, or None if it cannot be installed or imported."""
+    ver = man["transformers_version"]
+    pkgs = man.get("transformers_packages") or [f"transformers=={ver}"]
+    d = WORK / f"py_transformers_{ver}"
+    if not (d / ".ready").exists():
+        log(f"  installing {' '.join(pkgs)} for this model only (into {d})")
+        shutil.rmtree(d, ignore_errors=True)
+        with open(LOGDIR / "pip_pinned_transformers.log", "a", encoding="utf-8") as lf:
+            r = subprocess.run([sys.executable, "-m", "pip", "install", "--no-deps", "--target", str(d),
+                                "-i", PIP_INDEX] + pkgs, stdout=lf, stderr=subprocess.STDOUT)
+        if r.returncode != 0:
+            log("  could not install them (see pip_pinned_transformers.log)")
+            return None
+        chk = sh([sys.executable, "-c", "import transformers; from transformers.modeling_utils import PreTrainedModel; "
+                  "from transformers import AutoModelForCausalLM, AutoTokenizer; print(transformers.__version__)"],
+                 env=dict(os.environ, PYTHONPATH=str(d)))
+        if chk.returncode != 0 or chk.stdout.strip().splitlines()[-1:] != [ver]:
+            log(f"  transformers {ver} does not import here: {(chk.stderr or chk.stdout).strip()[-300:]}")
+            return None
+        (d / ".ready").touch()
+    return d
+
+
+class Server:
+    def __init__(self, proc, lf, args, proxy=None, version=None):
+        self.proc, self.lf, self.args, self.proxy, self.version = proc, lf, args, proxy, version
+
+
+def start_server(man, mdir, engine, opt=None):
+    """Start one engine for the model; returns a Server, or None if it could not even be launched."""
     env = dict(os.environ, HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", VLLM_NO_USAGE_STATS="1",
                DO_NOT_TRACK="1")
+    proxy_port = None
+    version = None
+    prefix = ""
     if engine == "vllm":
+        port = UPSTREAM_PORT if man.get("think_split_proxy") else PORT
         args = vllm_base_cmd() + ["--model", str(mdir), "--served-model-name", man["model"], "--dtype", "bfloat16",
-                                  "--host", "127.0.0.1", "--port", str(PORT), "--enforce-eager", "--seed", "0"] \
+                                  "--host", "127.0.0.1", "--port", str(port), "--enforce-eager", "--seed", "0"] \
             + man.get("vllm_args", [])
         if vllm_supports("--disable-log-requests"):
             args.append("--disable-log-requests")   # prompts/outputs are not written to the server log
-        if backend:
-            env["VLLM_ATTENTION_BACKEND"] = backend
+        if opt:
+            env["VLLM_ATTENTION_BACKEND"] = opt     # older vLLM
+            if vllm_supports("--attention-backend"):
+                args += ["--attention-backend", opt]
+            prefix = f"VLLM_ATTENTION_BACKEND={opt} "
+        if port != PORT:
+            proxy_port = port
     else:
+        if opt:
+            d = pinned_transformers(man)
+            if d is None:
+                return None
+            env["PYTHONPATH"] = str(d) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+            prefix = f"PYTHONPATH={d} "
+            version = opt
         args = [sys.executable, str(ROOT / "tools" / "notebook" / "hf_server.py"), "--model", str(mdir),
                 "--served-model-name", man["model"], "--port", str(PORT)]
         if man.get("trust_remote_code"):
@@ -251,20 +325,30 @@ def start_server(man, mdir, engine, backend=None):
         if man.get("reasoning_split"):
             args.append("--reasoning-split")
     with open(LOGDIR / f"server_cmd_{safe(man['model'])}.txt", "a", encoding="utf-8") as f:
-        f.write((f"VLLM_ATTENTION_BACKEND={backend} " if backend else "") + " ".join(args) + "\n")
+        f.write(prefix + " ".join(args) + "\n")
+        if proxy_port:
+            f.write(f"python tools/notebook/think_split_proxy.py --port {PORT} --upstream-port {proxy_port}"
+                    f"   (run as a thread of run_models.py)\n")
     lf = open(LOGDIR / f"server_{safe(man['model'])}.log", "a", encoding="utf-8")
-    lf.write(f"\n===== {engine} {backend or ''} {dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')} =====\n")
+    lf.write(f"\n===== {label(engine, opt)} {dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')} =====\n")
     lf.flush()
     proc = subprocess.Popen(args, stdout=lf, stderr=subprocess.STDOUT, env=env, cwd=str(ROOT),
                             start_new_session=True)
-    return proc, lf, args
+    proxy = None
+    if proxy_port:
+        sys.path.insert(0, str(ROOT / "tools" / "notebook"))
+        from think_split_proxy import start_in_thread
+        proxy = start_in_thread(PORT, proxy_port)
+        lf.write(f"[run_models] think_split_proxy listening on {PORT}, forwarding to vLLM on {proxy_port}\n")
+        lf.flush()
+    return Server(proc, lf, args, proxy, version)
 
 
-def wait_ready(man, proc, timeout=2400):
+def wait_ready(man, srv, timeout=2400):
     t0 = time.time()
-    url = f"http://127.0.0.1:{PORT}/v1/models"
+    url = f"http://127.0.0.1:{PORT}/v1/models"      # through the proxy, if there is one
     while time.time() - t0 < timeout:
-        if proc.poll() is not None:
+        if srv.proc.poll() is not None:
             return False
         try:
             with urllib.request.urlopen(url, timeout=5) as r:
@@ -277,7 +361,8 @@ def wait_ready(man, proc, timeout=2400):
     return False
 
 
-def stop_server(proc, lf):
+def stop_server(srv):
+    proc = srv.proc
     if proc.poll() is None:
         try:
             os.killpg(proc.pid, signal.SIGINT)
@@ -287,31 +372,43 @@ def stop_server(proc, lf):
                 os.killpg(proc.pid, signal.SIGKILL)
             except Exception:
                 pass
-    lf.close()
+    else:
+        try:                                # children (e.g. vLLM's engine process) of a server that died
+            os.killpg(proc.pid, signal.SIGKILL)
+        except Exception:
+            pass
+    if srv.proxy is not None:
+        srv.proxy.shutdown()
+        srv.proxy.server_close()
+    srv.lf.close()
     time.sleep(5)
 
 
-def record_engine(man, engine, backend, args, gpu):
+def record_engine(man, engine, opt, srv, gpu):
+    args = srv.args
     p = LOGDIR / f"server_{safe(man['model'])}.log"
     keep = [ln for ln in p.read_text(encoding="utf-8", errors="replace").splitlines()
             if any(k in ln.lower() for k in ("sampling param", "generation config", "generation_config",
                                               "sampling defaults", "chat template", "dtype", "version",
                                               "attention backend", "using"))][-60:] if p.exists() else []
     (LOGDIR / f"sampling_defaults_{safe(man['model'])}.txt").write_text("\n".join(keep) + "\n", encoding="utf-8")
-    ver = None
-    if engine == "vllm":
+    ver = srv.version
+    if ver is None:
         try:
-            import vllm
-            ver = vllm.__version__
+            ver = __import__("vllm" if engine == "vllm" else "transformers").__version__
         except Exception:
             ver = "unknown"
+    if srv.proxy is not None:
+        split = ("tools/notebook/think_split_proxy.py in front of vLLM (no vLLM reasoning parser): text before "
+                 "</think> returned as reasoning_content, the rest as content")
+    elif engine == "transformers" and man.get("reasoning_split"):
+        split = "tools/notebook/hf_server.py --reasoning-split: text before </think> returned as reasoning_content"
     else:
-        try:
-            import transformers
-            ver = transformers.__version__
-        except Exception:
-            ver = "unknown"
-    rec = dict(model=man["model"], engine=engine, engine_version=ver, attention_backend=backend or "default",
+        split = next((f"vLLM --reasoning-parser {args[i + 1]}" for i, a in enumerate(args[:-1])
+                      if a == "--reasoning-parser"), "none")
+    rec = dict(model=man["model"], engine=engine, engine_version=ver,
+               attention_backend=(opt or "default") if engine == "vllm" else "see hf_server log",
+               transformers_pinned=opt if engine == "transformers" else None, reasoning_split=split,
                args=[a if not a.startswith("/") else pathlib.Path(a).name for a in args], dtype="bfloat16",
                gpu=gpu, hf_repo=man["hf_repo"], hf_commit=man["hf_commit"], modelscope_repo=man["modelscope_repo"],
                started_utc=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
@@ -421,7 +518,8 @@ def main():
     ap.add_argument("--work", default=os.environ.get("WORK", str(ROOT.parent / "r1work")))
     a = ap.parse_args()
     models = [m.strip() for m in a.models.split(",") if m.strip()]
-    work = pathlib.Path(a.work)
+    global WORK
+    work = WORK = pathlib.Path(a.work)
     (work / "models").mkdir(parents=True, exist_ok=True)
     LOGDIR.mkdir(parents=True, exist_ok=True)
     log(f"Notebook run {STAMP}; repository {ROOT}; work dir {work}")
@@ -483,24 +581,27 @@ def main():
             summary.append((name, "no chat template", got))
             drop()
             continue
-        proc = lf = None
+        srv = None
         used = None
-        for engine, backend in engine_plan(gpu):
-            log(f"[{name}] step 3/4 start {engine}{' (' + backend + ')' if backend else ''}, bf16")
-            proc, lf, args = start_server(man, mdir, engine, backend)
-            if wait_ready(man, proc):
-                used = (engine, backend, args)
+        for engine, opt in engine_plan(gpu, man):
+            log(f"[{name}] step 3/4 start {label(engine, opt)}, bf16")
+            t_start = time.time()
+            srv = start_server(man, mdir, engine, opt)
+            if srv is not None and wait_ready(man, srv):
+                used = (engine, opt)
                 break
-            stop_server(proc, lf)
-            proc = lf = None
-            log(f"[{name}] {engine}{' (' + backend + ')' if backend else ''} did not start (see server_{safe(name)}.log)")
+            if srv is not None:
+                stop_server(srv)
+            srv = None
+            log(f"[{name}] {label(engine, opt)} did not start after {time.time() - t_start:.0f} s "
+                f"(see server_{safe(name)}.log)")
         try:
             if not used:
                 log(f"[{name}] no engine could serve this model; skipped. Send server_{safe(name)}.log to the assistant.")
                 summary.append((name, "server failed to start", got))
                 drop()
                 continue
-            record_engine(man, used[0], used[1], used[2], gpu)
+            record_engine(man, used[0], used[1], srv, gpu)
             log(f"[{name}] step 4/4 collect ({', '.join(exp)})")
             for attempt in (1, 2):
                 rc = collect(name)
@@ -509,9 +610,9 @@ def main():
                 if done:
                     break
         finally:
-            if proc is not None:
-                stop_server(proc, lf)
-        summary.append((name, f"complete ({used[0]})" if done else "incomplete (run start.sh again)", got))
+            if srv is not None:
+                stop_server(srv)
+        summary.append((name, f"complete ({label(*used)})" if done else "incomplete (run start.sh again)", got))
         drop()
         pack()
     log("Summary:")

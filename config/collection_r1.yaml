@@ -34,7 +34,11 @@
 #   B. Re-collection of the two excluded reasoning models on the June rating prompts with an adequate
 #      token budget (Reviewer 1 #8): gpt-oss-20b on NIM (June endpoint); llama-3.3-nemotron-super-49b-v1.5
 #      (retired by NIM on 2026-08-26) from its official weights on the notebook, reasoning returned
-#      separately from the answer as NIM did in June (vLLM reasoning parser deepseek_r1).
+#      separately from the answer as NIM did in June (planned: vLLM reasoning parser deepseek_r1).
+#      Amended 2026-09-28, before any data for this model were collected: under vLLM 0.28 that parser
+#      does not start for this model (its tokenizer has no single <think> token), so the text before
+#      </think> is split off by tools/notebook/think_split_proxy.py in front of vLLM (or by
+#      hf_server.py --reasoning-split, same rule); see the model's manifest in tools/notebook/manifests/.
 #   C. Budget check: the same models answer the June rating prompts with the June budget (max_tokens
 #      12). C vs A (same prompts, 150 tokens) isolates the effect of the 12-token budget; C vs June
 #      (same checkpoint, same prompts, same budget) measures change of serving environment and time.

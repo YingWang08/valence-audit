@@ -25,9 +25,20 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 SAMPLING_KEYS = ("top_p", "top_k", "repetition_penalty")
 
 
+def _from_pretrained(a, kw):
+    """transformers >= 4.56 takes `dtype`; older versions take `torch_dtype` (and would silently ignore
+    `dtype`, loading float32)."""
+    import transformers
+    from transformers import AutoModelForCausalLM
+    major, minor = (int(x) for x in transformers.__version__.split(".")[:2])
+    key = "dtype" if (major, minor) >= (4, 56) else "torch_dtype"
+    return AutoModelForCausalLM.from_pretrained(a.model, **{key: a.torch_dtype}, **kw)
+
+
 def load(a):
     import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    import transformers
+    from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(a.model, trust_remote_code=a.trust_remote_code)
     tok.padding_side = "left"
     if tok.pad_token_id is None:
@@ -40,18 +51,33 @@ def load(a):
     if importlib.util.find_spec("accelerate"):   # device_map needs accelerate
         kw["device_map"] = dev      # load straight onto the GPU (no full copy in CPU memory)
     try:
-        model = AutoModelForCausalLM.from_pretrained(a.model, dtype=a.torch_dtype, **kw)
-    except TypeError:
-        model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=a.torch_dtype, **kw)
+        model = _from_pretrained(a, kw)
+    except Exception as e:
+        if attn == "eager":
+            raise
+        # e.g. a model's own (remote) code that does not implement SDPA: same computation, eager attention
+        print(f"[hf_server] attn={attn} not usable ({type(e).__name__}: {str(e)[:200]}); retrying with eager",
+              flush=True)
+        attn = kw["attn_implementation"] = "eager"
+        model = _from_pretrained(a, kw)
     if "device_map" not in kw:
         model.to(dev)
     model.eval()
+    n_by_dtype = {}
+    for p in model.parameters():
+        if p.is_floating_point():
+            n_by_dtype[str(p.dtype)] = n_by_dtype.get(str(p.dtype), 0) + p.numel()
+    # a model may keep a few small parameters in float32 by design; the weights themselves must be bf16
+    if n_by_dtype.get(str(a.torch_dtype), 0) < 0.99 * sum(n_by_dtype.values()):
+        raise SystemExit(f"[hf_server] parameters loaded as {n_by_dtype}, not {a.torch_dtype}; not serving")
     gc_path = pathlib.Path(a.model) / "generation_config.json"
     gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
     defaults = {k: gc[k] for k in SAMPLING_KEYS if k in gc}
     eos = gc.get("eos_token_id", model.generation_config.eos_token_id)
     eos = [eos] if isinstance(eos, int) else list(eos or [tok.eos_token_id])
-    print(f"[hf_server] {a.served_model_name}: attn={attn}, dtype={a.dtype}, device={dev}, "
+    print(f"[hf_server] {a.served_model_name}: transformers {transformers.__version__} "
+          f"({pathlib.Path(transformers.__file__).parent}), torch {torch.__version__}, attn={attn}, "
+          f"dtype={a.dtype} (parameters by dtype: {n_by_dtype}), device={dev}, "
           f"sampling defaults from generation_config.json: {defaults or 'none'}, eos={eos}", flush=True)
     return tok, model, defaults, eos, dev
 
@@ -97,6 +123,7 @@ def worker(a, tok, model, defaults, eos, dev, q):
         try:
             texts = [tok.apply_chat_template(j.messages, add_generation_prompt=True, tokenize=False) for j in batch]
             enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(dev)
+            enc = {k: enc[k] for k in ("input_ids", "attention_mask")}   # no token_type_ids (older transformers)
             kw = dict(max_new_tokens=first.max_tokens, eos_token_id=eos, pad_token_id=tok.pad_token_id)
             if first.temperature and first.temperature > 0:
                 kw.update(do_sample=True, temperature=first.temperature, top_p=defaults.get("top_p", 1.0),

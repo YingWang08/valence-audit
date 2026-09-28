@@ -12,12 +12,19 @@
   "0.92",
   "--max-num-seqs",
   "64",
-  "--trust-remote-code",
-  "--reasoning-parser",
-  "deepseek_r1"
+  "--trust-remote-code"
  ],
  "trust_remote_code": true,
  "reasoning_split": true,
+ "think_split_proxy": true,
+ "transformers_version": "4.48.3",
+ "transformers_packages": [
+  "transformers==4.48.3",
+  "tokenizers==0.21.4",
+  "huggingface_hub==0.36.2",
+  "accelerate==1.3.0"
+ ],
+ "serving_note": "Set 2026-09-28, after the first notebook run and before any part-B data for this model existed. (1) vLLM 0.28 (notebook image) refuses --reasoning-parser deepseek_r1 for this model because <think> and </think> are not single tokens in its tokenizer; the model card's own vLLM command uses no reasoning parser. vLLM therefore serves it without one, behind tools/notebook/think_split_proxy.py, which splits the text at </think> with the rule of hf_server.py --reasoning-split. (2) The model's own code (modeling_decilm.py) imports transformers internals that transformers 5 no longer has (NEED_SETUP_CACHE_CLASSES_MAPPING); config.json records transformers_version 4.48.3, so the transformers fallback uses that version for this model (with the tokenizers, huggingface_hub and accelerate versions in transformers_packages, installed beside the image's packages for that server only). The model's code declares _supports_sdpa = False, so hf_server.py uses eager attention for it.",
  "min_vram_mib": 106546,
  "recorded_utc": "2026-09-28",
  "note": "hf_git_oid: the Git object id that the Hugging Face API lists for the file on hf_commit. For Git-LFS files it is the id of the LFS pointer, determined by the file's SHA-256 and size, so a downloaded file matches the official release exactly when sha256 + size reproduce hf_git_oid. For other files it is the Git blob id of the content. Read on 2026-09-28; every LFS SHA-256 was confirmed against the Hugging Face id the same day.",
