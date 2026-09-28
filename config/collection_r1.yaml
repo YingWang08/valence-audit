@@ -1,35 +1,111 @@
 # ============ Revision-round data collection (PONE-D-26-32490, round 1) ============
-# Two parts, both run with:  python run_all.py --collect-r1
-#   A. Anchor study (Reviewer 1 #5; Reviewer 2 #4): the seven retained models rate the
-#      original human and AI referents (exact June wording, a direct replication) plus
-#      anchor referents, each in an isolated prompt, and also all referents together in
+# Run with:  python run_all.py --collect-r1 [--group api | --models <id>[,<id>...]]
+#            python run_all.py --r1-status        (counts only; shows no responses)
+#            python run_all.py --analyze-r1
+#
+# Why the endpoints differ from June. The June 2026 data came from NVIDIA NIM. NIM retired the seven
+# June checkpoints between 15 July and 26 August 2026, before the reviews arrived (HTTP 410 with an
+# end-of-life date; data/model_availability/). Because the weights are public, the revision round uses
+# the SAME CHECKPOINTS, at no cost to the (unfunded) author:
+#   - all seven June checkpoints, and the retired reasoning model llama-3.3-nemotron-super-49b-v1.5
+#     (part B), are served from their official weights (bf16) on a free GPU notebook (ModelScope, Alibaba
+#     Cloud; one 192 GB AMD Instinct GPU) with vLLM, or with Hugging Face transformers if vLLM cannot
+#     serve a model (tools/notebook/). Every weight, tokenizer and config file is checked against the
+#     Hugging Face release before use (tools/notebook/manifests/, data/model_weights/); the engine used
+#     for each model is recorded in data/r1/endpoints/<model>_engine.json;
+#   - API fallbacks are listed for the three largest models in case the notebook cannot serve them
+#     (Qwen3-Next: its developer's API, Alibaba Cloud Model Studio "Bailian"; Llama-3.3-70B, Mixtral:
+#     ModelScope API-Inference). On 2026-09-28 Bailian served Qwen3-Next but not Llama-3.3-70B;
+#   - gpt-oss-20b (part B) is still served by NIM, the June endpoint.
+# Endpoint rule, fixed before collection: for each model the `serve` entries are tried in the listed
+# order with one neutral call ("Reply with the single word OK.", not study data); the first that answers
+# is used for ALL of that model's revision-round data and pinned in data/r1/endpoints/<model>.json.
+# Checks are logged in data/r1/endpoints/<model>_checks.csv. Models whose first entry is `local` are
+# collected on the notebook (tools/notebook/start.sh); `--group api` never touches them.
+# Requests carry exactly the June parameters (temperature 0.7, max_tokens); all other sampling
+# parameters are serving defaults (for vLLM: the model's own generation_config.json; logged).
+# The serving environment therefore differs from June for every model; part C (June prompts, June
+# 12-token budget) measures how much that, and the passage of time, changes the results.
+# This file was fixed and committed before collection.
+#
+#   A. Anchor study (Reviewer 1 #5; Reviewer 2 #4): each model rates the June human and AI referents
+#      (June wording) plus anchor referents, each in an isolated prompt, and all referents together in
 #      one prompt (joint condition = explicit common scale).
-#   B. Re-collection of the two excluded reasoning models on the original rating prompts
-#      with an adequate token budget (Reviewer 1 #8).
-#   C. Budget check: the seven retained models answer the June rating prompts again with
-#      the June budget (max_tokens 12). With part A (same prompts, 150 tokens) this separates
-#      the effect of the 12-token budget (C vs A) from change over time (C vs June).
+#   B. Re-collection of the two excluded reasoning models on the June rating prompts with an adequate
+#      token budget (Reviewer 1 #8): gpt-oss-20b on NIM (June endpoint); llama-3.3-nemotron-super-49b-v1.5
+#      (retired by NIM on 2026-08-26) from its official weights on the notebook, reasoning returned
+#      separately from the answer as NIM did in June (vLLM reasoning parser deepseek_r1).
+#   C. Budget check: the same models answer the June rating prompts with the June budget (max_tokens
+#      12). C vs A (same prompts, 150 tokens) isolates the effect of the 12-token budget; C vs June
+#      (same checkpoint, same prompts, same budget) measures change of serving environment and time.
 # Output goes to data/r1/ and never mixes with the June data in data/.
-# Check first that every model is still served:  python run_all.py --list-models
 
 collection_id: "r1_2026"
 data_root: "data/r1"
 
+# OpenAI-compatible endpoints. Keys are read from .env (never commit keys).
+endpoints:
+  local:        # vLLM (or transformers) on the free GPU notebook (tools/notebook/start.sh starts it)
+    base_url: "http://127.0.0.1:8000/v1"
+    api_key: "EMPTY"
+    rate_per_sec: 50
+    concurrency: 64
+    timeout: 1800
+    max_retries: 3
+  bailian:      # Alibaba Cloud Model Studio (Bailian), OpenAI-compatible mode, Beijing region
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    base_url_env: "DASHSCOPE_BASE_URL"     # set this in .env if the console shows a workspace-specific URL
+    api_key_env: "DASHSCOPE_API_KEY"
+    rate_per_sec: 4
+    concurrency: 8
+    timeout: 120
+    max_retries: 4
+  modelscope:   # ModelScope API-Inference (free daily quota; needs a ModelScope access token)
+    base_url: "https://api-inference.modelscope.cn/v1"
+    api_key_env: "MODELSCOPE_API_KEY"
+    rate_per_sec: 0.5
+    concurrency: 2
+    timeout: 120
+    max_retries: 4
+  nim:          # NVIDIA NIM, the June 2026 endpoint
+    base_url: "https://integrate.api.nvidia.com/v1"
+    api_key_env: "NVIDIA_API_KEY"
+    rate_per_sec: 0.6
+    concurrency: 6
+    timeout: 300
+    max_retries: 4
+  deepseek:     # used only by tools/back_translate.py (optional)
+    base_url: "https://api.deepseek.com"
+    api_key_env: "DEEPSEEK_API_KEY"
+    rate_per_sec: 2
+    concurrency: 2
+    timeout: 120
+    max_retries: 4
+
 generation:
   temperature: 0.7
-  max_tokens: {rating: 150, joint: 300, other: 256}   # 150 >> 40 so that truncation can be checked directly
+  max_tokens: {rating: 150, joint: 300, other: 256}   # 150 >> 12 so that truncation can be checked directly
 
 anchor_study:
   enabled: true
   repeats: 4
+  # The seven June checkpoints. `name` is the June model id (vLLM serves the model under this name).
   models:
-    - {name: "meta/llama-3.1-8b-instruct", stage: instruct}
-    - {name: "meta/llama-3.3-70b-instruct", stage: instruct}
-    - {name: "mistralai/mixtral-8x7b-instruct-v0.1", stage: instruct}
-    - {name: "qwen/qwen3-next-80b-a3b-instruct", stage: instruct}
-    - {name: "google/gemma-2-2b-it", stage: instruct}
-    - {name: "microsoft/phi-4-mini-instruct", stage: instruct}
-    - {name: "nvidia/nemotron-mini-4b-instruct", stage: frontier}
+    - {name: "google/gemma-2-2b-it", stage: instruct, serve: [{endpoint: local}]}
+    - {name: "microsoft/phi-4-mini-instruct", stage: instruct, serve: [{endpoint: local}]}
+    - {name: "nvidia/nemotron-mini-4b-instruct", stage: frontier, serve: [{endpoint: local}]}
+    - {name: "meta/llama-3.1-8b-instruct", stage: instruct, serve: [{endpoint: local}]}
+    - {name: "mistralai/mixtral-8x7b-instruct-v0.1", stage: instruct,
+       serve: [{endpoint: local},
+               {endpoint: modelscope, api_model: ["AI-ModelScope/Mixtral-8x7B-Instruct-v0.1", "auto:mixtral-8x7b-instruct-v0.1"]}]}
+    - {name: "meta/llama-3.3-70b-instruct", stage: instruct,
+       serve: [{endpoint: local},
+               {endpoint: bailian, api_model: ["llama3.3-70b-instruct", "llama-3.3-70b-instruct"]},
+               {endpoint: modelscope, api_model: ["LLM-Research/Llama-3.3-70B-Instruct", "auto:llama-3.3-70b-instruct"]}]}
+    - {name: "qwen/qwen3-next-80b-a3b-instruct", stage: instruct,
+       serve: [{endpoint: local},
+               {endpoint: bailian, api_model: "qwen3-next-80b-a3b-instruct"},
+               {endpoint: modelscope, api_model: "Qwen/Qwen3-Next-80B-A3B-Instruct"}]}
 
 # Referent phrases, INCLUDING the article. `null` = not used in that language.
 referents:
@@ -60,10 +136,24 @@ rerun_excluded:
   enabled: true
   repeats_by_stage: {instruct: 8, frontier: 5}
   models:
-    # Reasoning is left at the model default (no system prompt), as for all other models;
-    # the answer is read from `content`, the reasoning channel is logged separately.
-    - {name: "openai/gpt-oss-20b", stage: instruct, max_tokens: 4096}
-    - {name: "nvidia/llama-3.3-nemotron-super-49b-v1.5", stage: frontier, max_tokens: 4096}
-  # Optional secondary variant (reasoning OFF via the documented system prompt). Leave disabled
-  # unless the default run still fails; it changes the prompt conditions for this model.
+    # Reasoning is left at the model default (no system prompt), as in June; the answer is read from
+    # `content`, the reasoning channel is logged separately. Only max_tokens differs from June.
+    - {name: "openai/gpt-oss-20b", stage: instruct, max_tokens: 4096, serve: [{endpoint: nim}]}
+    - {name: "nvidia/llama-3.3-nemotron-super-49b-v1.5", stage: frontier, max_tokens: 4096,
+       serve: [{endpoint: local}]}
+  # Optional secondary variant for nemotron-super (reasoning OFF). Not used.
   nemotron_no_think_variant: false
+
+# Back-translation check of the Chinese wording (Reviewer 1 #12; Reviewer 2 #4): tools/back_translate.py.
+# Two translators from different developers, neither of them a study model. Each Chinese item is
+# translated into English without showing the English original (and each English attribute into
+# Chinese without showing the Chinese one). The author then judges equivalence item by item.
+back_translation:
+  temperature: 0
+  max_tokens: 200
+  translators:
+    - label: deepseek
+      serve: [{endpoint: deepseek, api_model: "deepseek-chat"},
+              {endpoint: bailian, api_model: ["deepseek-v3.2", "deepseek-v3.2-exp", "deepseek-v3"]}]
+    - label: qwen
+      serve: [{endpoint: bailian, api_model: ["qwen3-max", "qwen-max", "qwen-plus"]}]

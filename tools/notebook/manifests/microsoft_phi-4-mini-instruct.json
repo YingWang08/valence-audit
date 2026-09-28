@@ -1,0 +1,112 @@
+{
+ "model": "microsoft/phi-4-mini-instruct",
+ "hf_repo": "microsoft/Phi-4-mini-instruct",
+ "hf_commit": "cfbefacb99257ffa30c83adab238a50856ac3083",
+ "hf_last_modified": "2025-12-10T20:24:40Z",
+ "modelscope_repo": "LLM-Research/Phi-4-mini-instruct",
+ "modelscope_revision_seen": "c4c57c2973cc699397b5a28c75902564f8f91ab1",
+ "min_vram_mib": 14000,
+ "vllm_args": [
+  "--max-model-len",
+  "4096",
+  "--gpu-memory-utilization",
+  "0.88",
+  "--max-num-seqs",
+  "64"
+ ],
+ "recorded_utc": "2026-09-27",
+ "note": "hf_git_oid: the Git object id that the Hugging Face API lists for the file on hf_commit. For Git-LFS files it is the id of the LFS pointer, which is determined by the file's SHA-256 and size, so a downloaded file matches the official release exactly when sha256 + size reproduce hf_git_oid. For other files it is the Git blob id of the content. The LFS SHA-256 values were read from the ModelScope mirror on 2026-09-27 and confirmed against the Hugging Face ids the same day.",
+ "files": [
+  {
+   "path": "added_tokens.json",
+   "size": 249,
+   "hf_git_oid": "af52cde61cc39aca58f7b7f04116b317116e75dd",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "config.json",
+   "size": 2504,
+   "hf_git_oid": "679e70defca5b399ae9e8ad53ff1176c9d7c6f93",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "configuration_phi3.py",
+   "size": 10875,
+   "hf_git_oid": "01446e12bf573a1e96c8aa9c7af73a05e2096dec",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "generation_config.json",
+   "size": 168,
+   "hf_git_oid": "43b32d0bc199571e0818489fa01c1002d7a40452",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "merges.txt",
+   "size": 2418348,
+   "hf_git_oid": "dcecc4524288b351bbd0da8028e74e9b5bcdb9b5",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "model-00001-of-00002.safetensors",
+   "size": 4903637712,
+   "hf_git_oid": "9d6db2779a8baf5e59d7cd2666aaa1367cd8060b",
+   "lfs": true,
+   "sha256": "bc703090b63eda16f639fa4de7ac54635c23105ab1da2f6ec4d3403151d38ee6"
+  },
+  {
+   "path": "model-00002-of-00002.safetensors",
+   "size": 2768428504,
+   "hf_git_oid": "2ac7bf9c62addb7df0a338ddf7e0f3a60c826bc1",
+   "lfs": true,
+   "sha256": "7ff79b9d2d31076bac2663393451f6530f4fc8ca49b09002116c92c373dba983"
+  },
+  {
+   "path": "model.safetensors.index.json",
+   "size": 16273,
+   "hf_git_oid": "d87cc3650f8e8dec46fc6871826ef30b941d0c94",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "modeling_phi3.py",
+   "size": 54268,
+   "hf_git_oid": "71597d1417913e232b80dcafc0eb5e290dcff43e",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "special_tokens_map.json",
+   "size": 587,
+   "hf_git_oid": "156262f7d61a27706bdcad9d117c579e88e2fa27",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "tokenizer.json",
+   "size": 15524095,
+   "hf_git_oid": "3a12dacd8e86802d0229d810d3cc69ab548adf0a",
+   "lfs": true,
+   "sha256": "382cc235b56c725945e149cc25f191da667c836655efd0857b004320e90e91ea"
+  },
+  {
+   "path": "tokenizer_config.json",
+   "size": 2932,
+   "hf_git_oid": "f5958080514e266176052f86c80aa53f91ce4ba0",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "vocab.json",
+   "size": 3910310,
+   "hf_git_oid": "ea953a43348cdb3776cb7fd9ea02e3784febde34",
+   "lfs": false,
+   "sha256": null
+  }
+ ]
+}

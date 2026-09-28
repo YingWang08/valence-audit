@@ -8,6 +8,11 @@
   python run_all.py --smoke         1 model x 1 dimension live check
   python run_all.py --full          original June 2026 collection (resumable), then measure/analyze/figures
   python run_all.py --collect-r1    revision-round collection (config/collection_r1.yaml) -> data/r1/
+        --group api                 only models served by an API (Bailian / ModelScope / NIM)
+        --group local               only models served by the local vLLM server (GPU notebook)
+        --models ID[,ID...]         only these models (June model ids)
+        --allow-api-fallback        let notebook-first models use their API fallback (only if the notebook failed)
+  python run_all.py --r1-status     records on disk per model and part (never shows response text)
   python run_all.py --analyze-r1    analyse the revision-round collection
 Add --legacy-parser to --reanalyze to reproduce the submitted (v1.0.0) parsing.
 """
@@ -24,6 +29,17 @@ def _post(mock=False):
     analyze.run()
     print("\n[figures]")
     figures.run()
+
+
+def _opt(name):
+    """Value of `--name value` or `--name=value` on the command line, else None."""
+    argv = sys.argv[1:]
+    for i, x in enumerate(argv):
+        if x == name and i + 1 < len(argv):
+            return argv[i + 1]
+        if x.startswith(name + "="):
+            return x.split("=", 1)[1]
+    return None
 
 
 def main():
@@ -61,7 +77,15 @@ def main():
         _post()
     elif "--collect-r1" in a:
         from src import r1
-        r1.collect()
+        only = _opt("--models")
+        group = _opt("--group")
+        if group not in (None, "api", "local"):
+            raise SystemExit("--group must be 'api' or 'local'")
+        r1.collect(only=[x.strip() for x in only.split(",") if x.strip()] if only else None, group=group,
+                   allow_fallback="--allow-api-fallback" in a)
+    elif "--r1-status" in a:
+        from src import r1
+        r1.status()
     elif "--analyze-r1" in a:
         from src import r1
         r1.analyze()

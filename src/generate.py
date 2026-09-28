@@ -16,7 +16,7 @@ import asyncio
 import datetime as dt
 import pathlib
 from src import config
-from src.providers import get_provider, ModelUnavailable, CallFailed
+from src.providers import get_provider, make_provider, ModelUnavailable, CallFailed, EndpointBlocked
 
 
 def load_prompts(grid_path, filter_dims=None, formats=None):
@@ -60,11 +60,12 @@ def _max_tokens_for(fmt, gen, override):
 
 
 async def _run_one_model(provider, model, stage, prompts, repeats, out_path, cost_writer,
-                         gen, override, collection):
+                         gen, override, collection, api_model=None, endpoint=None, concurrency=None):
     done = _done_keys(out_path)
-    sem = asyncio.Semaphore(config.EXP["api"]["concurrency"])
+    sem = asyncio.Semaphore(concurrency or config.EXP["api"]["concurrency"])
+    api_model = api_model or model
     fout = open(out_path, "a", encoding="utf-8")
-    state = {"skip": False, "n": 0, "ok": 0, "fail": 0, "t0": time.monotonic()}
+    state = {"skip": False, "blocked": "", "n": 0, "ok": 0, "fail": 0, "t0": time.monotonic()}
     total = len(prompts) * repeats
     already = sum(1 for p in prompts for rep in range(repeats) if (p["prompt_id"], rep) in done)
     beat = max(50, total // 10)
@@ -85,11 +86,18 @@ async def _run_one_model(provider, model, stage, prompts, repeats, out_path, cos
         mt = _max_tokens_for(p["format"], gen, override)
         async with sem:
             try:
-                text, meta = await provider.call(model, p["text"], gen["temperature"], mt, seed_hint=rep,
+                text, meta = await provider.call(api_model, p["text"], gen["temperature"], mt, seed_hint=rep,
                                                  system_prompt=system_prompt, extra_body=extra_body)
             except ModelUnavailable:
+                if not state["skip"]:
+                    print(f"  [skip] model unavailable: {model}")
                 state["skip"] = True
-                print(f"  [skip] model unavailable: {model}")
+                return
+            except EndpointBlocked as e:
+                if not state["skip"]:
+                    print(f"  [stopped] {model}: {e}")
+                state["skip"] = True
+                state["blocked"] = str(e)
                 return
             except CallFailed as e:
                 print(f"  [failed] {model}: {str(e)[:80]}")
@@ -102,6 +110,9 @@ async def _run_one_model(provider, model, stage, prompts, repeats, out_path, cos
                "reasoning_chars": meta.get("reasoning_chars", 0),
                "reasoning_content": meta.get("reasoning_content", ""),
                "system_prompt": system_prompt or "", "collection": collection,
+               "endpoint": endpoint or getattr(provider, "name", ""), "api_model": api_model,
+               "response_model": meta.get("response_model", ""),
+               **({"provider_error": meta["provider_error"]} if meta.get("provider_error") else {}),
                "timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
         fout.write(json.dumps(rec, ensure_ascii=False) + "\n")
         fout.flush()
@@ -116,13 +127,20 @@ async def _run_one_model(provider, model, stage, prompts, repeats, out_path, cos
         await tasks[0]
         if not state["skip"]:
             await asyncio.gather(*tasks[1:])
+        else:
+            for t in tasks[1:]:
+                t.close()
     fout.close()
     return state["skip"]
 
 
 async def run(mock=False, smoke=False, grid_path=None, models=None, repeats=None, formats=None,
-              gen_overrides=None, model_overrides=None, collection="june2026"):
-    provider = get_provider(mock=mock)
+              gen_overrides=None, model_overrides=None, collection="june2026", endpoints=None):
+    """models may carry `_endpoint` and `_api_model` (revision round): the call then goes to that
+    endpoint (config/collection_r1.yaml) under `_api_model`, and records keep the study model id."""
+    # June default (NIM) is created only if a model has no `_endpoint`, so that a revision-round run
+    # on another endpoint does not need NVIDIA_API_KEY.
+    provider = get_provider(mock=True) if mock else None
     gen = dict(config.EXP["generation"])
     if gen_overrides:
         gen.update(gen_overrides)
@@ -149,9 +167,19 @@ async def run(mock=False, smoke=False, grid_path=None, models=None, repeats=None
         out_path = config.raw_dir() / (m["name"].replace("/", "_") + ".jsonl")
         override = dict((model_overrides or {}).get(m["name"], {}) or {})
         override.update({k: v for k, v in m.items() if k in ("max_tokens", "system_prompt", "extra_body")})
-        print(f"  -> {m['name']} (stage={stage}, repeats={reps}, overrides={ {k: v for k, v in override.items() if k != 'extra_body'} })")
-        skipped = await _run_one_model(provider, m["name"], stage, prompts, reps, out_path, cost_writer,
-                                       gen, override, collection)
+        if m.get("_endpoint") and not mock:
+            prov = make_provider(m["_endpoint"], endpoints)
+            api_model, ep = m.get("_api_model") or m["name"], m["_endpoint"]
+            conc = (endpoints.get(ep) or {}).get("concurrency")
+        else:
+            if provider is None:
+                provider = get_provider(mock=False)
+            prov, api_model, ep, conc = provider, m["name"], getattr(provider, "name", ""), None
+        print(f"  -> {m['name']} (stage={stage}, repeats={reps}, endpoint={ep}, api_model={api_model}, "
+              f"overrides={ {k: v for k, v in override.items() if k != 'extra_body'} })")
+        skipped = await _run_one_model(prov, m["name"], stage, prompts, reps, out_path, cost_writer,
+                                       gen, override, collection, api_model=api_model, endpoint=ep,
+                                       concurrency=conc)
         used += 0 if skipped else 1
     cost_f.close()
     print(f"[generate] done. {used}/{len(models)} models used. Raw data in {config.raw_dir()}")

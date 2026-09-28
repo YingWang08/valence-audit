@@ -13,3 +13,6 @@ data_mock/
 # data/results and data/prompts, so the deposit could not reproduce the paper).
 # Excel lock files
 ~$*
+# revision-round helper files (not committed)
+notebook_bundle.zip
+r1_notebook_results_*.tar.gz

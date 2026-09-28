@@ -1,0 +1,91 @@
+{
+ "model": "meta/llama-3.1-8b-instruct",
+ "hf_repo": "meta-llama/Llama-3.1-8B-Instruct",
+ "hf_commit": "0e9e39f249a16976918f6564b8830bc894c89659",
+ "hf_last_modified": "2024-09-25T17:00:57Z",
+ "modelscope_repo": "LLM-Research/Meta-Llama-3.1-8B-Instruct",
+ "modelscope_revision_seen": "359efdbb8af05b788a4ad4185215c6b8caa9052c",
+ "min_vram_mib": 22000,
+ "vllm_args": [
+  "--max-model-len",
+  "4096",
+  "--gpu-memory-utilization",
+  "0.88",
+  "--max-num-seqs",
+  "64"
+ ],
+ "recorded_utc": "2026-09-27",
+ "note": "hf_git_oid: the Git object id that the Hugging Face API lists for the file on hf_commit. For Git-LFS files it is the id of the LFS pointer, which is determined by the file's SHA-256 and size, so a downloaded file matches the official release exactly when sha256 + size reproduce hf_git_oid. For other files it is the Git blob id of the content. The LFS SHA-256 values were read from the ModelScope mirror on 2026-09-27 and confirmed against the Hugging Face ids the same day.",
+ "files": [
+  {
+   "path": "config.json",
+   "size": 855,
+   "hf_git_oid": "0bb6fd75b3ad2fe988565929f329945262c2814e",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "generation_config.json",
+   "size": 184,
+   "hf_git_oid": "cc7276afd599de091142c6ed3005faf8a74aa257",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "model-00001-of-00004.safetensors",
+   "size": 4976698672,
+   "hf_git_oid": "a59dca28867995c0d05384251ac5f4d62461a226",
+   "lfs": true,
+   "sha256": "2b1879f356aed350030bb40eb45ad362c89d9891096f79a3ab323d3ba5607668"
+  },
+  {
+   "path": "model-00002-of-00004.safetensors",
+   "size": 4999802720,
+   "hf_git_oid": "4ab0726caf5e75dd1e5700c7e7899ac8c0798428",
+   "lfs": true,
+   "sha256": "09d433f650646834a83c580877bd60c6d1f88f7755305c12576b5c7058f9af15"
+  },
+  {
+   "path": "model-00003-of-00004.safetensors",
+   "size": 4915916176,
+   "hf_git_oid": "5864b15557563e7700a3f95236afdee36f5fdb74",
+   "lfs": true,
+   "sha256": "fc1cdddd6bfa91128d6e94ee73d0ce62bfcdb7af29e978ddcab30c66ae9ea7fa"
+  },
+  {
+   "path": "model-00004-of-00004.safetensors",
+   "size": 1168138808,
+   "hf_git_oid": "b8babcaa5a888d6efd5c05206361b4685492ad13",
+   "lfs": true,
+   "sha256": "92ecfe1a2414458b4821ac8c13cf8cb70aed66b5eea8dc5ad9eeb4ff309d6d7b"
+  },
+  {
+   "path": "model.safetensors.index.json",
+   "size": 23950,
+   "hf_git_oid": "0fd8120f1c6acddc268ebc2583058efaf699a771",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "special_tokens_map.json",
+   "size": 296,
+   "hf_git_oid": "02ee80b6196926a5ad790a004d9efd6ab1ba6542",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "tokenizer.json",
+   "size": 9085657,
+   "hf_git_oid": "5cc5f00a5b203e90a27a3bd60d1ec393b07971e8",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "tokenizer_config.json",
+   "size": 55351,
+   "hf_git_oid": "db88166e2bc4c799fd5d1ae643b75e84d03ee70e",
+   "lfs": false,
+   "sha256": null
+  }
+ ]
+}

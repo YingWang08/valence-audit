@@ -1,0 +1,63 @@
+{
+ "model": "nvidia/nemotron-mini-4b-instruct",
+ "hf_repo": "nvidia/Nemotron-Mini-4B-Instruct",
+ "hf_commit": "791833e92ebddb0bc2c1007f6d2b6764f886a2ae",
+ "hf_last_modified": "2025-02-14T19:03:33Z",
+ "modelscope_repo": "nv-community/Nemotron-Mini-4B-Instruct",
+ "modelscope_revision_seen": "ec871b293d7243af789d4c5662a376e137d94a17",
+ "min_vram_mib": 14000,
+ "vllm_args": [
+  "--max-model-len",
+  "4096",
+  "--gpu-memory-utilization",
+  "0.88",
+  "--max-num-seqs",
+  "64"
+ ],
+ "recorded_utc": "2026-09-27",
+ "note": "hf_git_oid: the Git object id that the Hugging Face API lists for the file on hf_commit. For Git-LFS files it is the id of the LFS pointer, which is determined by the file's SHA-256 and size, so a downloaded file matches the official release exactly when sha256 + size reproduce hf_git_oid. For other files it is the Git blob id of the content. The LFS SHA-256 values were read from the ModelScope mirror on 2026-09-27 and confirmed against the Hugging Face ids the same day.",
+ "files": [
+  {
+   "path": "config.json",
+   "size": 646,
+   "hf_git_oid": "41d32e412ee92cb061bcbb013bced12dd3a8086f",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "pytorch_model.bin",
+   "size": 8381129342,
+   "hf_git_oid": "6e91988012c2f7a8030d470bfeb343ef7604fd09",
+   "lfs": true,
+   "sha256": "e851a12d65d56e90ed99659e7439f2b5fc080db478500ee3390f809131426854"
+  },
+  {
+   "path": "special_tokens_map.json",
+   "size": 48,
+   "hf_git_oid": "0d197aa6187d1b01c3e2d4ba0fe4c67208138b28",
+   "lfs": false,
+   "sha256": null
+  },
+  {
+   "path": "tokenizer.json",
+   "size": 18143149,
+   "hf_git_oid": "4278610cd0b2caac512e5d7c2d0a3c3916f75ba7",
+   "lfs": true,
+   "sha256": "83d0648daa0467fb02ddef7ff25460321dab2fbb20c280ae0bc1ea8052f7df90"
+  },
+  {
+   "path": "tokenizer.model",
+   "size": 4545602,
+   "hf_git_oid": "b399c69ef3e792391465e45d07e72ee1fc6acf94",
+   "lfs": true,
+   "sha256": "6dfd8b970f437002fc445214304969fe59e64d4f48500bd0b77ba55340f2d811"
+  },
+  {
+   "path": "tokenizer_config.json",
+   "size": 180494,
+   "hf_git_oid": "2328a61bc850c49b9bdc4ca4e1133b5f5d878606",
+   "lfs": false,
+   "sha256": null
+  }
+ ]
+}

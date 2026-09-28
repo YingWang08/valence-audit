@@ -1,0 +1,59 @@
+checked_utc,model,status,http_status,seconds,finish_reason,content_chars,first_status,attempts,error
+2026-09-27T14:11:58+00:00,google/codegemma-1.1-7b,not_found,404,6.7,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'e2d298c5-204e-4213-b921-9f492cc9011b': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:12:06+00:00,google/codegemma-7b,not_found,404,2.2,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '7dfc10a8-3cc4-448e-97c1-2213308dc222': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:12:09+00:00,google/deplot,not_found,404,8.8,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '784a8ca4-ea7d-4c93-bb46-ec027c3fae47': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:30:37+00:00,google/diffusiongemma-26b-a4b-it,connection_error,,21.3,,,timeout,2,APIConnectionError: Connection error.
+2026-09-27T14:13:06+00:00,google/gemma-2b,not_found,404,24.2,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '04174188-f742-4069-9e72-d77c2b77d3cb': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:13:32+00:00,google/gemma-3-12b-it,not_found,404,1.2,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'ee47df99-c92b-4dc9-b3a7-f3fb0f087b73': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:31:00+00:00,google/gemma-3-4b-it,timeout,,48.5,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:31:50+00:00,google/gemma-4-31b-it,timeout,,45.6,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:32:37+00:00,google/recurrentgemma-2b,timeout,,46.8,,,connection_error,2,APITimeoutError: Request timed out.
+2026-09-27T14:15:33+00:00,meta/codellama-70b,not_found,404,2.4,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'f6b06895-d073-4714-8bb2-26c09e9f6597': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:33:26+00:00,meta/llama-3.2-11b-vision-instruct,connection_error,,21.3,,,timeout,2,APIConnectionError: Connection error.
+2026-09-27T14:33:48+00:00,meta/llama-3.2-90b-vision-instruct,timeout,,45.9,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:17:21+00:00,meta/llama2-70b,not_found,404,11.6,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '2fddadfb-7e76-4c8a-9b82-f7d3fab94471': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:34:36+00:00,meta/muse-glimmer-30b,timeout,,84.2,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:36:02+00:00,microsoft/kosmos-2,timeout,,45.4,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:19:11+00:00,microsoft/phi-3-vision-128k-instruct,not_found,404,0.4,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '20f2537e-8593-4eb9-ad40-60eee3bbaa55': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:19:13+00:00,microsoft/phi-3.5-moe-instruct,not_found,404,0.1,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'e6cab982-62f4-481e-9a7a-3dedb87dbd01': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:19:15+00:00,mistralai/codestral-22b-instruct-v0.1,not_found,404,0.1,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '9a10b012-e6df-46fd-83b2-700dcbc75814': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:19:16+00:00,mistralai/mistral-7b-instruct-v0.3,not_found,404,0.1,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'cd89bd68-13e3-47a9-861e-9a62e6e14b05': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:19:18+00:00,mistralai/mistral-large,not_found,404,0.1,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '767b5b9a-3f9d-4c1d-86e8-fa861988cee7': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:19:20+00:00,mistralai/mistral-large-2-instruct,not_found,404,0.1,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '7fadd4de-e22a-48e4-90e9-f02ef14a74b9': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:36:49+00:00,mistralai/mistral-nemotron,connection_error,,21.3,,,timeout,2,APIConnectionError: Connection error.
+2026-09-27T14:37:11+00:00,mistralai/mixtral-8x22b-v0.1,not_found,404,23.2,,,timeout,2,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '39655fc1-9ebc-4b24-963e-6915ea6680de': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:37:36+00:00,nvidia/ai-synthetic-video-detector,timeout,,45.0,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:21:48+00:00,nvidia/cosmos-reason2-8b,not_found,404,5.3,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'e199b43b-6c62-4a63-9379-f60e1a953236': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:21:55+00:00,nvidia/ising-calibration-1.5-31b,ok,200,3.0,stop,2,ok,1,
+2026-09-27T14:21:59+00:00,nvidia/llama-3.1-nemotron-51b-instruct,not_found,404,1.8,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '5beba52c-65a9-4f46-8cd9-656689a1b205': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:22:02+00:00,nvidia/llama-3.1-nemotron-70b-instruct,not_found,404,10.1,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '9b96341b-9791-4db9-a00d-4e43aa192a39': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:38:23+00:00,nvidia/llama-3.1-nemotron-ultra-253b-v1,connection_error,,21.3,,,timeout,2,APIConnectionError: Connection error.
+2026-09-27T14:23:01+00:00,nvidia/llama3-chatqa-1.5-70b,not_found,404,9.3,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '46594287-38b9-481c-a37f-baa02f2d3ba1': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:23:11+00:00,nvidia/mistral-nemo-minitron-8b-8k-instruct,not_found,404,0.4,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '5aa06dd2-0a02-4a5d-be4c-bf88e956965d': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:38:45+00:00,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning,timeout,,53.7,,,error,2,APITimeoutError: Request timed out.
+2026-09-27T14:39:41+00:00,nvidia/nemotron-3-super-120b-a12b,error,503,25.7,,,timeout,2,"InternalServerError: Error code: 503 - {'error': {'message': 'Service temporarily overloaded', 'type': 'Service Unavailable', 'code': 503}}"
+2026-09-27T14:40:08+00:00,nvidia/nemotron-3-ultra-550b-a55b,timeout,,45.0,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:40:54+00:00,nvidia/nemotron-3.5-lightning-30b-a3b,connection_error,,21.3,,,timeout,2,APIConnectionError: Connection error.
+2026-09-27T14:41:17+00:00,nvidia/nemotron-4-340b-instruct,not_found,404,16.4,,,timeout,2,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'b0fcd392-e905-4ab4-8eb9-aeae95c30b37': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:41:35+00:00,nvidia/nemotron-nano-3-30b-a3b,not_found,404,1.3,,,connection_error,2,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '2b2dcd47-c858-425a-9c04-4cacf2eac993': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:27:10+00:00,nvidia/neva-22b,not_found,404,2.9,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'bc205f8e-1740-40df-8d32-c4321763498a': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:27:14+00:00,nvidia/nvclip,not_found,404,1.7,,,not_found,1,NotFoundError: 404 page not found
+2026-09-27T14:27:17+00:00,nvidia/riva-translate-4b-instruct,not_found,404,6.3,,,not_found,1,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function 'f35337fa-b4dd-4996-bcba-5476ee01171d': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:41:38+00:00,nvidia/riva-translate-4b-instruct-v1.1,timeout,,45.0,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:42:24+00:00,nvidia/riva-translate-4b-instruct-v2,timeout,,45.6,,,timeout,2,APITimeoutError: Request timed out.
+2026-09-27T14:43:11+00:00,nvidia/vila,not_found,404,26.4,,,timeout,2,"NotFoundError: Error code: 404 - {'status': 404, 'title': 'Not Found', 'detail': ""Function '1c8df143-2303-419b-8b28-b4dd82cfe113': Not found for account '77KO3WvV3g2aYwSHfFjOLZJgvSi23Veg8bD_oDJdxk8'""}"
+2026-09-27T14:43:39+00:00,openai/gpt-oss-20b,timeout,,45.0,,,connection_error,2,APITimeoutError: Request timed out.
+2026-09-27T14:44:26+00:00,meta/llama-guard-4-12b,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/embed-qa-4,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/llama-3.1-nemoguard-8b-content-safety,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/llama-3.1-nemoguard-8b-topic-control,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/llama-3.1-nemotron-safety-guard-8b-v3,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/llama-3.2-nemoretriever-1b-vlm-embed-v1,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/llama-3.2-nv-embedqa-1b-v1,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/llama-nemotron-embed-vl-1b-v2,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/nemotron-3-embed-1b,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/nemotron-3.5-content-safety,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/nemotron-4-340b-reward,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/nemotron-parse,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/nemotron-parse-2.0,not_called_non_chat,,,,,,0,
+2026-09-27T14:44:26+00:00,nvidia/nv-embedqa-mistral-7b-v2,not_called_non_chat,,,,,,0,
