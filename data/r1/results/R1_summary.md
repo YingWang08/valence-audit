@@ -13,4 +13,4 @@
 - Dimension pattern, r1 150 tokens vs June on the same 7 models: same sign in 8/8 dimensions; r = 0.98
 - Dimension pattern, r1 12 tokens vs June on the same 7 models: same sign in 8/8 dimensions; r = 0.98
 
-Tables: R1_replication.csv, R1_article_effect_en.csv, R1_referent_profiles.csv, R1_anchored_asymmetry.csv, R1_joint_vs_isolated.csv, R1_zh_*.csv, R1_rerun_*.csv, R1_outcomes.csv, R1_budget_*.csv, R1_june_vs_r1_*.csv, R1_environment.csv
+Tables: R1_replication.csv, R1_article_effect_en.csv, R1_referent_profiles.csv, R1_anchor_spread*.csv, R1_anchored_asymmetry.csv, R1_joint_*.csv, R1_zh_*.csv, R1_rerun_*.csv, R1_outcomes.csv, R1_budget_*.csv, R1_june_vs_r1_*.csv, R1_environment.csv
