@@ -1,0 +1,17 @@
+model,dimension,a
+nvidia/llama-3.3-nemotron-super-49b-v1.5,creativity,-0.17083333333333336
+nvidia/llama-3.3-nemotron-super-49b-v1.5,decision,0.05833333333333335
+nvidia/llama-3.3-nemotron-super-49b-v1.5,emotion,-0.09583333333333334
+nvidia/llama-3.3-nemotron-super-49b-v1.5,moral,-0.012500000000000011
+nvidia/llama-3.3-nemotron-super-49b-v1.5,productivity,0.10000000000000002
+nvidia/llama-3.3-nemotron-super-49b-v1.5,reliability,0.09583333333333334
+nvidia/llama-3.3-nemotron-super-49b-v1.5,trust,0.07500000000000004
+nvidia/llama-3.3-nemotron-super-49b-v1.5,worth,-0.6416666666666666
+openai/gpt-oss-20b,creativity,-0.15364583333333334
+openai/gpt-oss-20b,decision,0.09561011904761904
+openai/gpt-oss-20b,emotion,-0.11309523809523808
+openai/gpt-oss-20b,moral,0.05564058956916099
+openai/gpt-oss-20b,productivity,0.2410714285714286
+openai/gpt-oss-20b,reliability,0.08772321428571431
+openai/gpt-oss-20b,trust,0.04662698412698414
+openai/gpt-oss-20b,worth,-0.22023809523809523

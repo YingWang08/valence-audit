@@ -1,0 +1,17 @@
+model,collection,endpoint,api_model,response_model,n,first_utc,last_utc
+google/gemma-2-2b-it,r1_2026,local,google/gemma-2-2b-it,google/gemma-2-2b-it,2176,2026-09-28T15:39:18+00:00,2026-09-28T15:40:03+00:00
+google/gemma-2-2b-it,r1_2026_budget12,local,google/gemma-2-2b-it,google/gemma-2-2b-it,512,2026-09-28T15:40:03+00:00,2026-09-28T15:40:15+00:00
+meta/llama-3.1-8b-instruct,r1_2026,local,meta/llama-3.1-8b-instruct,meta/llama-3.1-8b-instruct,2176,2026-09-28T15:48:08+00:00,2026-09-28T15:48:50+00:00
+meta/llama-3.1-8b-instruct,r1_2026_budget12,local,meta/llama-3.1-8b-instruct,meta/llama-3.1-8b-instruct,512,2026-09-28T15:48:50+00:00,2026-09-28T15:49:01+00:00
+meta/llama-3.3-70b-instruct,r1_2026,local,meta/llama-3.3-70b-instruct,meta/llama-3.3-70b-instruct,2176,2026-09-28T16:21:04+00:00,2026-09-28T16:22:01+00:00
+meta/llama-3.3-70b-instruct,r1_2026_budget12,local,meta/llama-3.3-70b-instruct,meta/llama-3.3-70b-instruct,512,2026-09-28T16:22:01+00:00,2026-09-28T16:22:13+00:00
+microsoft/phi-4-mini-instruct,r1_2026,local,microsoft/phi-4-mini-instruct,microsoft/phi-4-mini-instruct,2176,2026-09-28T15:41:56+00:00,2026-09-28T15:42:39+00:00
+microsoft/phi-4-mini-instruct,r1_2026_budget12,local,microsoft/phi-4-mini-instruct,microsoft/phi-4-mini-instruct,512,2026-09-28T15:42:39+00:00,2026-09-28T15:42:50+00:00
+mistralai/mixtral-8x7b-instruct-v0.1,r1_2026,local,mistralai/mixtral-8x7b-instruct-v0.1,mistralai/mixtral-8x7b-instruct-v0.1,2176,2026-09-28T15:59:50+00:00,2026-09-28T16:03:43+00:00
+mistralai/mixtral-8x7b-instruct-v0.1,r1_2026_budget12,local,mistralai/mixtral-8x7b-instruct-v0.1,mistralai/mixtral-8x7b-instruct-v0.1,512,2026-09-28T16:03:43+00:00,2026-09-28T16:03:54+00:00
+nvidia/llama-3.3-nemotron-super-49b-v1.5,r1_2026_rerun,local,nvidia/llama-3.3-nemotron-super-49b-v1.5,nvidia/llama-3.3-nemotron-super-49b-v1.5,640,2026-09-28T23:45:29+00:00,2026-09-28T23:56:15+00:00
+nvidia/nemotron-mini-4b-instruct,r1_2026,local,nvidia/nemotron-mini-4b-instruct,nvidia/nemotron-mini-4b-instruct,2176,2026-09-28T15:44:40+00:00,2026-09-28T15:45:23+00:00
+nvidia/nemotron-mini-4b-instruct,r1_2026_budget12,local,nvidia/nemotron-mini-4b-instruct,nvidia/nemotron-mini-4b-instruct,512,2026-09-28T15:45:23+00:00,2026-09-28T15:45:34+00:00
+openai/gpt-oss-20b,r1_2026_rerun,nim,openai/gpt-oss-20b,openai/gpt-oss-20b,1024,2026-09-28T14:45:12+00:00,2026-09-28T15:15:10+00:00
+qwen/qwen3-next-80b-a3b-instruct,r1_2026,local,qwen/qwen3-next-80b-a3b-instruct,qwen/qwen3-next-80b-a3b-instruct,2176,2026-09-28T16:58:38+00:00,2026-09-28T16:59:54+00:00
+qwen/qwen3-next-80b-a3b-instruct,r1_2026_budget12,local,qwen/qwen3-next-80b-a3b-instruct,qwen/qwen3-next-80b-a3b-instruct,512,2026-09-28T16:59:55+00:00,2026-09-28T17:00:12+00:00

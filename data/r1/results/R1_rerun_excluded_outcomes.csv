@@ -1,0 +1,3 @@
+model,hedge,malformed,refusal,valid,n,mean_reasoning_chars,finish_length_pct
+nvidia/llama-3.3-nemotron-super-49b-v1.5,0,0,0,640,640,2172.7890625,0.0
+openai/gpt-oss-20b,3,55,49,917,1024,643.1826171875,0.0

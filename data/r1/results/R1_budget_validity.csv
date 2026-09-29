@@ -1,0 +1,15 @@
+model,referent,june_12_tokens,r1_12_tokens,r1_150_tokens
+google/gemma-2-2b-it,ai,90.0390625,89.453125,91.40625
+google/gemma-2-2b-it,human,84.1796875,85.546875,84.765625
+meta/llama-3.1-8b-instruct,ai,100.0,100.0,100.0
+meta/llama-3.1-8b-instruct,human,99.8046875,98.828125,99.21875
+meta/llama-3.3-70b-instruct,ai,99.609375,98.046875,98.046875
+meta/llama-3.3-70b-instruct,human,100.0,100.0,100.0
+microsoft/phi-4-mini-instruct,ai,91.796875,96.09375,95.3125
+microsoft/phi-4-mini-instruct,human,91.796875,91.40625,91.40625
+mistralai/mixtral-8x7b-instruct-v0.1,ai,44.3359375,39.453125,51.171875
+mistralai/mixtral-8x7b-instruct-v0.1,human,58.0078125,48.828125,56.25
+nvidia/nemotron-mini-4b-instruct,ai,71.875,70.3125,80.078125
+nvidia/nemotron-mini-4b-instruct,human,64.0625,69.140625,81.640625
+qwen/qwen3-next-80b-a3b-instruct,ai,98.4375,98.046875,98.4375
+qwen/qwen3-next-80b-a3b-instruct,human,100.0,100.0,100.0
