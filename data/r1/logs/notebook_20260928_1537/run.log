@@ -65,3 +65,4 @@
 [17:01:23Z]   meta/llama-3.3-70b-instruct                complete (vllm)                    {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
 [17:01:23Z]   nvidia/llama-3.3-nemotron-super-49b-v1.5   server failed to start             {'B_rerun': 0}
 [17:01:23Z]   qwen/qwen3-next-80b-a3b-instruct           complete (transformers)            {'A_isolated': 1792, 'A_joint': 64, 'C_budget12': 512}
+[17:01:24Z] Result file: r1_notebook_results_20260928_1537.tar.gz (1.1 MB). Download it; do not open it.

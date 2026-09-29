@@ -1,0 +1,2 @@
+checked_utc,model,endpoint,host,api_model,status,http_status,seconds,response_model,error
+2026-09-28T23:45:14+00:00,nvidia/llama-3.3-nemotron-super-49b-v1.5,local,127.0.0.1:8000,nvidia/llama-3.3-nemotron-super-49b-v1.5,ok,200,0.5,nvidia/llama-3.3-nemotron-super-49b-v1.5,

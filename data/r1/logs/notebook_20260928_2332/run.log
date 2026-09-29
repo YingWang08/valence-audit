@@ -1,0 +1,10 @@
+[23:32:15Z] Notebook run 20260928_2332; repository /mnt/workspace/valence-audit; work dir /mnt/r1work
+[23:32:23Z] GPU: {'vendor': 'amd', 'name': '', 'memory_mib': 196288, 'driver': 'hip 7.2.53211', 'arch': 'gfx942:sramecc+:xnack-', 'bf16': True, 'torch': '2.12.0+git6bbd260'}; vllm 0.28.0; torch 2.12.0+git6bbd260; transformers 5.15.1
+[23:32:25Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 1/4 download
+[23:32:25Z]   download attempt 1: nv-community/Llama-3_3-Nemotron-Super-49B-v1_5 (39 files, 99.8 GB)
+[23:41:32Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 2/4 verify 39 files against nvidia/Llama-3_3-Nemotron-Super-49B-v1_5@420ba7d282
+[23:42:50Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 3/4 start vllm, bf16
+[23:45:12Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] step 4/4 collect (B_rerun)
+[23:56:17Z] [nvidia/llama-3.3-nemotron-super-49b-v1.5] pass 1: exit 0; records {'B_rerun': 640} of {'B_rerun': 640}
+[23:56:32Z] Summary:
+[23:56:32Z]   nvidia/llama-3.3-nemotron-super-49b-v1.5   complete (vllm)                    {'B_rerun': 640}

@@ -1,0 +1,30 @@
+{
+ "started_utc": "2026-09-28T23:32:17+00:00",
+ "gpu": {
+  "vendor": "amd",
+  "name": "",
+  "memory_mib": 196288,
+  "driver": "hip 7.2.53211",
+  "arch": "gfx942:sramecc+:xnack-",
+  "bf16": true,
+  "torch": "2.12.0+git6bbd260"
+ },
+ "python": "3.12.13",
+ "vllm": "0.28.0",
+ "torch": "2.12.0+git6bbd260",
+ "transformers": "5.15.1",
+ "modelscope": "1.40.1",
+ "bundle": {
+  "commit": "e9106ece8a63d6f90d8f701a1aba94af59537a68",
+  "created_utc": "2026-09-28T23:11:50+00:00",
+  "pushed": true,
+  "paths": [
+   "run_all.py",
+   "src",
+   "config",
+   "tools",
+   "tests",
+   "requirements.txt"
+  ]
+ }
+}
