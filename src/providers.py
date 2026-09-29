@@ -72,6 +72,21 @@ def _utc():
     return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
 
 
+# HTTP clients opened by OpenAICompatProvider. close_providers() closes them inside the event loop that
+# used them; otherwise they are garbage-collected after asyncio.run() has closed that loop, which prints
+# a harmless "RuntimeError: Event loop is closed" traceback (no effect on any request or record).
+_OPEN_CLIENTS = []
+
+
+async def close_providers():
+    while _OPEN_CLIENTS:
+        c = _OPEN_CLIENTS.pop()
+        try:
+            await c.close()
+        except Exception:
+            pass
+
+
 class OpenAICompatProvider:
     def __init__(self, base_url, api_key, rate_per_sec=2.0, max_retries=2, timeout=120,
                  use_seed=False, name="endpoint", key_env=None):
@@ -81,6 +96,7 @@ class OpenAICompatProvider:
         self.key_env = key_env
         # SDK retries are off; retries are handled below so that every attempt is rate-limited.
         self.client = AsyncOpenAI(base_url=base_url, api_key=api_key, max_retries=0)
+        _OPEN_CLIENTS.append(self.client)
         self.limiter = RateLimiter(rate_per_sec)
         self.max_retries = max(1, int(max_retries))
         self.timeout = timeout

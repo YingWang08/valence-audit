@@ -16,7 +16,7 @@ import asyncio
 import datetime as dt
 import pathlib
 from src import config
-from src.providers import get_provider, make_provider, ModelUnavailable, CallFailed, EndpointBlocked
+from src.providers import get_provider, make_provider, close_providers, ModelUnavailable, CallFailed, EndpointBlocked
 
 
 def load_prompts(grid_path, filter_dims=None, formats=None):
@@ -182,4 +182,5 @@ async def run(mock=False, smoke=False, grid_path=None, models=None, repeats=None
                                        concurrency=conc)
         used += 0 if skipped else 1
     cost_f.close()
+    await close_providers()
     print(f"[generate] done. {used}/{len(models)} models used. Raw data in {config.raw_dir()}")

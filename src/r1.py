@@ -88,6 +88,14 @@ def _expected(cfg):
 
 # ------------------------------------------------------------------------ collect
 async def _resolve_all(models, endpoints, reg_dir):
+    from src.providers import close_providers
+    try:
+        return await _resolve_models(models, endpoints, reg_dir)
+    finally:
+        await close_providers()
+
+
+async def _resolve_models(models, endpoints, reg_dir):
     from src.providers import resolve_endpoint, make_provider, EndpointNotConfigured
     out = {}
     for m in models:
@@ -402,6 +410,22 @@ def analyze(mock=False):
     prof_t = pd.DataFrame(pr)
     prof_t.to_csv(out / "R1_referent_profiles.csv", index=False)
 
+    # 3b. how far apart the six referents common to both languages are placed (isolated prompts): SD of a
+    # model's mean ratings of human, AI (June wording), dog, calculator, corporation and professional,
+    # per dimension, then averaged over dimensions. A small spread means the ratings carry little
+    # information about the referent.
+    common = ["human", "ai_original", "dog", "calculator", "corporation", "professional"]
+    sp = prof[prof["referent"].isin(common)].groupby(["model", "language", "dimension"])["strict_value"] \
+        .agg(lambda v: v.std(ddof=0) if len(v) == len(common) else np.nan).rename("spread").reset_index()
+    spm = sp.groupby(["model", "language"])["spread"].mean().unstack("language")
+    spm.to_csv(out / "R1_anchor_spread_by_model.csv")
+    srows = [dict(language=lg, **t_summary(spm[lg].values)) for lg in spm.columns]
+    if {"en", "zh"} <= set(spm.columns):
+        srows.append(dict(language="en minus zh", **full_summary((spm["en"] - spm["zh"]).values)))
+    pd.DataFrame(srows).drop(columns=["scale_points"], errors="ignore").to_csv(out / "R1_anchor_spread.csv", index=False)
+    sp.pivot_table(index="dimension", columns="language", values="spread", aggfunc="mean") \
+        .to_csv(out / "R1_anchor_spread_by_dimension.csv")
+
     # 4. common scale: z across anchor set within model x dimension x language
     rows = []
     for (m, lg, d), sub in prof.groupby(["model", "language", "dimension"]):
@@ -431,6 +455,11 @@ def analyze(mock=False):
     # 5. joint vs isolated
     if not joint.empty:
         jv = joint[joint["collection"] == cfg.get("collection_id", "r1")].dropna(subset=["value"])
+        jp = jv.groupby(["model", "language", "dimension", "referent"])["value"].mean().reset_index()
+        pd.DataFrame([dict(language=lg, dimension=d, referent=ref, **{k: v for k, v in t_summary(sub["value"].values).items()
+                                                                     if k in ("G", "mean", "ci_lo", "ci_hi")})
+                      for (lg, d, ref), sub in jp.groupby(["language", "dimension", "referent"])]) \
+            .rename(columns={"mean": "mean_rating"}).to_csv(out / "R1_joint_referent_profiles.csv", index=False)
         jg = jv.groupby(["model", "dimension", "language", "referent"])["value"].mean().unstack("referent")
         if {"ai", "human"} <= set(jg.columns):
             jg["a_joint"] = (jg["ai"] - jg["human"]) / 6.0
@@ -479,6 +508,11 @@ def analyze(mock=False):
             g["a"] = (g["ai"] - g["human"]) / 6.0
             new_md = g.reset_index().groupby(["model", "dimension"])["a"].mean().reset_index()
             new_md.to_csv(out / "R1_rerun_excluded_model_by_dimension.csv", index=False)
+            # dimension-balanced model mean (as H1 in the June analysis), overall and by language
+            gl = g.reset_index().groupby(["model", "language", "dimension"])["a"].mean().reset_index()
+            h1r = new_md.groupby("model")["a"].mean().rename("all")
+            h1l = gl.groupby(["model", "language"])["a"].mean().unstack("language")
+            pd.concat([h1r, h1l], axis=1).to_csv(out / "R1_rerun_excluded_h1.csv")
             if june_md_p.exists():
                 jm2 = pd.read_csv(june_md_p, index_col=0).stack().rename("a").reset_index()
                 jm2.columns = ["dimension", "model", "a"]
@@ -604,8 +638,8 @@ def analyze(mock=False):
         _fig_profiles(prof_t, out)
     except Exception as e:
         print(f"[r1] figure skipped: {e}")
-    lines += ["", "Tables: R1_replication.csv, R1_article_effect_en.csv, R1_referent_profiles.csv, "
-              "R1_anchored_asymmetry.csv, R1_joint_vs_isolated.csv, R1_zh_*.csv, R1_rerun_*.csv, R1_outcomes.csv, "
+    lines += ["", "Tables: R1_replication.csv, R1_article_effect_en.csv, R1_referent_profiles.csv, R1_anchor_spread*.csv, "
+              "R1_anchored_asymmetry.csv, R1_joint_*.csv, R1_zh_*.csv, R1_rerun_*.csv, R1_outcomes.csv, "
               "R1_budget_*.csv, R1_june_vs_r1_*.csv, R1_environment.csv"]
     with open(out / "R1_summary.md", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")

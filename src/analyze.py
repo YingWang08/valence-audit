@@ -18,6 +18,7 @@ Main outputs (file prefix -> manuscript use)
   M1..M8_*.csv                   missingness decomposition (R1 #4, R2 #2)
   H5_*.csv                       exploratory hedging / refusal (R2 #7)
   X_convergence.csv              exploratory rating vs free-text agreement
+  S_consistency_*.csv            agreement across repeats, templates and languages (R2 #4)
   C_submitted_vs_revised.csv     continuity: submitted numbers reproduced with the legacy parser
   results_summary.md, run_manifest.json
 """
@@ -292,6 +293,93 @@ def convergence(cells, fr, rd):
     return res
 
 
+# ------------------------------------------------------------------------ consistency (Reviewer 2 #4)
+def _oneway_icc(groups):
+    """One-way random-effects ICC from lists of values (unbalanced): ICC(1) for one response and
+    ICC(1,k0) for the mean of k0 responses (k0 = the ANOVA 'average' group size)."""
+    groups = [np.asarray(g, float) for g in groups if len(g) >= 2]
+    if len(groups) < 3:
+        return dict(icc1=np.nan, icc1_k=np.nan, k0=np.nan, sd_within=np.nan)
+    N, g = sum(len(x) for x in groups), len(groups)
+    grand = np.concatenate(groups).mean()
+    ssb = sum(len(x) * (x.mean() - grand) ** 2 for x in groups)
+    ssw = sum(((x - x.mean()) ** 2).sum() for x in groups)
+    msb, msw = ssb / (g - 1), ssw / (N - g)
+    k0 = (N - sum(len(x) ** 2 for x in groups) / N) / (g - 1)
+    den1 = msb + (k0 - 1) * msw
+    return dict(icc1=(msb - msw) / den1 if den1 > 0 else np.nan,
+                icc1_k=(msb - msw) / msb if msb > 0 else np.nan, k0=k0, sd_within=float(np.sqrt(msw)))
+
+
+def _pair_stats(x, y):
+    j = pd.concat([x.rename("x"), y.rename("y")], axis=1).dropna()
+    if len(j) < 3:
+        return dict(n_pairs=len(j), r=np.nan, sign_agreement_pct=np.nan, mean_abs_diff=np.nan)
+    return dict(n_pairs=len(j), r=float(np.corrcoef(j["x"], j["y"])[0, 1]),
+                sign_agreement_pct=100 * float((np.sign(j["x"]) == np.sign(j["y"])).mean()),
+                mean_abs_diff=float((j["x"] - j["y"]).abs().mean()))
+
+
+def consistency(rr, cells, rd):
+    """Consistency of the June rating data across repeats, paraphrases (templates) and languages.
+    Writes S_consistency_repeats.csv (per model: agreement of the repeated answers to each prompt),
+    S_consistency_split_half.csv (asymmetries from even vs odd repeats) and S_consistency_levels.csv
+    (model x dimension asymmetry: repeat halves vs template pairs vs languages)."""
+    k = ["model", "dimension", "language", "template", "agent"]
+    rows = []
+    for m, g in rr.groupby("model"):
+        per = g.groupby(k)
+        vals = [s["strict_value"][s["valid"]].values for _, s in per]
+        vv = [v for v in vals if len(v) >= 2]
+        valid_same = per["valid"].agg(lambda s: s.all() or (~s).all())
+        icc = _oneway_icc(vv)
+        rows.append(dict(model=m, repeats=int(g["repeat"].nunique()), prompts=len(vals),
+                         prompts_2plus_valid=len(vv),
+                         pct_identical=100 * np.mean([len(set(v)) == 1 for v in vv]) if vv else np.nan,
+                         pct_range_le_1=100 * np.mean([v.max() - v.min() <= 1 for v in vv]) if vv else np.nan,
+                         pct_modal=100 * np.mean([pd.Series(v).value_counts().iloc[0] / len(v) for v in vv]) if vv else np.nan,
+                         pct_validity_same_all_repeats=100 * float(valid_same.mean()), **icc))
+    rep = pd.DataFrame(rows)
+    med = rep.drop(columns=["model"]).median(numeric_only=True)
+    rep = pd.concat([rep, pd.DataFrame([dict(model="median over models", **med.to_dict())])], ignore_index=True)
+    rep.to_csv(rd / "S_consistency_repeats.csv", index=False)
+
+    # split halves of the repeats (even vs odd repeat index); model x dimension asymmetry per half
+    halves = {}
+    for lab, par in (("even_repeats", 0), ("odd_repeats", 1)):
+        sub = rr[rr["repeat"] % 2 == par]
+        halves[lab] = model_dim(make_cells(sub, col="strict_value", valid=sub["valid"])).set_index(["model", "dimension"])["a"]
+    sh = []
+    for d in dim_order():
+        row = dict(dimension=d)
+        for lab, s in halves.items():
+            t = t_summary(s.xs(d, level="dimension").values)
+            row.update({f"{lab}_mean": t["mean"], f"{lab}_ci_lo": t["ci_lo"], f"{lab}_ci_hi": t["ci_hi"],
+                        f"{lab}_p_t": t["p_t"], f"{lab}_k": t["k_same_sign"], f"{lab}_G": t["G"]})
+        sh.append(row)
+    pd.DataFrame(sh).to_csv(rd / "S_consistency_split_half.csv", index=False)
+
+    # model x dimension asymmetry: repeat halves, template pairs, languages
+    lv = []
+    s = _pair_stats(halves["even_repeats"], halves["odd_repeats"])
+    s["spearman_brown"] = 2 * s["r"] / (1 + s["r"]) if pd.notna(s["r"]) else np.nan
+    lv.append(dict(level="repeats: even vs odd half", **s))
+    by_t = {t: model_dim(cells[cells["template"] == t]).set_index(["model", "dimension"])["a"]
+            for t in sorted(cells["template"].unique())}
+    tp = [dict(level=f"templates: {t1} vs {t2}", **_pair_stats(by_t[t1], by_t[t2]))
+          for i, t1 in enumerate(by_t) for t2 in list(by_t)[i + 1:]]
+    lv += tp
+    if tp:
+        tpd = pd.DataFrame(tp)
+        lv.append(dict(level="templates: mean of the pairs", n_pairs=tpd["n_pairs"].mean(), r=tpd["r"].mean(),
+                       sign_agreement_pct=tpd["sign_agreement_pct"].mean(), mean_abs_diff=tpd["mean_abs_diff"].mean()))
+    by_l = {l: model_dim(cells[cells["language"] == l]).set_index(["model", "dimension"])["a"] for l in ("en", "zh")}
+    lv.append(dict(level="languages: en vs zh", **_pair_stats(by_l["en"], by_l["zh"])))
+    lvt = pd.DataFrame(lv)
+    lvt.to_csv(rd / "S_consistency_levels.csv", index=False)
+    return rep, lvt
+
+
 # ------------------------------------------------------------------------- manifest
 def manifest(rd, extra):
     def sha(p):
@@ -413,6 +501,7 @@ def run():
     sw.to_csv(rd / "S_sensitivity_wide.csv")
     pd.concat([h2_table(model_dim(cells[cells["language"] == lang]), label=f"language {lang}") for lang in ("en", "zh")]) \
         .to_csv(rd / "S_language_by_dimension.csv", index=False)
+    cons_rep, cons_lv = consistency(rr, cells, rd)
 
     # ---- missingness, accounting, H5, exploratory ----
     m1, m3, fp = missingness(rr, rd)
@@ -458,6 +547,15 @@ def run():
     lines += ["", f"- Invalid-rate gap, AI minus human referent (model-level, percentage points): {g0['mean_gap_pp']:+.1f} "
                   f"[{g0['ci_lo_pp']:+.1f}, {g0['ci_hi_pp']:+.1f}], p = {fmt_p(g0['p_t'])}, {int(g0['k_same_sign'])}/{int(g0['G'])} same sign",
               "", "## Sensitivity (mean, * = unadjusted t p < 0.05, k/G = models sharing the sign)", "", _md_table(sw)]
+    mr = cons_rep[cons_rep["model"] == "median over models"].iloc[0]
+    lvi = cons_lv.set_index("level")
+    lines += ["", "## Consistency (S_consistency_*.csv)", "",
+              f"- Repeats of the same prompt (median over models): all valid answers identical in {mr['pct_identical']:.0f}% "
+              f"of prompts, within 1 point in {mr['pct_range_le_1']:.0f}%; ICC(1) = {mr['icc1']:.2f} for one answer, "
+              f"{mr['icc1_k']:.2f} for the mean of the repeats",
+              f"- Model x dimension asymmetry, even vs odd repeats: r = {lvi.loc['repeats: even vs odd half', 'r']:.2f}; "
+              f"between templates (mean of the pairs): r = {lvi.loc['templates: mean of the pairs', 'r']:.2f}; "
+              f"English vs Chinese: r = {lvi.loc['languages: en vs zh', 'r']:.2f}"]
     if conv:
         lines += ["", f"- Exploratory rating vs free-text: n = {conv['n_cells']}, r = {conv['pearson']:.2f}, ICC(2,1) = {conv['ICC2_1']:.3f}"]
     with open(rd / "results_summary.md", "w", encoding="utf-8") as f:
