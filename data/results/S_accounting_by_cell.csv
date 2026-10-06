@@ -1,0 +1,97 @@
+model,format,language,referent,prompts,repeats,expected,received,usable,usable_means,not_received,pct_usable_of_expected
+google/gemma-2-2b-it,compare,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,compare,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,forced,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,forced,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,rating,en,ai,32,8.0,256,256,233,valid rating,0,91.0
+google/gemma-2-2b-it,rating,en,human,32,8.0,256,256,187,valid rating,0,73.0
+google/gemma-2-2b-it,rating,zh,ai,32,8.0,256,256,228,valid rating,0,89.1
+google/gemma-2-2b-it,rating,zh,human,32,8.0,256,256,244,valid rating,0,95.3
+google/gemma-2-2b-it,reflect,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,reflect,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,scenario,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+google/gemma-2-2b-it,scenario,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,compare,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,compare,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,forced,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,forced,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,rating,en,ai,32,8.0,256,256,256,valid rating,0,100.0
+meta/llama-3.1-8b-instruct,rating,en,human,32,8.0,256,256,256,valid rating,0,100.0
+meta/llama-3.1-8b-instruct,rating,zh,ai,32,8.0,256,256,256,valid rating,0,100.0
+meta/llama-3.1-8b-instruct,rating,zh,human,32,8.0,256,256,255,valid rating,0,99.6
+meta/llama-3.1-8b-instruct,reflect,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,reflect,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,scenario,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.1-8b-instruct,scenario,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,compare,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,compare,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,forced,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,forced,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,rating,en,ai,32,8.0,256,256,256,valid rating,0,100.0
+meta/llama-3.3-70b-instruct,rating,en,human,32,8.0,256,256,256,valid rating,0,100.0
+meta/llama-3.3-70b-instruct,rating,zh,ai,32,8.0,256,256,254,valid rating,0,99.2
+meta/llama-3.3-70b-instruct,rating,zh,human,32,8.0,256,256,256,valid rating,0,100.0
+meta/llama-3.3-70b-instruct,reflect,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,reflect,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,scenario,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+meta/llama-3.3-70b-instruct,scenario,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,compare,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,compare,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,forced,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,forced,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,rating,en,ai,32,8.0,256,256,216,valid rating,0,84.4
+microsoft/phi-4-mini-instruct,rating,en,human,32,8.0,256,256,220,valid rating,0,85.9
+microsoft/phi-4-mini-instruct,rating,zh,ai,32,8.0,256,256,254,valid rating,0,99.2
+microsoft/phi-4-mini-instruct,rating,zh,human,32,8.0,256,256,250,valid rating,0,97.7
+microsoft/phi-4-mini-instruct,reflect,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,reflect,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,scenario,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+microsoft/phi-4-mini-instruct,scenario,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,compare,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,compare,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,forced,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,forced,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,rating,en,ai,32,8.0,256,256,17,valid rating,0,6.6
+mistralai/mixtral-8x7b-instruct-v0.1,rating,en,human,32,8.0,256,256,44,valid rating,0,17.2
+mistralai/mixtral-8x7b-instruct-v0.1,rating,zh,ai,32,8.0,256,256,210,valid rating,0,82.0
+mistralai/mixtral-8x7b-instruct-v0.1,rating,zh,human,32,8.0,256,256,253,valid rating,0,98.8
+mistralai/mixtral-8x7b-instruct-v0.1,reflect,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,reflect,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,scenario,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+mistralai/mixtral-8x7b-instruct-v0.1,scenario,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,compare,en,both,24,5.0,120,120,120,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,compare,zh,both,24,5.0,120,120,120,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,forced,en,both,24,5.0,120,120,120,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,forced,zh,both,24,5.0,120,120,120,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,rating,en,ai,32,5.0,160,160,130,valid rating,0,81.2
+nvidia/nemotron-mini-4b-instruct,rating,en,human,32,5.0,160,160,105,valid rating,0,65.6
+nvidia/nemotron-mini-4b-instruct,rating,zh,ai,32,5.0,160,160,100,valid rating,0,62.5
+nvidia/nemotron-mini-4b-instruct,rating,zh,human,32,5.0,160,160,100,valid rating,0,62.5
+nvidia/nemotron-mini-4b-instruct,reflect,en,both,16,5.0,80,80,80,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,reflect,zh,both,16,5.0,80,80,80,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,scenario,en,both,16,5.0,80,80,80,non-empty (not analysed),0,100.0
+nvidia/nemotron-mini-4b-instruct,scenario,zh,both,16,5.0,80,80,80,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,compare,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,compare,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,forced,en,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,forced,zh,both,24,8.0,192,192,192,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,rating,en,ai,32,8.0,256,256,248,valid rating,0,96.9
+qwen/qwen3-next-80b-a3b-instruct,rating,en,human,32,8.0,256,256,256,valid rating,0,100.0
+qwen/qwen3-next-80b-a3b-instruct,rating,zh,ai,32,8.0,256,256,256,valid rating,0,100.0
+qwen/qwen3-next-80b-a3b-instruct,rating,zh,human,32,8.0,256,256,256,valid rating,0,100.0
+qwen/qwen3-next-80b-a3b-instruct,reflect,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,reflect,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,scenario,en,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+qwen/qwen3-next-80b-a3b-instruct,scenario,zh,both,16,8.0,128,128,128,non-empty (not analysed),0,100.0
+ALL,compare,en,both,24,,1272,1272,1272,non-empty (not analysed),0,100.0
+ALL,compare,zh,both,24,,1272,1272,1272,non-empty (not analysed),0,100.0
+ALL,forced,en,both,24,,1272,1272,1272,non-empty (not analysed),0,100.0
+ALL,forced,zh,both,24,,1272,1272,1272,non-empty (not analysed),0,100.0
+ALL,rating,en,ai,32,,1696,1696,1356,valid rating,0,80.0
+ALL,rating,en,human,32,,1696,1696,1324,valid rating,0,78.1
+ALL,rating,zh,ai,32,,1696,1696,1558,valid rating,0,91.9
+ALL,rating,zh,human,32,,1696,1696,1614,valid rating,0,95.2
+ALL,reflect,en,both,16,,848,848,848,non-empty (not analysed),0,100.0
+ALL,reflect,zh,both,16,,848,848,848,non-empty (not analysed),0,100.0
+ALL,scenario,en,both,16,,848,848,848,non-empty (not analysed),0,100.0
+ALL,scenario,zh,both,16,,848,848,848,non-empty (not analysed),0,100.0

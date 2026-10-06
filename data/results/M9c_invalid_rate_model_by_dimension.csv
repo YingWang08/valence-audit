@@ -1,0 +1,8 @@
+model,productivity,decision,trust,reliability,moral,emotion,creativity,worth
+google/gemma-2-2b-it,12.5,6.25,12.5,11.72,34.38,6.25,12.5,7.03
+meta/llama-3.1-8b-instruct,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.78
+meta/llama-3.3-70b-instruct,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.56
+microsoft/phi-4-mini-instruct,3.12,5.47,6.25,7.81,25.78,6.25,6.25,4.69
+mistralai/mixtral-8x7b-instruct-v0.1,48.44,45.31,51.56,58.59,60.16,48.44,34.38,43.75
+nvidia/nemotron-mini-4b-instruct,37.5,50.0,50.0,18.75,37.5,18.75,12.5,31.25
+qwen/qwen3-next-80b-a3b-instruct,0.0,0.0,0.0,0.0,6.25,0.0,0.0,0.0

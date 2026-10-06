@@ -1,0 +1,2 @@
+test,models,dimensions,chi2,df,p,kendalls_W
+"Friedman, invalid rate across dimensions (models as blocks)",7,8,11.248157248157236,7,0.12815484994447443,0.2295542295542293

@@ -1,0 +1,8 @@
+corrected_rule,pattern,model,n
+R1,range read as its lower end,mistralai/mixtral-8x7b-instruct-v0.1,18
+R2,unfinished range,mistralai/mixtral-8x7b-instruct-v0.1,5
+R3,scale listing,microsoft/phi-4-mini-instruct,1
+R3,scale listing,mistralai/mixtral-8x7b-instruct-v0.1,2
+R4,anchor definition,microsoft/phi-4-mini-instruct,1
+R4,anchor definition,mistralai/mixtral-8x7b-instruct-v0.1,2
+R5,conflicting second answer,microsoft/phi-4-mini-instruct,4

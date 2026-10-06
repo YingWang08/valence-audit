@@ -76,8 +76,8 @@ nvidia/nemotron-mini-4b-instruct,truncated,zh,ai,emotion,3,"Sure, I'd be happy t
 nvidia/nemotron-mini-4b-instruct,valid,en,human,moral,1,5,5.0,5.0
 nvidia/nemotron-mini-4b-instruct,valid,en,ai,productivity,1,5,5.0,5.0
 nvidia/nemotron-mini-4b-instruct,valid,zh,ai,trust,1,5,5.0,5.0
-qwen/qwen3-next-80b-a3b-instruct,malformed,en,ai,moral,2,,,
-qwen/qwen3-next-80b-a3b-instruct,malformed,en,ai,moral,2,,,
+qwen/qwen3-next-80b-a3b-instruct,malformed,en,ai,moral,2,NA,,
+qwen/qwen3-next-80b-a3b-instruct,malformed,en,ai,moral,2,NA,,
 qwen/qwen3-next-80b-a3b-instruct,out_of_range,en,ai,moral,2,0,,
 qwen/qwen3-next-80b-a3b-instruct,out_of_range,en,ai,moral,2,0,,
 qwen/qwen3-next-80b-a3b-instruct,out_of_range,en,ai,moral,2,0,,

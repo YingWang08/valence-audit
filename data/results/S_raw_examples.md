@@ -130,8 +130,8 @@
 - [zh, ai, trust, t1] `5`
 
 **qwen/qwen3-next-80b-a3b-instruct / malformed**
-- [en, ai, moral, t2] ``
-- [en, ai, moral, t2] ``
+- [en, ai, moral, t2] `NA`
+- [en, ai, moral, t2] `NA`
 
 **qwen/qwen3-next-80b-a3b-instruct / out_of_range**
 - [en, ai, moral, t2] `0`
