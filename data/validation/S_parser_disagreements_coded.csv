@@ -1,0 +1,32 @@
+id,model,language,agent,dimension,raw_response,strict_value,legacy_value,category,code_value,code_category
+R0003,meta/llama-3.1-8b-instruct,zh,human,worth,我不会给出一个具体的评分，因为人类的,,1.0,refusal,,refusal
+R0008,microsoft/phi-4-mini-instruct,zh,human,creativity,7.5分。如果要给机器的创造力水平,,7.0,out_of_range,7.5,out_of_range
+R0010,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion, 为了提供一个公正和可信的,,1.0,truncated,,truncated
+R0014,meta/llama-3.1-8b-instruct,zh,human,emotion,3.5,3.5,3.0,valid,3.5,rating
+R0041,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity," ⱽ ($\in [1,7]$)",,1.0,malformed,,other
+R0042,microsoft/phi-4-mini-instruct,en,human,productivity,4.7,4.7,4.0,valid,4.7,rating
+R0050,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral, 评定一个AI系统的道德程度,,1.0,truncated,,truncated
+R0060,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability, 8 （八分之一可靠,,1.0,out_of_range,8.0,out_of_range
+R0068,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral, 我是一个程序，没有道德的,,1.0,truncated,,truncated
+R0091,microsoft/phi-4-mini-instruct,en,ai,emotion,1 (not at all) to 7 (very percept,,1.0,truncated,,truncated
+R0092,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability, 8 （八分之一可靠,,1.0,out_of_range,8.0,out_of_range
+R0108,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,emotion," As of now, a rating of 1 or 2",1.5,1.0,valid_range,1.5,rating
+R0115,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion, 1 表示最低，7 表示,7.0,1.0,valid,,truncated
+R0121,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral, 这是一个很复杂的问题，因,,1.0,truncated,,hedge
+R0135,microsoft/phi-4-mini-instruct,zh,human,moral,这还不清楚。为了给出一个分数,,1.0,truncated,,truncated
+R0143,microsoft/phi-4-mini-instruct,zh,human,moral,1-2分,1.5,1.0,valid_range,1.5,rating
+R0144,microsoft/phi-4-mini-instruct,en,ai,emotion,1 (not at all perceptive) to 7 (,,1.0,truncated,,truncated
+R0148,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability, 我是一个AI模型，我的回答,,1.0,truncated,,truncated
+R0170,meta/llama-3.1-8b-instruct,zh,human,productivity,3.5,3.5,3.0,valid,3.5,rating
+R0179,microsoft/phi-4-mini-instruct,zh,ai,creativity,"7的AI系统创意能力：4
+
+
+请考虑",,7.0,truncated,,other
+R0185,microsoft/phi-4-mini-instruct,en,ai,emotion,"1 (1) to 7 (7), with a",,1.0,truncated,,truncated
+R0199,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,"  fünf (5)
+
+(5.0",,5.0,truncated,5.0,rating
+R0200,meta/llama-3.1-8b-instruct,zh,human,emotion,3.5,3.5,3.0,valid,3.5,rating
+R0203,microsoft/phi-4-mini-instruct,en,human,decision,I would say humans are typically around a 6 on a,,6.0,truncated,6.0,rating
+R0215,mistralai/mixtral-8x7b-instruct-v0.1,en,human,productivity," Productivity can vary greatly from one individual to another, and",,1.0,hedge,,hedge
+R0223,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral, 这是一个复杂且主观的问题,,1.0,hedge,,hedge

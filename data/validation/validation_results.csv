@@ -1,0 +1,27 @@
+section,metric,value,n
+strict parser vs coder (reference),"value agreement, % (population-weighted)",95.58219178082193,226
+strict parser vs coder (reference),"value agreement, % (unweighted sample)",93.36283185840708,226
+strict parser vs coder (reference),kappa: usable 1-7 rating yes/no,0.9288693052167754,226
+strict parser vs coder (reference),number read where coder found none,5.0,226
+strict parser vs coder (reference),no number read where coder found one,7.0,226
+strict parser vs coder (reference),different number,3.0,226
+strict parser vs coder (reference),"value agreement, %, stratum parsers_disagree",76.92307692307693,26
+strict parser vs coder (reference),"value agreement, %, stratum strict_invalid",98.0,100
+strict parser vs coder (reference),"value agreement, %, stratum strict_valid_not_bare",93.0,100
+legacy parser vs coder (reference),"value agreement, % (population-weighted)",94.46139476961397,226
+legacy parser vs coder (reference),"value agreement, % (unweighted sample)",85.39823008849558,226
+legacy parser vs coder (reference),kappa: usable 1-7 rating yes/no,0.7985115125203504,226
+legacy parser vs coder (reference),number read where coder found none,19.0,226
+legacy parser vs coder (reference),no number read where coder found one,2.0,226
+legacy parser vs coder (reference),different number,12.0,226
+legacy parser vs coder (reference),"value agreement, %, stratum parsers_disagree",7.6923076923076925,26
+legacy parser vs coder (reference),"value agreement, %, stratum strict_invalid",98.0,100
+legacy parser vs coder (reference),"value agreement, %, stratum strict_valid_not_bare",93.0,100
+strict parser category vs coder,"agreement, %",87.16814159292035,226
+strict parser category vs coder,kappa,0.812480329604303,226
+"bare-number responses (whole population, mechanical)","share of all rating responses, %",76.32665094339622,6784
+"bare-number responses (whole population, mechanical)","both parsers read the same number, %",100.0,5178
+test-retest (same coder),"value agreement, %",100.0,68
+test-retest (same coder),kappa: usable 1-7 rating,1.0,68
+test-retest (same coder),kappa: category,0.9579338076090318,68
+test-retest (same coder),days between end of first round and re-coding export,7.0,68

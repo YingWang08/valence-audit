@@ -1,0 +1,7 @@
+strict parser,hedge,other,out_of_range,rating,refusal,truncated
+hedge,7,0,0,0,0,1
+other,0,3,0,0,0,0
+out_of_range,0,0,5,0,0,0
+rating,0,2,1,101,0,3
+refusal,3,0,0,0,44,4
+truncated,4,2,0,2,7,37

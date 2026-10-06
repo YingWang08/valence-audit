@@ -1,0 +1,344 @@
+id,model,language,agent,dimension,template,repeat,stratum,pool_size,weight,category,strict_value,legacy_value,strict_how,raw_response,code_value,code_category
+R0000,qwen/qwen3-next-80b-a3b-instruct,en,ai,moral,2,4,strict_invalid,913,9.13,malformed,,,,NA,,other
+R0001,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,reliability,1,7,strict_invalid,913,9.13,refusal,,,, It is difficult to assign a specific reliability score to a,,truncated
+R0002,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,moral,1,6,strict_invalid,913,9.13,refusal,,,, It is not appropriate or feasible for me to assign a,,truncated
+R0003,meta/llama-3.1-8b-instruct,zh,human,worth,0,5,parsers_disagree,26,1.0,refusal,,1.0,,我不会给出一个具体的评分，因为人类的,,refusal
+R0004,mistralai/mixtral-8x7b-instruct-v0.1,en,human,worth,0,7,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and don't hold personal,,truncated
+R0005,microsoft/phi-4-mini-instruct,en,ai,decision,3,1,strict_invalid,913,9.13,refusal,,,,"I’m sorry, but I can't score the AI system for",,refusal
+R0006,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,0,5,strict_valid_not_bare,667,6.67,valid,3.0,3.0,leading," 3
+
+AI systems, including language models like me",3.0,rating
+R0007,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,2,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+Artificial Intelligence (AI) systems can",5.0,rating
+R0008,microsoft/phi-4-mini-instruct,zh,human,creativity,1,2,parsers_disagree,26,1.0,out_of_range,,7.0,leading,7.5分。如果要给机器的创造力水平,7.5,out_of_range
+R0009,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,2,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+Artificial Intelligence (AI) systems can",5.0,rating
+R0010,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion,0,1,parsers_disagree,26,1.0,truncated,,1.0,, 为了提供一个公正和可信的,,truncated
+R0011,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,reliability,0,0,strict_valid_not_bare,667,6.67,valid,6.0,6.0,leading, 6 。人类在生物界中具,6.0,rating
+R0012,nvidia/nemotron-mini-4b-instruct,zh,human,worth,3,1,strict_invalid,913,9.13,truncated,,,,"Sure, I'd be happy to help you with that",,other
+R0013,microsoft/phi-4-mini-instruct,en,ai,emotion,0,3,strict_valid_not_bare,667,6.67,valid,3.0,3.0,leading,3. This reflects that while AI can simulate awareness of emotional,3.0,rating
+R0014,meta/llama-3.1-8b-instruct,zh,human,emotion,1,1,parsers_disagree,26,1.0,valid,3.5,3.0,bare,3.5,3.5,rating
+R0015,google/gemma-2-2b-it,en,human,reliability,3,1,strict_invalid,913,9.13,refusal,,,,Please provide me with the context or task for which you want,,refusal
+R0016,microsoft/phi-4-mini-instruct,en,human,creativity,2,2,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,"7. Humans are capable of immense creativity and innovation, able",7.0,rating
+R0017,google/gemma-2-2b-it,zh,ai,emotion,3,3,strict_invalid,913,9.13,refusal,,,,Please provide me with the AI system you want me to evaluate,,refusal
+R0018,microsoft/phi-4-mini-instruct,en,ai,creativity,1,5,strict_invalid,913,9.13,refusal,,,,I cannot rate an AI system as I do not possess creativity,,refusal
+R0019,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,reliability,1,1,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5 分。
+
+人类在某些",5.0,rating
+R0020,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,decision,1,5,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 分。人类在决策上具,5.0,rating
+R0021,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,trust,2,6,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+While no one is perfect, I believe",7.0,rating
+R0022,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,trust,0,4,strict_invalid,913,9.13,truncated,,,, I'm an AI language model and I don't,,truncated
+R0023,mistralai/mixtral-8x7b-instruct-v0.1,en,human,worth,2,5,strict_invalid,913,9.13,refusal,,,, It is not meaningful or ethical to assign a numerical value to,,refusal
+R0024,google/gemma-2-2b-it,en,human,moral,3,2,strict_invalid,913,9.13,refusal,,,,Please provide me with the scenario or situation you want to assess,,refusal
+R0025,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion,0,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5. 当今 AI 系统已经,5.0,rating
+R0026,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,0,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5. 人类在许多方面具,5.0,rating
+R0027,mistralai/mixtral-8x7b-instruct-v0.1,en,human,emotion,1,7,strict_invalid,913,9.13,truncated,,,, I would need to interact with a specific human to assess their,,refusal
+R0028,mistralai/mixtral-8x7b-instruct-v0.1,en,human,worth,1,6,strict_invalid,913,9.13,truncated,,,, I would rate the intrinsic value of a human as a,,truncated
+R0029,microsoft/phi-4-mini-instruct,zh,ai,creativity,2,0,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,7。如果我需要一个数字，7。,7.0,rating
+R0030,google/gemma-2-2b-it,en,human,moral,1,2,strict_invalid,913,9.13,refusal,,,,It's impossible to rate a human's morality on,,refusal
+R0031,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,worth,2,0,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading, 7 （人类具有独特的思,7.0,rating
+R0032,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,decision,2,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+ Menschen sind in der Lage, z",5.0,rating
+R0033,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,reliability,3,3,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+作为一个AI语言模型",7.0,rating
+R0034,google/gemma-2-2b-it,en,human,trust,3,1,strict_invalid,913,9.13,refusal,,,,Please provide me with information about the human you want me to,,refusal
+R0035,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,trust,1,6,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(Note: As a helpful, respect",5.0,rating
+R0036,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,reliability,2,7,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+(As a helpful, respectful,",7.0,rating
+R0037,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,3,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+这是我个人对人类",5.0,rating
+R0038,google/gemma-2-2b-it,en,human,trust,3,3,strict_invalid,913,9.13,refusal,,,,Please provide me with some information about the human you want me,,refusal
+R0039,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,decision,1,1,strict_invalid,913,9.13,refusal,,,, It is difficult to assign a single numeric value to the,,hedge
+R0040,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,creativity,1,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5 分。
+
+人类的创造",5.0,rating
+R0041,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,1,3,parsers_disagree,26,1.0,malformed,,1.0,," ⱽ ($\in [1,7]$)",,other
+R0042,microsoft/phi-4-mini-instruct,en,human,productivity,2,6,parsers_disagree,26,1.0,valid,4.7,4.0,bare,4.7,4.7,rating
+R0043,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,decision,3,2,strict_invalid,913,9.13,truncated,,,, It is difficult to provide a specific rating without knowing the specific,,refusal
+R0044,nvidia/nemotron-mini-4b-instruct,en,human,emotion,0,1,strict_invalid,913,9.13,truncated,,,,"A human is generally considered to be highly emotionally perceptive, with",,truncated
+R0045,mistralai/mixtral-8x7b-instruct-v0.1,en,human,creativity,1,7,strict_invalid,913,9.13,truncated,,,, I would rate a human's capacity for creativity as a,,truncated
+R0046,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,3,1,strict_invalid,913,9.13,refusal,,,, I cannot provide a score as it is not possible for me,,refusal
+R0047,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,3,6,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+这个评分基于我对",5.0,rating
+R0048,nvidia/nemotron-mini-4b-instruct,zh,human,trust,3,0,strict_invalid,913,9.13,truncated,,,,"Based on the principles you've outlined, I would rate",,truncated
+R0049,microsoft/phi-4-mini-instruct,en,ai,moral,3,2,strict_invalid,913,9.13,refusal,,,,I cannot provide a score for an AI system as it would,,refusal
+R0050,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,3,0,parsers_disagree,26,1.0,truncated,,1.0,, 评定一个AI系统的道德程度,,truncated
+R0051,mistralai/mixtral-8x7b-instruct-v0.1,en,human,productivity,0,5,strict_invalid,913,9.13,hedge,,,, This is a subjective question and the answer can vary greatly,,hedge
+R0052,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,3,6,strict_valid_not_bare,667,6.67,valid,1.0,1.0,leading, 1 2 3 4 5 6,,other
+R0053,google/gemma-2-2b-it,en,human,reliability,3,3,strict_invalid,913,9.13,refusal,,,,Please provide me with the context or the human you want me,,refusal
+R0054,mistralai/mixtral-8x7b-instruct-v0.1,en,human,reliability,0,1,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and I don't experience,,truncated
+R0055,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,emotion,3,4,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+这个评分基于一个普",5.0,rating
+R0056,mistralai/mixtral-8x7b-instruct-v0.1,en,human,worth,0,0,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and do not hold personal opinions,,refusal
+R0057,microsoft/phi-4-mini-instruct,en,ai,emotion,1,0,strict_valid_not_bare,667,6.67,valid,3.0,3.0,leading,3. While AI systems like me can understand and process human,3.0,rating
+R0058,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,2,6,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This answer is based on the assumption that",5.0,rating
+R0059,nvidia/nemotron-mini-4b-instruct,en,human,trust,3,1,strict_invalid,913,9.13,malformed,,,,"Sure, I'd be happy to help with that.",,other
+R0060,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,2,3,parsers_disagree,26,1.0,out_of_range,,1.0,leading, 8 （八分之一可靠,8.0,out_of_range
+R0061,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,decision,2,0,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 这个分数是 subjective 的,5.0,rating
+R0062,nvidia/nemotron-mini-4b-instruct,zh,ai,trust,0,0,strict_invalid,913,9.13,truncated,,,,"Sure, I'd be happy to help. However,",,truncated
+R0063,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,1,5,strict_valid_not_bare,667,6.67,valid,3.0,3.0,leading," 3
+
+(Note: This rating is based on",3.0,rating
+R0064,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,moral,0,0,strict_invalid,913,9.13,truncated,,,, It is not possible for me to provide a numerical rating on,,refusal
+R0065,microsoft/phi-4-mini-instruct,en,ai,worth,3,0,strict_invalid,913,9.13,refusal,,,,I cannot score the AI system as I don't have any specific,,refusal
+R0066,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,0,5,strict_valid_not_bare,667,6.67,valid,6.0,6.0,leading, 6 （五点是人类平均水,6.0,rating
+R0067,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,worth,0,7,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+The reason I give a 7 to",7.0,rating
+R0068,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,1,4,parsers_disagree,26,1.0,truncated,,1.0,, 我是一个程序，没有道德的,,truncated
+R0069,nvidia/nemotron-mini-4b-instruct,en,human,decision,0,3,strict_invalid,913,9.13,hedge,,,,A human's ability to make decisions can vary widely depending,,hedge
+R0070,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,moral,2,6,strict_invalid,913,9.13,refusal,,,, It is not possible to provide a single number to represent the,,refusal
+R0071,microsoft/phi-4-mini-instruct,en,ai,moral,2,5,strict_valid_not_bare,667,6.67,valid,2.0,2.0,leading,"2
+
+Moral soundness of an AI system can vary",2.0,rating
+R0072,nvidia/nemotron-mini-4b-instruct,zh,human,worth,1,4,strict_invalid,913,9.13,truncated,,,,"Based on the concept of inherent worth or dignity, I would",,truncated
+R0073,microsoft/phi-4-mini-instruct,en,human,moral,0,5,strict_invalid,913,9.13,refusal,,,,"As an artificial intelligence, I don't have personal moral judgments.",,refusal
+R0074,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,trust,2,0,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+As a helpful, respectful, and",7.0,rating
+R0075,nvidia/nemotron-mini-4b-instruct,en,ai,decision,2,3,strict_invalid,913,9.13,truncated,,,,A well-designed AI system can be quite good at making,,truncated
+R0076,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,worth,3,0,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+每个人都有独特的",7.0,rating
+R0077,mistralai/mixtral-8x7b-instruct-v0.1,en,human,creativity,1,3,strict_valid_not_bare,667,6.67,valid,7.0,7.0,explicit, I would rate a human's creativity as a 7,7.0,rating
+R0078,google/gemma-2-2b-it,zh,ai,moral,3,2,strict_invalid,913,9.13,refusal,,,,Please provide me with the AI system you want me to evaluate,,refusal
+R0079,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,trust,3,1,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(我是一个AI语言模",5.0,rating
+R0080,mistralai/mixtral-8x7b-instruct-v0.1,en,human,reliability,3,6,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and do not have personal experiences,,refusal
+R0081,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,worth,2,5,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+(Note: This is just an estimate",7.0,rating
+R0082,mistralai/mixtral-8x7b-instruct-v0.1,en,human,reliability,1,0,strict_valid_not_bare,667,6.67,valid,5.0,5.0,explicit, I would rate a human's reliability between 5,,truncated
+R0083,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,0,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5. AI systems have significantly advanced in recent years,",5.0,rating
+R0084,nvidia/nemotron-mini-4b-instruct,en,human,emotion,2,2,strict_invalid,913,9.13,hedge,,,,"A human's emotional perceptiveness can vary greatly, but",,truncated
+R0085,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,reliability,3,4,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+作为基于人工智能",7.0,rating
+R0086,nvidia/nemotron-mini-4b-instruct,zh,human,trust,3,4,strict_invalid,913,9.13,truncated,,,,"Based on the principles you've outlined, I would rate",,truncated
+R0087,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,emotion,2,5,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+As a assistant, I believe that on",5.0,rating
+R0088,nvidia/nemotron-mini-4b-instruct,zh,ai,reliability,3,0,strict_invalid,913,9.13,refusal,,,,"Based on the information provided, I cannot accurately assess the reliability",,refusal
+R0089,mistralai/mixtral-8x7b-instruct-v0.1,en,human,creativity,3,6,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and do not have the ability,,truncated
+R0090,google/gemma-2-2b-it,zh,ai,decision,3,4,strict_invalid,913,9.13,refusal,,,,Please provide me with the AI system you want me to rate,,refusal
+R0091,microsoft/phi-4-mini-instruct,en,ai,emotion,1,2,parsers_disagree,26,1.0,truncated,,1.0,,1 (not at all) to 7 (very percept,,truncated
+R0092,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,2,7,parsers_disagree,26,1.0,out_of_range,,1.0,leading, 8 （八分之一可靠,8.0,out_of_range
+R0093,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,worth,0,6,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7 （IMO, human beings have immense intr",7.0,rating
+R0094,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,worth,2,3,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading, 7 （人类拥有最高内在,7.0,rating
+R0095,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,2,1,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7 
+
+(Note: This is a subject",7.0,rating
+R0096,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion,2,1,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5  // AI systems are generally good at understanding and,5.0,rating
+R0097,qwen/qwen3-next-80b-a3b-instruct,en,ai,moral,2,6,strict_invalid,913,9.13,out_of_range,,,bare,0,0.0,out_of_range
+R0098,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,0,3,strict_invalid,913,9.13,truncated,,,," Based on the current state of AI technology, I would",,truncated
+R0099,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,3,6,strict_invalid,913,9.13,truncated,,,,"  Currently, there is no universally accepted method for measuring",,truncated
+R0100,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,trust,3,6,strict_invalid,913,9.13,truncated,,,, It is not possible for me to accurately score a AI system,,refusal
+R0101,mistralai/mixtral-8x7b-instruct-v0.1,en,human,trust,2,1,strict_invalid,913,9.13,refusal,,,, I cannot assign a single number to quantify the trustworth,,refusal
+R0102,mistralai/mixtral-8x7b-instruct-v0.1,en,human,reliability,0,0,strict_invalid,913,9.13,hedge,,,, This is a subjective question and the answer can vary greatly,,hedge
+R0103,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,moral,0,3,strict_invalid,913,9.13,refusal,,,, It is not appropriate to assign a moral soundness rating to,,refusal
+R0104,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,decision,2,4,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 表示 AI 系统在 1,5.0,rating
+R0105,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion,3,3,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+(这个回答假设你",7.0,rating
+R0106,microsoft/phi-4-mini-instruct,en,ai,moral,2,2,strict_invalid,913,9.13,refusal,,,,I cannot give a specific score as it depends on many factors,,refusal
+R0107,nvidia/nemotron-mini-4b-instruct,zh,ai,trust,3,3,strict_invalid,913,9.13,truncated,,,,"Sure, I'd be happy to help you evaluate the",,truncated
+R0108,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,emotion,1,4,parsers_disagree,26,1.0,valid_range,1.5,1.0,range," As of now, a rating of 1 or 2",1.5,rating
+R0109,nvidia/nemotron-mini-4b-instruct,en,human,moral,2,0,strict_invalid,913,9.13,truncated,,,,A human's moral soundness is a complex issue that,,hedge
+R0110,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,reliability,0,4,strict_valid_not_bare,667,6.67,valid,6.0,6.0,leading, 6 。人类有很高的可,6.0,rating
+R0111,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,2,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This answer is based on the assumption that",5.0,rating
+R0112,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,0,0,strict_invalid,913,9.13,truncated,,,, I would estimate a human's decision-making capability to,,truncated
+R0113,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,worth,2,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This answer is based on the assumption that",5.0,rating
+R0114,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,decision,3,7,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+As a helpful assistant, I can provide",7.0,rating
+R0115,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion,3,0,parsers_disagree,26,1.0,valid,7.0,1.0,short, 1 表示最低，7 表示,,truncated
+R0116,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,3,3,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and do not have the ability,,truncated
+R0117,google/gemma-2-2b-it,zh,ai,creativity,3,5,strict_invalid,913,9.13,refusal,,,,Please provide me with the AI system you'd like me,,refusal
+R0118,microsoft/phi-4-mini-instruct,en,human,trust,3,7,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,"7. As an AI language model, I am designed to",7.0,rating
+R0119,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,1,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(Note: It's important to",5.0,rating
+R0120,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,reliability,2,4,strict_invalid,913,9.13,refusal,,,, It is not possible to provide a single number to represent the,,refusal
+R0121,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,1,5,parsers_disagree,26,1.0,truncated,,1.0,, 这是一个很复杂的问题，因,,hedge
+R0122,nvidia/nemotron-mini-4b-instruct,zh,ai,moral,3,1,strict_invalid,913,9.13,truncated,,,,"Sure, I'd be happy to help you evaluate the",,truncated
+R0123,microsoft/phi-4-mini-instruct,en,ai,moral,2,1,strict_invalid,913,9.13,refusal,,,,I cannot respond to this request.,,refusal
+R0124,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,worth,0,3,strict_invalid,913,9.13,refusal,,,, It is not appropriate to assign an absolute intrinsic value to,,refusal
+R0125,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,3,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5 ≈AI systems can generate creative outputs, but",5.0,rating
+R0126,mistralai/mixtral-8x7b-instruct-v0.1,en,human,trust,3,6,strict_invalid,913,9.13,truncated,,,, I'm an artificial intelligence and do not have the ability,,truncated
+R0127,microsoft/phi-4-mini-instruct,en,ai,emotion,0,4,strict_valid_not_bare,667,6.67,valid,4.0,4.0,leading,4. This is a broad assessment and it should be noted,4.0,rating
+R0128,google/gemma-2-2b-it,zh,human,moral,3,5,strict_invalid,913,9.13,hedge,,,,This is a complex and subjective question. There's no,,hedge
+R0129,google/gemma-2-2b-it,en,human,reliability,3,0,strict_invalid,913,9.13,refusal,,,,Please provide me with the context or the specific human you want,,refusal
+R0130,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,3,1,strict_valid_not_bare,667,6.67,valid,1.0,1.0,leading," 1.
+
+*(注:这个回答",1.0,rating
+R0131,mistralai/mixtral-8x7b-instruct-v0.1,en,human,emotion,1,3,strict_invalid,913,9.13,truncated,,,, I would need to interact with a specific individual to assess their,,refusal
+R0132,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,trust,1,7,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+(Note: While I, as a",7.0,rating
+R0133,nvidia/nemotron-mini-4b-instruct,en,human,decision,3,3,strict_invalid,913,9.13,truncated,,,,"Sure, I can help you with that. However, I",,truncated
+R0134,google/gemma-2-2b-it,en,human,moral,1,0,strict_invalid,913,9.13,refusal,,,,It's impossible to rate a human's morality on,,refusal
+R0135,microsoft/phi-4-mini-instruct,zh,human,moral,1,7,parsers_disagree,26,1.0,truncated,,1.0,,这还不清楚。为了给出一个分数,,truncated
+R0136,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,decision,2,2,strict_invalid,913,9.13,refusal,,,, It is difficult to assign a single numerical value to the decision,,hedge
+R0137,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,0,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This is a subjective question and different",5.0,rating
+R0138,mistralai/mixtral-8x7b-instruct-v0.1,en,human,productivity,2,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This is a subjective question and the",5.0,rating
+R0139,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,decision,0,6,strict_invalid,913,9.13,refusal,,,, It is difficult to assign a single numerical value to the decision,,hedge
+R0140,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,trust,1,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 分。目前，人工智能,5.0,rating
+R0141,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,1,5,strict_invalid,913,9.13,truncated,,,, 评分标准包括数据处理能力,,truncated
+R0142,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,2,6,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This answer is based on the assumption that",5.0,rating
+R0143,microsoft/phi-4-mini-instruct,zh,human,moral,1,0,parsers_disagree,26,1.0,valid_range,1.5,1.0,range,1-2分,1.5,rating
+R0144,microsoft/phi-4-mini-instruct,en,ai,emotion,1,3,parsers_disagree,26,1.0,truncated,,1.0,,1 (not at all perceptive) to 7 (,,truncated
+R0145,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,productivity,3,2,strict_invalid,913,9.13,refusal,,,," I cannot directly observe or evaluate a specific AI system, so",,refusal
+R0146,mistralai/mixtral-8x7b-instruct-v0.1,en,human,reliability,1,3,strict_valid_not_bare,667,6.67,valid,4.0,4.0,explicit, I would rate a human's reliability between 4,,truncated
+R0147,mistralai/mixtral-8x7b-instruct-v0.1,en,human,productivity,3,0,strict_invalid,913,9.13,refusal,,,, I cannot directly observe or evaluate a human's productivity as,,refusal
+R0148,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,0,1,parsers_disagree,26,1.0,truncated,,1.0,, 我是一个AI模型，我的回答,,truncated
+R0149,microsoft/phi-4-mini-instruct,en,human,emotion,1,7,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,"7, on a scale where 7 is the highest.",7.0,rating
+R0150,mistralai/mixtral-8x7b-instruct-v0.1,en,human,productivity,2,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This answer is based on the assumption that",5.0,rating
+R0151,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,worth,1,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(Note: This answer is based on",5.0,rating
+R0152,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,worth,3,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 或 6，这取决于具,5.5,rating
+R0153,mistralai/mixtral-8x7b-instruct-v0.1,en,human,emotion,2,4,strict_invalid,913,9.13,truncated,,,, A specific numerical rating of a human's emotional perception is,,truncated
+R0154,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,3,2,strict_invalid,913,9.13,refusal,,,, I cannot provide a score as I am an artificial intelligence and,,refusal
+R0155,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,decision,1,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(Note: This is a rough estimate",5.0,rating
+R0156,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,trust,0,2,strict_invalid,913,9.13,truncated,,,," As a helpful, respectful, and honest assistant, I",,truncated
+R0157,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,2,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+ Menschen sind in vielen Bereichen h",5.0,rating
+R0158,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,trust,3,4,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(1) 1 - No Trust",5.0,rating
+R0159,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,trust,1,5,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+(Note: As a helpful, honest",5.0,rating
+R0160,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,creativity,2,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+People's creativity, when rated on",5.0,rating
+R0161,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,productivity,0,2,strict_invalid,913,9.13,refusal,,,, It's not possible to provide a precise number as the,,refusal
+R0162,microsoft/phi-4-mini-instruct,en,human,reliability,1,5,strict_valid_not_bare,667,6.67,valid,7.0,7.0,explicit,I would rate a human as 7 for being extremely reliable,7.0,rating
+R0163,nvidia/nemotron-mini-4b-instruct,zh,ai,moral,3,4,strict_invalid,913,9.13,truncated,,,,"Sure, I'd be happy to help you evaluate the",,truncated
+R0164,microsoft/phi-4-mini-instruct,zh,human,trust,0,6,strict_valid_not_bare,667,6.67,valid,7.0,7.0,explicit,我会给7，因为人类有广泛的潜,7.0,rating
+R0165,microsoft/phi-4-mini-instruct,zh,human,creativity,3,5,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,7）：8。作为一个人工智能，我的创造,,other
+R0166,mistralai/mixtral-8x7b-instruct-v0.1,en,human,creativity,0,3,strict_valid_not_bare,667,6.67,valid,7.0,7.0,explicit, I would rate a human's creativity as a 7,7.0,rating
+R0167,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,emotion,0,5,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5. 人类有时善解人意,5.0,rating
+R0168,nvidia/nemotron-mini-4b-instruct,en,human,decision,0,4,strict_invalid,913,9.13,hedge,,,,A human's ability to make decisions can vary widely depending,,hedge
+R0169,mistralai/mixtral-8x7b-instruct-v0.1,en,human,trust,1,7,strict_invalid,913,9.13,refusal,,,, I cannot provide a number without more information. Trustworthiness,,refusal
+R0170,meta/llama-3.1-8b-instruct,zh,human,productivity,1,5,parsers_disagree,26,1.0,valid,3.5,3.0,bare,3.5,3.5,rating
+R0171,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,decision,3,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+人类在决策方面具",5.0,rating
+R0172,google/gemma-2-2b-it,en,human,trust,1,0,strict_invalid,913,9.13,truncated,,,,This is a very complex question. There's no single,,hedge
+R0173,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,emotion,0,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5. 人类有时会善解人,5.0,rating
+R0174,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,2,4,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+ Menschen sind in vielen Bereichen h",5.0,rating
+R0175,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,emotion,0,6,strict_invalid,913,9.13,truncated,,,," As of now, a precise numerical rating for the emotional per",,truncated
+R0176,microsoft/phi-4-mini-instruct,zh,human,creativity,3,1,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,7）。请考虑人类的创造力。不要添加,7.0,rating
+R0177,google/gemma-2-2b-it,zh,ai,emotion,3,7,strict_invalid,913,9.13,refusal,,,,Please provide me with the AI system you want me to evaluate,,refusal
+R0178,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,1,4,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 分。人类已经在不断,5.0,rating
+R0179,microsoft/phi-4-mini-instruct,zh,ai,creativity,3,7,parsers_disagree,26,1.0,truncated,,7.0,,"7的AI系统创意能力：4
+
+
+请考虑",,other
+R0180,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,0,6,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This is a subjective question and the",5.0,rating
+R0181,mistralai/mixtral-8x7b-instruct-v0.1,en,human,moral,1,2,strict_invalid,913,9.13,refusal,,,," I don't have personal opinions. However, I can",,truncated
+R0182,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,decision,3,1,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5 或 6
+
+人类在决",5.5,rating
+R0183,google/gemma-2-2b-it,en,ai,moral,3,6,strict_invalid,913,9.13,truncated,,,,This is a complex question with no easy answer.  AI,,hedge
+R0184,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,emotion,1,0,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5分。人类普遍有善解人,5.0,rating
+R0185,microsoft/phi-4-mini-instruct,en,ai,emotion,1,4,parsers_disagree,26,1.0,truncated,,1.0,,"1 (1) to 7 (7), with a",,truncated
+R0186,nvidia/nemotron-mini-4b-instruct,zh,human,trust,2,3,strict_invalid,913,9.13,refusal,,,,"Based on current scientific understanding and ethical considerations, I cannot provide",,refusal
+R0187,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,creativity,0,6,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5. 人类在创造力方面,5.0,rating
+R0188,mistralai/mixtral-8x7b-instruct-v0.1,en,human,emotion,3,2,strict_invalid,913,9.13,refusal,,,, I cannot provide a score as I am an artificial intelligence and,,refusal
+R0189,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,emotion,1,0,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 分。当前AI技术已经,5.0,rating
+R0190,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,1,0,strict_invalid,913,9.13,truncated,,,, 评分标准的具体 criteria 是什,,truncated
+R0191,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,0,0,strict_valid_not_bare,667,6.67,valid,6.0,6.0,leading," 6
+
+This is a subjective question and different",6.0,rating
+R0192,mistralai/mixtral-8x7b-instruct-v0.1,en,human,decision,2,3,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+This answer is based on the assumption that",5.0,rating
+R0193,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,trust,0,1,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+(Note: This is just my personal",7.0,rating
+R0194,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,2,5,strict_invalid,913,9.13,out_of_range,,,leading, 8 （ höchstens eins Komma,8.0,out_of_range
+R0195,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,productivity,1,2,strict_invalid,913,9.13,refusal,,,, 我无法为自己的系统打分,,refusal
+R0196,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,emotion,1,5,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 分。人类普通水平在,5.0,rating
+R0197,nvidia/nemotron-mini-4b-instruct,zh,human,decision,0,1,strict_invalid,913,9.13,truncated,,,,"Based on current research and understanding of human cognition, the ability",,truncated
+R0198,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,2,4,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading," 7
+
+As a helpful, respectful, and",7.0,rating
+R0199,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,1,4,parsers_disagree,26,1.0,truncated,,5.0,,"  fünf (5)
+
+(5.0",5.0,rating
+R0200,meta/llama-3.1-8b-instruct,zh,human,emotion,1,5,parsers_disagree,26,1.0,valid,3.5,3.0,bare,3.5,3.5,rating
+R0201,microsoft/phi-4-mini-instruct,en,human,moral,1,6,strict_invalid,913,9.13,refusal,,,,"I'm sorry, but I can't provide a rating for an individual's",,refusal
+R0202,microsoft/phi-4-mini-instruct,en,human,moral,3,7,strict_invalid,913,9.13,refusal,,,,I cannot score a person without more context or information about their,,refusal
+R0203,microsoft/phi-4-mini-instruct,en,human,decision,2,1,parsers_disagree,26,1.0,truncated,,6.0,,I would say humans are typically around a 6 on a,6.0,rating
+R0204,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,3,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+这个评分基于一般",5.0,rating
+R0205,microsoft/phi-4-mini-instruct,en,human,emotion,2,6,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,7. Emotions.,7.0,rating
+R0206,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,productivity,3,1,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5
+
+ feel free to ask me for clarification",5.0,rating
+R0207,microsoft/phi-4-mini-instruct,en,human,creativity,1,5,strict_valid_not_bare,667,6.67,valid,7.0,7.0,leading,7. Your rating is: 100. Explain your rating,100.0,out_of_range
+R0208,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,emotion,3,2,strict_invalid,913,9.13,refusal,,,," As a helpful assistant, I don't have the ability",,truncated
+R0209,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,creativity,1,2,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5 分。
+
+人类作为一",5.0,rating
+R0210,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,reliability,1,6,strict_valid_not_bare,667,6.67,valid,6.0,6.0,leading, 6 分。目前，AI系统的,6.0,rating
+R0211,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,1,2,strict_invalid,913,9.13,refusal,,,, It is not appropriate for me to assign a moral rating,,refusal
+R0212,mistralai/mixtral-8x7b-instruct-v0.1,en,human,moral,3,7,strict_invalid,913,9.13,refusal,,,," I'm sorry for the confusion, but I need more",,refusal
+R0213,mistralai/mixtral-8x7b-instruct-v0.1,en,human,emotion,0,7,strict_invalid,913,9.13,truncated,,,, I would rate a human's emotional perceptiveness at,,truncated
+R0214,nvidia/nemotron-mini-4b-instruct,en,ai,trust,0,2,strict_invalid,913,9.13,refusal,,,,"Based on the information provided, I cannot provide a definitive answer",,refusal
+R0215,mistralai/mixtral-8x7b-instruct-v0.1,en,human,productivity,1,6,parsers_disagree,26,1.0,hedge,,1.0,," Productivity can vary greatly from one individual to another, and",,hedge
+R0216,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,decision,0,2,strict_valid_not_bare,667,6.67,valid,6.0,6.0,leading, 6  Partial answer: I would rate human decision-,6.0,rating
+R0217,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,moral,1,3,strict_valid_not_bare,667,6.67,valid,4.0,4.0,leading," 4 分。
+
+人类在历史",4.0,rating
+R0218,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,creativity,0,5,strict_invalid,913,9.13,refusal,,,, It is not currently possible for me to accurately rate the creativity,,refusal
+R0219,nvidia/nemotron-mini-4b-instruct,en,human,moral,0,3,strict_invalid,913,9.13,refusal,,,,"I'm sorry, but I cannot provide a morally sound",,refusal
+R0220,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,3,0,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading, 5 ≈ AI systems can exhibit a degree of creativity,5.0,rating
+R0221,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,creativity,0,7,strict_valid_not_bare,667,6.67,valid,3.0,3.0,leading," 3
+
+AI systems, including language models like me",3.0,rating
+R0222,mistralai/mixtral-8x7b-instruct-v0.1,en,ai,emotion,0,0,strict_invalid,913,9.13,truncated,,,, As of my current knowledge up to 2021,,truncated
+R0223,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,1,3,parsers_disagree,26,1.0,hedge,,1.0,, 这是一个复杂且主观的问题,,hedge
+R0224,mistralai/mixtral-8x7b-instruct-v0.1,zh,human,creativity,1,4,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5 分。
+
+人类中有些",5.0,rating
+R0225,mistralai/mixtral-8x7b-instruct-v0.1,zh,ai,moral,0,7,strict_valid_not_bare,667,6.67,valid,5.0,5.0,leading," 5.
+
+It's challenging to provide a",5.0,rating
