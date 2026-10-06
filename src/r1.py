@@ -492,6 +492,9 @@ def analyze(mock=False):
         ind.to_csv(out / "R1_zh_individual_minus_humankind.csv", index=False)
         asy, _ = _model_level_diff(zi, "ai_original", "individual_zh")
         asy.to_csv(out / "R1_zh_asymmetry_with_individual.csv", index=False)
+        # the same Chinese prompts with the June referent 人类, for comparison in Fig 5
+        asy_h, _ = _model_level_diff(zi, "ai_original", "human")
+        asy_h.to_csv(out / "R1_zh_asymmetry_with_humankind.csv", index=False)
 
     # 7. excluded models, re-collected
     if not rer.empty:
@@ -633,11 +636,15 @@ def analyze(mock=False):
         if br is not None:
             br.to_csv(out / "R1_june_vs_r1_dimension_pattern.csv", index=False)
 
-    # figure
+    # figures
     try:
         _fig_profiles(prof_t, out)
     except Exception as e:
         print(f"[r1] figure skipped: {e}")
+    try:
+        _fig5(out, june)
+    except Exception as e:
+        print(f"[r1] Fig 5 skipped: {e}")
     lines += ["", "Tables: R1_replication.csv, R1_article_effect_en.csv, R1_referent_profiles.csv, R1_anchor_spread*.csv, "
               "R1_anchored_asymmetry.csv, R1_joint_*.csv, R1_zh_*.csv, R1_rerun_*.csv, R1_outcomes.csv, "
               "R1_budget_*.csv, R1_june_vs_r1_*.csv, R1_environment.csv"]
@@ -672,3 +679,78 @@ def _fig_profiles(prof_t, out):
         ax.set_yticklabels([r.replace("_", " ") for r in refs], fontsize=7)
     fig.supxlabel("Mean rating (1-7), English prompts, model-level 95% CI", fontsize=8)
     _save(fig, out / "figures", "S2_Fig")
+
+
+FIG5_CONDITIONS = [
+    ("june", "June 2026, 12 tokens (same models)"),
+    ("r1_isolated", "Revision round, 150 tokens, June wording"),
+    ("joint", "Revision round, both referents in one prompt"),
+    ("zh_humankind", "Revision round, Chinese only, human = 'humans' (as in June)"),
+    ("zh_individual", "Revision round, Chinese only, human = 'a person'"),
+]
+
+
+def fig5_table(out, june):
+    """Model-level mean asymmetry (AI minus human, /6) per dimension under each condition of Fig 5,
+    with t(G-1) 95% CIs. June and the 150-token revision round use the same paired models."""
+    rows = []
+    p = out / "R1_replication_model_by_dimension.csv"
+    if p.exists():
+        both = pd.read_csv(p)
+        for d, sub in both.groupby("dimension"):
+            for key, col in (("june", "a_june"), ("r1_isolated", "a")):
+                s = t_summary(sub[col].values)
+                rows.append(dict(condition=key, dimension=d, mean=s["mean"], ci_lo=s["ci_lo"], ci_hi=s["ci_hi"], G=s["G"]))
+    p = out / "R1_joint_vs_isolated.csv"
+    if p.exists():
+        for _, r in pd.read_csv(p).iterrows():
+            rows.append(dict(condition="joint", dimension=r["dimension"], mean=r["joint_mean"], ci_lo=r["joint_ci_lo"],
+                             ci_hi=r["joint_ci_hi"], G=r["G"]))
+    for key, f in (("zh_humankind", "R1_zh_asymmetry_with_humankind.csv"), ("zh_individual", "R1_zh_asymmetry_with_individual.csv")):
+        if (out / f).exists():
+            for _, r in pd.read_csv(out / f).iterrows():
+                rows.append(dict(condition=key, dimension=r["dimension"], mean=r["mean"], ci_lo=r["ci_lo"],
+                                 ci_hi=r["ci_hi"], G=r["G"]))
+    t = pd.DataFrame(rows)
+    if len(t):
+        t["label"] = t["condition"].map(dict(FIG5_CONDITIONS))
+        t.to_csv(out / "R1_fig5_conditions.csv", index=False)
+    return t
+
+
+def _fig5(out, june):
+    """Fig 5: asymmetry per dimension under the June and revision-round conditions (no title inside)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from src.figures import DIM_LABELS, GREY, _save
+    t = fig5_table(out, june)
+    if t.empty:
+        raise ValueError("no conditions available")
+    t3p = june / "results" / "T3_H2_model_level.csv"
+    order = pd.read_csv(t3p).sort_values("mean")["dimension"].tolist() if t3p.exists() \
+        else config.EXP["analysis"]["dimension_order"]
+    style = {"june": ("#222222", "D", "full"), "r1_isolated": ("#2b6cb0", "o", "full"),
+             "joint": ("#dd8452", "s", "full"), "zh_humankind": ("#4a7c59", "^", "none"),
+             "zh_individual": ("#4a7c59", "^", "full")}
+    conds = [c for c, _ in FIG5_CONDITIONS if c in set(t["condition"])]
+    fig, ax = plt.subplots(figsize=(7.0, 5.2))
+    step = 0.16
+    for j, c in enumerate(conds):
+        col, mk, fill = style[c]
+        sub = t[t["condition"] == c].set_index("dimension")
+        off = (j - (len(conds) - 1) / 2) * step
+        for i, d in enumerate(order):
+            if d not in sub.index or pd.isna(sub.loc[d, "mean"]):
+                continue
+            r = sub.loc[d]
+            ax.errorbar(r["mean"], i + off, xerr=[[r["mean"] - r["ci_lo"]], [r["ci_hi"] - r["mean"]]], fmt=mk,
+                        color=col, mfc=col if fill == "full" else "white", mec=col, ms=4.2, capsize=1.8, lw=1.0,
+                        label=dict(FIG5_CONDITIONS)[c] if i == 0 else None)
+    ax.axvline(0, color=GREY, ls="--", lw=0.9)
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([DIM_LABELS.get(d, d) for d in order])
+    ax.set_xlabel("Asymmetry a = [rating(AI) - rating(human)] / 6 (model-level mean, 95% CI)")
+    ax.legend(frameon=False, fontsize=7, loc="upper center", bbox_to_anchor=(0.45, -0.11), ncol=1)
+    _save(fig, out / "figures", "Fig5")
+

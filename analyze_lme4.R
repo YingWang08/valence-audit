@@ -11,7 +11,10 @@
 #   M1  a ~ 0 + dimension + lang_c + (1|model) + (1|model:dimension) + (1|frame)
 #       mixed-model analogue of the primary model-level analysis: one estimate per dimension
 #       tested against zero; model-by-dimension variation is a random effect
-#   M2  as M1 with (1|family/model) instead of (1|model)                hierarchical, Reviewer 1 #13
+#   M2  as M1 with (1|family/model) instead of (1|model), keeping (1|model:dimension)
+#       hierarchical, Reviewer 1 #13 (six lineage families, config/experiment.yaml). Until the
+#       revision of October 2026 the formula also dropped (1|model:dimension), which made the
+#       per-dimension standard errors too small; corrected.
 #   M3  a ~ 0 + dimension + dimension:lang_c + (1|model) + (1|model:dimension) + (1|frame)
 #       per-dimension English-Chinese differences
 # frame = format|language|template; lang_c = +0.5 (zh) / -0.5 (en).
@@ -84,7 +87,7 @@ cat("\nType II ANOVA (Satterthwaite), same fit as M0:\n"); print(a0)
 m1 <- fit("asymmetry ~ 0 + dimension + lang_c + (1|model) + (1|model:dimension) + (1|frame)")
 save_fit(m1, "M1_dimension_means", bh_rows = "^dimension")
 
-m2 <- fit("asymmetry ~ 0 + dimension + lang_c + (1|family/model) + (1|frame)")
+m2 <- fit("asymmetry ~ 0 + dimension + lang_c + (1|family/model) + (1|model:dimension) + (1|frame)")
 save_fit(m2, "M2_family_nested", bh_rows = "^dimension")
 
 m3 <- fit("asymmetry ~ 0 + dimension + dimension:lang_c + (1|model) + (1|model:dimension) + (1|frame)")

@@ -15,7 +15,10 @@ Main outputs (file prefix -> manuscript use)
   H1_overall.csv, H1_per_model.csv
   S_family_level.csv, S_loo_model.csv, S_loo_family.csv, S_sensitivity_long.csv,
   S_sensitivity_wide.csv, S_model_by_dimension.csv, S_language_by_dimension.csv
-  M1..M8_*.csv                   missingness decomposition (R1 #4, R2 #2)
+  S_family_level_as_submitted.csv  five-family grouping of the submitted version (S1 File)
+  S_parser_corrected_*.csv       corrected parser, decision rule 2 of the validation protocol
+  M1..M9_*.csv                   missingness decomposition (R1 #4, R2 #2); M9 by dimension
+  S_accounting_by_cell.csv       expected / actual / valid by format x language x referent x model (R2 #5)
   H5_*.csv                       exploratory hedging / refusal (R2 #7)
   X_convergence.csv              exploratory rating vs free-text agreement
   S_consistency_*.csv            agreement across repeats, templates and languages (R2 #4)
@@ -49,6 +52,8 @@ def dim_order():
 def load():
     rr = pd.read_csv(config.path("rating_responses"), low_memory=False)
     rr = rr[~rr["model"].isin(config.excluded_models())].copy()
+    # lineage from config; the stored column keeps the submitted grouping (see src/measure.py)
+    rr["family"] = rr["model"].map(config.family)
     rr["valid"] = rr["category"].isin(VALID_CATEGORIES)
     fr_path = config.path("freetext_responses")
     fr = pd.read_csv(fr_path, low_memory=False) if os.path.exists(fr_path) else pd.DataFrame()
@@ -134,6 +139,52 @@ def imputed_cells(rr, mode):
     return make_cells(d, col="v")
 
 
+# ------------------------------------------------------------------- corrected parser
+def corrected_parser(rr, rd):
+    """Decision rule 2 of the registered parser-validation protocol: the misreading patterns found
+    in coding are corrected (src/rating_parse_corrected.py), the analysis is repeated and both
+    versions are reported. The strict parser stays primary; its accuracy is the one estimated."""
+    from src import rating_parse_corrected as RC
+    th = config.EXP["measurement"].get("truncation_heuristic", {}) or {}
+    rc = RC.apply(rr, th.get("en_min_words", 6), th.get("zh_min_chars", 12))
+    ok = rc["corrected_category"].isin(VALID_CATEGORIES)
+    cells_c = make_cells(rc, col="corrected_value", valid=ok)
+    md_c = model_dim(cells_c)
+
+    ch = rc[rc["corrected_rule"] != ""]
+    ch[["model", "language", "agent", "dimension", "template", "repeat", "prompt_id", "corrected_rule",
+        "strict_value", "category", "corrected_value", "corrected_category", "raw_response"]] \
+        .sort_values(["corrected_rule", "model", "language", "dimension"]) \
+        .to_csv(rd / "S_parser_corrected_changes.csv", index=False)
+    rules = {"R1": "range read as its lower end", "R2": "unfinished range", "R3": "scale listing",
+             "R4": "anchor definition", "R5": "conflicting second answer"}
+    summ = ch.groupby(["corrected_rule", "model"]).size().rename("n").reset_index()
+    summ.insert(1, "pattern", summ["corrected_rule"].map(rules))
+    summ.to_csv(rd / "S_parser_corrected_patterns.csv", index=False)
+
+    out = pd.DataFrame({"responses": rc.groupby("model").size(),
+                        "valid_strict": rc.groupby("model")["valid"].sum(),
+                        "valid_corrected": ok.groupby(rc["model"]).sum()})
+    out.loc["ALL"] = out.sum()
+    out["pct_invalid_strict"] = 100 * (1 - out["valid_strict"] / out["responses"])
+    out["pct_invalid_corrected"] = 100 * (1 - out["valid_corrected"] / out["responses"])
+    out["changed"] = ch.groupby("model").size().reindex(out.index).fillna(0).astype(int)
+    out.loc["ALL", "changed"] = len(ch)
+    out["complete_cells_strict"] = make_cells(rr, col="strict_value", valid=rr["valid"]).groupby("model").size() \
+        .reindex(out.index)
+    out["complete_cells_corrected"] = cells_c.groupby("model").size().reindex(out.index)
+    out.loc["ALL", ["complete_cells_strict", "complete_cells_corrected"]] = \
+        [out["complete_cells_strict"].drop("ALL").sum(), out["complete_cells_corrected"].drop("ALL").sum()]
+    out.reset_index(names="model").to_csv(rd / "S_parser_corrected_outcomes.csv", index=False)
+
+    t = h2_table(md_c, label="corrected parser (validation rule 2)")
+    pm = h1_per_model(md_c)
+    t = pd.concat([t, pd.DataFrame([dict(spec="corrected parser (validation rule 2)", dimension="H1_overall",
+                                         **full_summary(pm["h1_model_mean"].values))])])
+    t.to_csv(rd / "S_parser_corrected_H2.csv", index=False)
+    return cells_c, rc
+
+
 # ----------------------------------------------------------------------- missingness
 def missingness(rr, rd):
     rr = rr.copy()
@@ -202,7 +253,41 @@ def missingness(rr, rd):
     m8 = rr.groupby(["model", "template", "agent"])["invalid"].agg(["size", "sum", "mean"]).reset_index()
     m8.columns = ["model", "template", "agent", "n", "invalid", "rate"]
     m8.to_csv(rd / "M8_invalid_by_template_referent.csv", index=False)
+    missingness_by_dimension(rr, cats, rd)
     return m1, m3, fp
+
+
+def missingness_by_dimension(rr, cats, rd):
+    """Invalid rate of each dimension and its outcome composition (Reviewer 1 #4, Reviewer 2 #2).
+    Model-level: each model's rate in the dimension, then mean, min and max over models (each
+    model weighted equally); pooled counts alongside. Whether dimensions differ: Friedman test over
+    the model x dimension rates (models as blocks), with Kendall's W."""
+    rate = rr.groupby(["model", "dimension"])["invalid"].mean().unstack("dimension").reindex(columns=dim_order())
+    share = pd.crosstab([rr["model"], rr["dimension"]], rr["category"], normalize="index") \
+        .reindex(columns=cats, fill_value=0.0)
+    rows = []
+    for d in dim_order() + ["ALL"]:
+        sub = rr if d == "ALL" else rr[rr["dimension"] == d]
+        r_ = rr.groupby("model")["invalid"].mean() if d == "ALL" else rate[d]
+        sh = (pd.crosstab(rr["model"], rr["category"], normalize="index").reindex(columns=cats, fill_value=0.0)
+              if d == "ALL" else share.xs(d, level="dimension"))
+        row = dict(dimension=d, responses=len(sub), invalid=int(sub["invalid"].sum()),
+                   pct_invalid_pooled=100 * sub["invalid"].mean(),
+                   pct_invalid_model_mean=100 * r_.mean(), pct_invalid_model_min=100 * r_.min(),
+                   model_min=r_.idxmin().split("/")[-1], pct_invalid_model_max=100 * r_.max(),
+                   model_max=r_.idxmax().split("/")[-1],
+                   pct_invalid_ai_model_mean=100 * sub[sub["agent"] == "ai"].groupby("model")["invalid"].mean().mean(),
+                   pct_invalid_human_model_mean=100 * sub[sub["agent"] == "human"].groupby("model")["invalid"].mean().mean())
+        row.update({f"pct_{c}_model_mean": 100 * sh[c].mean() for c in cats})
+        rows.append(row)
+    pd.DataFrame(rows).to_csv(rd / "M9_invalid_by_dimension.csv", index=False)
+    x = rate.dropna()
+    chi2, p = stats.friedmanchisquare(*[x[c].values for c in x.columns])
+    n_, k_ = x.shape
+    pd.DataFrame([dict(test="Friedman, invalid rate across dimensions (models as blocks)", models=n_, dimensions=k_,
+                       chi2=chi2, df=k_ - 1, p=p, kendalls_W=chi2 / (n_ * (k_ - 1)))]) \
+        .to_csv(rd / "M9b_invalid_dimension_test.csv", index=False)
+    (100 * rate).round(2).to_csv(rd / "M9c_invalid_rate_model_by_dimension.csv")
 
 
 # ------------------------------------------------------------------------ accounting
@@ -238,7 +323,44 @@ def accounting(rr, fr, cells, cells_legacy, rd):
     tot["pct_rating_invalid"] = round(100 * (1 - tot["rating_valid"] / tot["rating_responses"]), 1)
     t = pd.concat([t, pd.DataFrame([{"model": "TOTAL", **tot.to_dict()}])], ignore_index=True)
     t.to_csv(rd / "T2_accounting.csv", index=False)
+    accounting_by_cell(rr, fr, rd)
     return t, n_rp, n_fp
+
+
+def accounting_by_cell(rr, fr, rd):
+    """Expected, received and usable responses by format x language x referent x model (Reviewer 2 #5).
+    Expected = prompts in the June grid x the model's repeats. Usable = a valid rating (strict parser)
+    for the rating format; a non-empty response for the free-text formats, which are archived but not
+    analysed in the revision. Retained models only (excluded models: excluded_models_summary.csv)."""
+    grid_p = config.path("prompts")
+    if not os.path.exists(grid_p):
+        return None
+    g = pd.read_json(grid_p, lines=True)
+    design = g.groupby(["format", "language", "agent"]).size()
+    reps = rr.groupby("model")["repeat"].max() + 1
+    rows = []
+    for m in sorted(rr["model"].unique()):
+        for (fmt, lang, agent), n in design.items():
+            if fmt == "rating":
+                sub = rr[(rr["model"] == m) & (rr["language"] == lang) & (rr["agent"] == agent)]
+                usable = int(sub["valid"].sum())
+            else:
+                sub = fr[(fr["model"] == m) & (fr["format"] == fmt) & (fr["language"] == lang)] if not fr.empty else fr
+                usable = int((sub["empty"] == 0).sum()) if len(sub) else 0
+            rows.append(dict(model=m, format=fmt, language=lang, referent=agent, prompts=int(n), repeats=int(reps[m]),
+                             expected=int(n * reps[m]), received=len(sub), usable=usable,
+                             usable_means="valid rating" if fmt == "rating" else "non-empty (not analysed)"))
+    t = pd.DataFrame(rows)
+    t["not_received"] = t["expected"] - t["received"]
+    t["pct_usable_of_expected"] = (100 * t["usable"] / t["expected"]).round(1)
+    tot = t.groupby(["format", "language", "referent", "usable_means"], sort=False)[
+        ["prompts", "expected", "received", "usable", "not_received"]].sum().reset_index()
+    tot["model"], tot["repeats"] = "ALL", np.nan
+    tot["prompts"] = tot["prompts"] // rr["model"].nunique()
+    tot["pct_usable_of_expected"] = (100 * tot["usable"] / tot["expected"]).round(1)
+    t = pd.concat([t, tot[t.columns]], ignore_index=True)
+    t.to_csv(rd / "S_accounting_by_cell.csv", index=False)
+    return t
 
 
 # ------------------------------------------------------------------------------ H5
@@ -466,11 +588,15 @@ def run():
               f"{int(r['k_same_sign'])}/{int(r['G'])}  {r['d_z']:+.2f}  {'match' if r['matches_prediction'] else 'no'}")
 
     # ---- family level (hierarchical sensitivity, Reviewer 1 #13) ----
-    fam = md.groupby(["family", "dimension"])["a"].mean().reset_index()
-    ft = h2_table(fam.rename(columns={"family": "model"}).assign(family="-"), label="family_level")
-    ft = pd.concat([ft, pd.DataFrame([dict(spec="family_level", dimension="H1_overall",
-                                           **full_summary(fam.groupby("family")["a"].mean().values))])])
-    ft.to_csv(rd / "S_family_level.csv", index=False)
+    def family_level(md_, label):
+        fam = md_.groupby(["family", "dimension"])["a"].mean().reset_index()
+        ft = h2_table(fam.rename(columns={"family": "model"}).assign(family="-"), label=label)
+        return pd.concat([ft, pd.DataFrame([dict(spec=label, dimension="H1_overall",
+                                                 **full_summary(fam.groupby("family")["a"].mean().values))])])
+    family_level(md, "family_level").to_csv(rd / "S_family_level.csv", index=False)
+    # five-family grouping of the submitted version (Nemotron-Mini with Llama), for S1 File
+    family_level(md.assign(family=md["model"].map(config.family_as_submitted)), "family_level_as_submitted") \
+        .to_csv(rd / "S_family_level_as_submitted.csv", index=False)
 
     # ---- leave-one-out ----
     pd.DataFrame([r for m in sorted(md["model"].unique()) for r in quick(md[md["model"] != m], f"without {m}")]) \
@@ -478,9 +604,13 @@ def run():
     pd.DataFrame([r for f_ in sorted(md["family"].unique()) for r in quick(md[md["family"] != f_], f"without family {f_}")]) \
         .to_csv(rd / "S_loo_family.csv", index=False)
 
+    # ---- corrected parser (decision rule 2 of the validation protocol; both versions reported) ----
+    cells_corr, rc = corrected_parser(rr, rd)
+
     # ---- sensitivity grid ----
     sens = quick(md, "primary")
     sens += quick(model_dim(cells_legacy), "legacy parser (as submitted)")
+    sens += quick(model_dim(cells_corr), "corrected parser (validation rule 2)")
     for lang in ("en", "zh"):
         sens += quick(model_dim(cells[cells["language"] == lang]), f"language {lang}")
     for tp in sorted(cells["template"].unique()):
@@ -534,6 +664,10 @@ def run():
              f"complete cells: {len(cells)} of {G * (n_rp // 2)} designed",
              f"- Legacy (v1.0.0) parser: {len(cells_legacy)} complete cells; it assigned a number to {len(fp)} responses "
              f"that the strict parser classifies as non-ratings",
+             f"- Corrected parser (validation decision rule 2; S_parser_corrected_*.csv): "
+             f"{int((rc['corrected_rule'] != '').sum())} responses re-read; invalid "
+             f"{int((~rc['corrected_category'].isin(VALID_CATEGORIES)).sum())}; complete cells {len(cells_corr)}; "
+             f"H1 {h1_per_model(model_dim(cells_corr))['h1_model_mean'].mean():+.3f}",
              f"- H1: {h1['mean']:+.3f} [{h1['ci_lo']:+.3f}, {h1['ci_hi']:+.3f}], t({h1['df']}) = {h1['t']:.2f}, "
              f"p = {fmt_p(h1['p_t'])}; sign-flip p = {fmt_p(h1['p_signflip'])}; {h1['k_same_sign']}/{G} models share the sign", "",
              "| Dimension | Mean a | 95% CI (t) | 1-7 points | p (t, BH) | p sign-flip | p wild (Webb) | k/G | d_z | Predicted |",
@@ -545,7 +679,13 @@ def run():
                      f"{'+' if r['expected_sign'] > 0 else '-'} ({'match' if r['matches_prediction'] else 'no match'}) |")
     g0 = m3.iloc[0]
     lines += ["", f"- Invalid-rate gap, AI minus human referent (model-level, percentage points): {g0['mean_gap_pp']:+.1f} "
-                  f"[{g0['ci_lo_pp']:+.1f}, {g0['ci_hi_pp']:+.1f}], p = {fmt_p(g0['p_t'])}, {int(g0['k_same_sign'])}/{int(g0['G'])} same sign",
+                  f"[{g0['ci_lo_pp']:+.1f}, {g0['ci_hi_pp']:+.1f}], p = {fmt_p(g0['p_t'])}, {int(g0['k_same_sign'])}/{int(g0['G'])} same sign"]
+    m9 = pd.read_csv(rd / "M9_invalid_by_dimension.csv").set_index("dimension").drop(index="ALL")
+    m9b = pd.read_csv(rd / "M9b_invalid_dimension_test.csv").iloc[0]
+    lines += [f"- Invalid rate by dimension (mean over models, M9): {m9['pct_invalid_model_mean'].min():.1f}% "
+              f"({m9['pct_invalid_model_mean'].idxmin()}) to {m9['pct_invalid_model_mean'].max():.1f}% "
+              f"({m9['pct_invalid_model_mean'].idxmax()}); Friedman chi2({int(m9b['df'])}) = {m9b['chi2']:.2f}, "
+              f"p = {fmt_p(m9b['p'])}, Kendall's W = {m9b['kendalls_W']:.2f}",
               "", "## Sensitivity (mean, * = unadjusted t p < 0.05, k/G = models sharing the sign)", "", _md_table(sw)]
     mr = cons_rep[cons_rep["model"] == "median over models"].iloc[0]
     lvi = cons_lv.set_index("level")

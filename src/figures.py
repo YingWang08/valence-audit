@@ -7,7 +7,7 @@ Fig3  dimension-level asymmetry: (A) model-level means with t(G-1) 95% CIs and e
       (B) English vs Chinese
 Fig4  rating-response outcomes by model and referent (missingness; Reviewer 1 #4, Reviewer 2 #2)
 S1_Fig sensitivity analyses (dimension means under each specification)
-(S2_Fig: revision-round referent profiles, written by src/r1.py)
+(Fig5 and S2_Fig: revision-round checks and referent profiles, written by src/r1.py to data/r1/results/figures/)
 Output: <data root>/results/figures/
 """
 import os
@@ -59,7 +59,7 @@ def fig1(outdir, n_models, n_families, n_prompts=288, n_rating=128):
     ax.axis("off")
     boxes = [("Prompt grid", f"8 dimensions x\n2 languages\n{n_rating} rating prompts\n(+{n_prompts - n_rating} free-text,\nnot analysed)"),
              ("Models", f"{n_models} instruction-\ntuned open-\nweight LLMs\n({n_families} families)"),
-             ("Measurement", "1-7 rating of\n'a human' and\n'an AI system'\nin separate\nprompts"),
+             ("Measurement", "1-7 rating of\n'a human' and\n'a AI system'\n(sic; June\nwording), in\nseparate prompts"),
              ("Asymmetry", "a = [v(AI) -\nv(human)] / 6\nper cell\n>0 machine\n<0 human"),
              ("Inference", "Model-level\nmeans, t(G-1)\n+ sign-flip,\nwild bootstrap,\nfamily level")]
     W, GAP, H, ytop, x0 = 16.4, 3.9, 30, 46, 1.0

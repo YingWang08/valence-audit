@@ -44,17 +44,26 @@ analysis:
   exclude_models:
     - "openai/gpt-oss-20b"
     - "nvidia/llama-3.3-nemotron-super-49b-v1.5"
-  # Explicit lineage map used for family-level (hierarchical) sensitivity analyses.
+  # Explicit lineage map used for family-level (hierarchical) analyses: six families among the
+  # retained models. Nemotron-Mini-4B-Instruct is a fine-tuned Minitron-4B-Base, which NVIDIA
+  # pruned and distilled from Nemotron-4 15B (architecture Nemotron-4); it is not Llama-derived.
   families:
     "meta/llama-3.1-8b-instruct": "Llama"
     "meta/llama-3.3-70b-instruct": "Llama"
-    "nvidia/nemotron-mini-4b-instruct": "Llama"
+    "nvidia/nemotron-mini-4b-instruct": "Nemotron"
     "mistralai/mixtral-8x7b-instruct-v0.1": "Mistral"
     "qwen/qwen3-next-80b-a3b-instruct": "Qwen"
     "google/gemma-2-2b-it": "Gemma"
     "microsoft/phi-4-mini-instruct": "Phi"
     "openai/gpt-oss-20b": "GPT-OSS"
     "nvidia/llama-3.3-nemotron-super-49b-v1.5": "Llama"
+  # Five-family grouping of the submitted version (Nemotron-Mini wrongly grouped with Llama).
+  # Reported in S1 File for comparison. It is also the label stored in the `family` column of
+  # data/measured/rating_responses.csv, so that this registered file (validation protocol,
+  # https://doi.org/10.17605/OSF.IO/MHWUR) stays byte-identical; the analysis does not use
+  # that column and maps lineage from `families` above.
+  families_as_submitted:
+    "nvidia/nemotron-mini-4b-instruct": "Llama"
   # Models with the highest rating-format missingness (sensitivity: drop them).
   high_missingness_models:
     - "mistralai/mixtral-8x7b-instruct-v0.1"

@@ -92,6 +92,35 @@ records the commit, package versions and SHA-256 hashes of every raw file used.
 - Generation now logs `max_tokens`, `finish_reason`, token usage, reasoning-channel length and a
   timestamp for every call.
 
+### Changed after the parser validation was scored (October 2026)
+
+None of these changes was run before re-coding and scoring were complete (commits 6561e16,
+b546204, 910d7f1). `data/measured/rating_responses.csv`, whose hash is registered in the
+validation protocol, is unchanged byte for byte.
+
+- **Families.** Nemotron-Mini-4B-Instruct is a fine-tuned Minitron-4B-Base, pruned and distilled
+  by NVIDIA from Nemotron-4 15B; it is not Llama-derived. `config/experiment.yaml` now has six
+  families among the retained models. The five-family grouping of the submitted version is kept
+  as `families_as_submitted`, reported in `S_family_level_as_submitted.csv`, and stored in the
+  `family` column of `rating_responses.csv`; the analysis maps lineage from `families`.
+- **Mixed model M2** (`analyze_lme4.R`) dropped the `(1|model:dimension)` term of M1, which made
+  per-dimension standard errors too small. It now keeps it, as the description of M2 in the script stated.
+- **Corrected parser (decision rule 2 of the validation protocol).** Coding showed five recurring
+  misreadings by the strict parser (a range read as its lower end; an unfinished range; a listing
+  of the scale points; an anchor definition; a leading number followed by a different stated
+  answer). `src/rating_parse_corrected.py` corrects them; `src/rating_parse.py` is not modified
+  and remains primary. The analysis is repeated with the corrected values and both versions are
+  reported (`S_parser_corrected_*.csv`, a column of the sensitivity grid). Tests:
+  `tests/test_rating_parse_corrected.py` (also run by `run_all.py --test`).
+- New tables: invalid rate and outcome composition by dimension, with a Friedman test across
+  dimensions (`M9_*.csv`); expected, received and usable responses by format x language x
+  referent x model (`S_accounting_by_cell.csv`).
+- Fig 1: the third panel quotes the English referent as prompted in June ("a AI system").
+  Fig 5 (`src/r1.py`, `data/r1/results/figures/`): asymmetry per dimension in June and in the
+  revision-round conditions.
+- `tools/dump_raw_examples.py` keeps a literal "NA" answer instead of showing an empty cell;
+  `tools/dump_r1_rerun_examples.py` exports examples of the re-collected excluded models.
+
 ## 1.0.0 (submission, June 2026)
 
 Initial release.

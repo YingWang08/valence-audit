@@ -48,8 +48,10 @@ def main():
         config.EXP["measurement"]["rating_parser"] = "legacy"
     if "--test" in a:
         from tests import test_rating_parse as t
+        from tests import test_rating_parse_corrected as tc
         for fn in (t.test_strict_cases, t.test_legacy_false_positives_documented,
-                   t.test_strict_does_not_reproduce_false_positives):
+                   t.test_strict_does_not_reproduce_false_positives,
+                   tc.test_corrected_cases, tc.test_corrected_only_touches_valid_ratings):
             fn()
         print("parser tests passed")
     elif "--mock" in a:

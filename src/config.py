@@ -71,15 +71,23 @@ def excluded_models():
 
 
 def family(model):
+    """Lineage family used by every analysis (six families among the retained models)."""
     fam = EXP.get("analysis", {}).get("families", {}) or {}
     if model in fam:
         return fam[model]
     m = str(model).lower()
-    for key, name in [("nemotron", "Llama"), ("llama", "Llama"), ("mixtral", "Mistral"), ("mistral", "Mistral"),
+    for key, name in [("llama", "Llama"), ("nemotron", "Nemotron"), ("mixtral", "Mistral"), ("mistral", "Mistral"),
                       ("qwen", "Qwen"), ("gemma", "Gemma"), ("phi", "Phi"), ("gpt-oss", "GPT-OSS")]:
         if key in m:
             return name
     return m.split("/")[-1]
+
+
+def family_as_submitted(model):
+    """Five-family grouping of the submitted version (S1 File comparison; stored column of
+    data/measured/rating_responses.csv). Differs from `family` only where listed in config."""
+    sub = EXP.get("analysis", {}).get("families_as_submitted", {}) or {}
+    return sub.get(model, family(model))
 
 
 def expected_sign(dim):

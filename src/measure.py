@@ -153,7 +153,10 @@ def measure(verbose=True):
     out = config.path("measured")
     items.to_parquet(out)
     items.to_csv(str(out).replace(".parquet", ".csv"), index=False)
-    rr.to_csv(config.path("rating_responses"), index=False)
+    # The `family` column of rating_responses.csv keeps the submitted grouping, so that this file,
+    # whose hash is registered in the parser-validation protocol, stays byte-identical. The analysis
+    # re-maps lineage from config (src/analyze.py: load); items.csv above uses the corrected map.
+    rr.assign(family=rr["model"].map(config.family_as_submitted)).to_csv(config.path("rating_responses"), index=False)
     fr.to_csv(config.path("freetext_responses"), index=False)
     exs = summarize_excluded(excl, raw_dir, config._resolve(config.EXP["paths"]["quarantine_dir"]))
     exs.to_csv(out.parent / "excluded_models_summary.csv", index=False)

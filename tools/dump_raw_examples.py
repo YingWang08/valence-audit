@@ -4,6 +4,7 @@
                    (data/raw = final round, data/raw_quarantine = first round), and every
                    non-empty response (there are few)
 Usage:  python -m tools.dump_raw_examples [K]
+(revision-round re-collection of the excluded models: python -m tools.dump_r1_rerun_examples)
 Writes data/results/S_raw_examples_retained.csv, S_raw_examples_excluded.csv, S_raw_examples.md
 """
 import sys
@@ -16,7 +17,8 @@ from src import config
 def main():
     k = int(sys.argv[1]) if len(sys.argv) > 1 else 3
     rd = config.results_dir()
-    rr = pd.read_csv(config.path("rating_responses"), low_memory=False)
+    # keep_default_na=False: a literal "NA" answer must stay "NA", not become an empty cell
+    rr = pd.read_csv(config.path("rating_responses"), low_memory=False, keep_default_na=False, na_values=[""])
     ex = (rr.sample(frac=1, random_state=1).groupby(["model", "category"]).head(k)
             .sort_values(["model", "category"])
             [["model", "category", "language", "agent", "dimension", "template", "raw_response",
