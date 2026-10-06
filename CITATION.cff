@@ -1,10 +1,10 @@
 cff-version: 1.2.0
 message: "If you use these data or this code, please cite them as below."
-title: "Data and code for: Dimension-dependent human-AI valence asymmetry in open-weight language models"
+title: "Data and code for: Human-AI rating asymmetries across evaluative dimensions in instruction-tuned open-weight language models"
 type: dataset
 version: "2.0.0"
 license: CC-BY-4.0
-doi: 10.5281/zenodo.20998809
+doi: 10.5281/zenodo.20998808
 repository-code: "https://github.com/YingWang08/valence-audit"
 authors:
   - family-names: Tian

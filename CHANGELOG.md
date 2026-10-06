@@ -6,13 +6,16 @@ All numbers, tables and figures of the revised manuscript and S1 File are produc
 this version from the data deposited under `data/`. `data/results/run_manifest.json`
 records the commit, package versions and SHA-256 hashes of every raw file used.
 
+Templates are numbered 1-4 below, as in the article; the code and the data files number them
+0-3 (`template` column), so template 1 in the code is template 2 here, and so on.
+
 ### Defects in 1.0.0 that are corrected here
 
 1. **Rating parser false positives.** When a response contained no digit, the 1.0.0 parser
    searched the whole text for a spelled-out numeral, so refusals and hedges became
    ratings: "作为一个AI系统，我无法..." was read as 1 (from 一个), "两者各有优势" as 2,
    "As an AI ... one could argue" as 1, "a model like GPT-4" as 4. The scale echo of
-   template 1 ("1 (not at all) to 7") was not removed and was read as 1. The strict parser
+   template 2 ("1 (not at all) to 7") was not removed and was read as 1. The strict parser
    (`src/rating_parse.py`) accepts a number only when the response is a number, starts with
    one, ends with one, or states it in an explicit rating construction; the 1.0.0 parser is
    kept verbatim as `parse_legacy` and every analysis reports both (`C_submitted_vs_revised.csv`,
@@ -21,7 +24,9 @@ records the commit, package versions and SHA-256 hashes of every raw file used.
 2. **Parse-failure denominator.** The reported rating parse-failure rate (30.3%) was computed
    over all nine queried models, including the empty responses of the two excluded models. Rates are now computed over the retained models only (`T1_models.csv`, `M1_*`).
 3. **H5 rating-format rates.** Denominators mixed units (complete rating cells plus refusal and
-   hedge responses, e.g. 33 + 20 = 53). Rates are now per rating response (`H5_by_model.csv`).
+   hedge responses, e.g. 33 + 20 = 53). H5 is no longer reported (see "Removed from the
+   reported analyses"); with `analysis.report_freetext: true`, the exploratory rates are
+   computed per rating response (`H5_by_model.csv`, written only in that case).
 4. **Excluded-model rows.** One rating cell of an excluded model entered the rating data
    (373 instead of 372 cells), and the free-text hedge and refusal rates in `src/analyze.py`
    included the excluded models. Excluded models now never enter the measured tables.
@@ -42,13 +47,22 @@ records the commit, package versions and SHA-256 hashes of every raw file used.
     `data/prompts`; all data are now included. Added LICENSE (MIT), DATA_LICENSE.md
     (CC BY 4.0), CITATION.cff, `.zenodo.json` (dataset, author with ORCID) and
     `.env.example`; removed IDE files.
+12. **Overall estimate in the text versus Fig 2.** The text and abstract of 1.0.0 reported
+    an overall asymmetry of -0.088, the mean of all 373 rating cells pooled (including the
+    stray cell of defect 4), whereas the Fig 2 annotation ("pooled = -0.096", `fig2_forest`
+    in `make_figures.py`, which dropped the excluded models) was the unweighted mean of the
+    seven models' mean cell asymmetries. The two numbers came from the same data but
+    estimated different quantities. Recomputed from the deposited data with the submitted
+    parser, they are -0.089 (372 cells pooled) and -0.096. The text and Fig 2 now report one
+    estimate, the mean of the seven dimension-balanced model means (-0.084), which
+    `src/figures.py` reads from `H1_overall.csv`.
 
 ### Documented, not changed (the June 2026 data are what they are)
 
 - Every rating call used `max_tokens` 12, including the re-query of the excluded models' empty
   responses; v1.0.0's configuration file showed 40, a value set after collection. The token log
   (`tools/diagnose_usage.py`) shows that nearly all invalid rating responses reached the 12-token cap.
-- English AI-referent rating prompts read "a AI system", and template 3 refers to the referent
+- English AI-referent rating prompts read "a AI system", and template 4 refers to the referent
   as "it". The Chinese referent 人类 denotes humans collectively, whereas "a human" denotes an
   individual. The revision-round collection tests the first and third points directly.
 - Model identifiers that were attempted but unavailable or rate-limited are listed in
@@ -120,6 +134,26 @@ validation protocol, is unchanged byte for byte.
   revision-round conditions.
 - `tools/dump_raw_examples.py` keeps a literal "NA" answer instead of showing an empty cell;
   `tools/dump_r1_rerun_examples.py` exports examples of the re-collected excluded models.
+
+### Documentation for the release (no code, data or result changed)
+
+- `README.md` rewritten: title of the revised article; Zenodo concept DOI
+  (10.5281/zenodo.20998808, all versions) and the OSF and Zenodo records of the
+  parser-validation protocol; layout including `src/rating_parse_corrected.py`,
+  `data/validation/` and `data/translation/`; reproduction commands, with notes for Windows;
+  a table giving, for every table, figure and reported result of the article, the script
+  and the file that produce it.
+- `CITATION.cff` and `.zenodo.json`: title of the revised article; `CITATION.cff` cites the
+  concept DOI; the keyword "Promethean shame" is removed.
+- `data/translation/judging_rules_zh.md`: the English summary now states that the judgement
+  workbook was committed before judging began and that the rules were given to the author
+  before judging began and committed to the repository afterwards (commits bbd7408, 7dd2f03
+  and 01ad7dd). The previous wording could be read as saying that the rules themselves had
+  been committed before judging.
+- Removed `data/raw_excluded/mock_llama-base.jsonl` and `mock_llama-instruct.jsonl`: synthetic
+  files from the mock workflow of version 1.0.0, stored with the attempted model identifiers
+  since the first commit. No code reads them; `data/raw_excluded/` now holds only the 13 attempted
+  identifiers.
 
 ## 1.0.0 (submission, June 2026)
 
