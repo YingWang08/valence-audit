@@ -672,11 +672,11 @@ def _fig_profiles(prof_t, out):
                 col = "#c53030" if r == "human" else ("#2b6cb0" if r.startswith("ai") else "#555555")
                 ax.errorbar(row["mean_rating"], i, xerr=[[row["mean_rating"] - row["ci_lo"]], [row["ci_hi"] - row["mean_rating"]]],
                             fmt="o", color=col, ms=3.5, capsize=1.5, lw=0.9)
-        ax.set_title(DIM_LABELS.get(d, d), fontsize=7.5)
+        ax.set_title(DIM_LABELS.get(d, d), fontsize=8)
         ax.set_xlim(1, 7)
     for ax in axes[:, 0]:
         ax.set_yticks(range(len(refs)))
-        ax.set_yticklabels([r.replace("_", " ") for r in refs], fontsize=7)
+        ax.set_yticklabels([r.replace("_", " ") for r in refs], fontsize=8)
     fig.supxlabel("Mean rating (1-7), English prompts, model-level 95% CI", fontsize=8)
     _save(fig, out / "figures", "S2_Fig")
 
@@ -751,6 +751,6 @@ def _fig5(out, june):
     ax.set_yticks(range(len(order)))
     ax.set_yticklabels([DIM_LABELS.get(d, d) for d in order])
     ax.set_xlabel("Asymmetry a = [rating(AI) - rating(human)] / 6 (model-level mean, 95% CI)")
-    ax.legend(frameon=False, fontsize=7, loc="upper center", bbox_to_anchor=(0.45, -0.11), ncol=1)
+    ax.legend(frameon=False, fontsize=8, loc="upper center", bbox_to_anchor=(0.45, -0.11), ncol=1)
     _save(fig, out / "figures", "Fig5")
 

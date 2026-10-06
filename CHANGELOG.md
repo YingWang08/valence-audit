@@ -155,6 +155,15 @@ validation protocol, is unchanged byte for byte.
   since the first commit. No code reads them; `data/raw_excluded/` now holds only the 13 attempted
   identifiers.
 
+### Figure files (October 2026)
+
+- PLOS ONE requires RGB TIFF figures without an alpha channel, at most 7.5 in (2250 px at
+  300 dpi) wide, with text of 8 to 12 pt. `_save` in `src/figures.py` (also used by `src/r1.py`)
+  now writes RGB LZW TIFFs at 300 dpi and narrows the canvas of a figure that would be wider
+  than 7.5 in (Fig 4 had been 2394 px wide). Labels and legends below 8 pt were set to 8 pt;
+  the S1 Fig legend names templates 1-4 and the two languages as in the article. The figures
+  were regenerated; no table changed.
+
 ## 1.0.0 (submission, June 2026)
 
 Initial release.

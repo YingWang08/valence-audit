@@ -1,4 +1,5 @@
-"""Figures for the revised manuscript (PLOS ONE: TIFF, 300 dpi, LZW, width <= 7.5 in,
+"""Figures for the revised manuscript (PLOS ONE: RGB TIFF without alpha, 300 dpi, LZW, width <= 7.5 in,
+font size >= 8 pt,
 no titles or captions inside image files; captions live in the manuscript).
 
 Fig1  study design
@@ -10,6 +11,7 @@ S1_Fig sensitivity analyses (dimension means under each specification)
 (Fig5 and S2_Fig: revision-round checks and referent profiles, written by src/r1.py to data/r1/results/figures/)
 Output: <data root>/results/figures/
 """
+import io
 import os
 import numpy as np
 import pandas as pd
@@ -17,6 +19,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+from PIL import Image
 from src import config
 
 BLUE, RED, GREY = "#2b6cb0", "#c53030", "#718096"
@@ -43,11 +46,36 @@ def _short(m):
     return str(m).split("/")[-1]
 
 
+MAX_W_PX, MAX_H_PX, DPI = 2250, 2625, 300   # PLOS: width <= 7.5 in, height <= 8.75 in at 300 dpi
+
+
+def _render(fig):
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=DPI, bbox_inches="tight", facecolor="white")
+    buf.seek(0)
+    im = Image.open(buf)
+    im.load()
+    return im
+
+
 def _save(fig, outdir, name):
+    """TIFF for submission (PLOS: RGB without alpha channel, LZW, 300 dpi, within the size limits)
+    and PNG for viewing. If the tight bounding box is wider than 7.5 in, the canvas is narrowed
+    (font sizes are unchanged) until it fits."""
     os.makedirs(outdir, exist_ok=True)
-    fig.savefig(os.path.join(outdir, name + ".tif"), dpi=300, pil_kwargs={"compression": "tiff_lzw"},
-                bbox_inches="tight")
-    fig.savefig(os.path.join(outdir, name + ".png"), dpi=150, bbox_inches="tight")
+    im = _render(fig)
+    for _ in range(5):
+        if im.size[0] <= MAX_W_PX:
+            break
+        w, h = fig.get_size_inches()
+        fig.set_size_inches(w - (im.size[0] - MAX_W_PX) / DPI - 0.05, h)
+        im = _render(fig)
+    if im.size[0] > MAX_W_PX or im.size[1] > MAX_H_PX:
+        raise RuntimeError(f"{name}: {im.size[0]} x {im.size[1]} px exceeds the PLOS figure size limit")
+    rgb = Image.new("RGB", im.size, "white")
+    rgb.paste(im, mask=im.getchannel("A") if im.mode == "RGBA" else None)
+    rgb.save(os.path.join(outdir, name + ".tif"), compression="tiff_lzw", dpi=(DPI, DPI))
+    fig.savefig(os.path.join(outdir, name + ".png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"  wrote {name}")
 
@@ -69,7 +97,7 @@ def fig1(outdir, n_models, n_families, n_prompts=288, n_rating=128):
         ax.add_patch(FancyBboxPatch((x, ytop - H), W, H, boxstyle="round,pad=0.3,rounding_size=1.0",
                                     linewidth=1.0, edgecolor="#33445a", facecolor="#fdeeee" if i == 3 else "#eef4fb"))
         ax.text(x + W / 2, ytop - 2.6, title, ha="center", va="top", fontsize=8.5, fontweight="bold")
-        ax.text(x + W / 2, ytop - 7.8, body, ha="center", va="top", fontsize=7.2, linespacing=1.25)
+        ax.text(x + W / 2, ytop - 7.8, body, ha="center", va="top", fontsize=8, linespacing=1.25)
         xs.append((x, x + W))
     for i in range(len(boxes) - 1):
         ax.add_patch(FancyArrowPatch((xs[i][1] + 0.3, ytop - H / 2), (xs[i + 1][0] - 0.3, ytop - H / 2),
@@ -77,9 +105,9 @@ def fig1(outdir, n_models, n_families, n_prompts=288, n_rating=128):
     ax.add_patch(FancyBboxPatch((8, 2), 84, 9, boxstyle="round,pad=0.3,rounding_size=1.0", linewidth=0.9,
                                 edgecolor="#8a6d3b", facecolor="#fbf6e9", linestyle="--"))
     ax.text(50, 8.6, "Interpretive layer (Discussion only; not part of the measurement)", ha="center", va="top",
-            fontsize=7.4, fontweight="bold", color="#6b5326")
+            fontsize=8, fontweight="bold", color="#6b5326")
     ax.text(50, 5.2, "Anders' Promethean shame offered as one reading of the observed dimension profile",
-            ha="center", va="top", fontsize=7.2, color="#6b5326")
+            ha="center", va="top", fontsize=8, color="#6b5326")
     _save(fig, outdir, "Fig1")
 
 
@@ -168,11 +196,11 @@ def fig4(outdir, rd):
         ax.set_xlabel("Share of rating responses (%)")
         ax.set_title(title, loc="left", fontweight="bold", fontsize=8.5)
     axes[0].set_yticks(ypos)
-    axes[0].set_yticklabels([f"{_short(m)} | {'human' if ag == 'human' else 'AI system'}" for m, ag in rows], fontsize=6.8)
+    axes[0].set_yticklabels([f"{_short(m)} | {'human' if ag == 'human' else 'AI system'}" for m, ag in rows], fontsize=8)
     axes[0].invert_yaxis()
     h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, ncol=len(l), frameon=False, fontsize=6.8, loc="lower center", bbox_to_anchor=(0.55, -0.04))
-    fig.subplots_adjust(bottom=0.14)
+    fig.legend(h, l, ncol=4, frameon=False, fontsize=8, loc="lower center", bbox_to_anchor=(0.55, -0.03))
+    fig.subplots_adjust(bottom=0.13)
     _save(fig, outdir, "Fig4")
 
 
@@ -198,6 +226,13 @@ def _h5_fig(outdir, rd):
     _save(fig, outdir, "S_H5_Fig_exploratory")
 
 
+def _spec_label(sp):
+    """Legend label in the article's terms: templates 1-4 (0-3 in the code), language names."""
+    if sp.startswith("template ") and sp.split()[-1].isdigit():
+        return f"template {int(sp.split()[-1]) + 1}"
+    return {"language en": "English prompts", "language zh": "Chinese prompts"}.get(sp, sp)
+
+
 def _sensitivity_fig(outdir, rd):
     sl = pd.read_csv(rd / "S_sensitivity_long.csv")
     sl = sl[sl["dimension"] != "H1_overall"]
@@ -211,12 +246,12 @@ def _sensitivity_fig(outdir, rd):
         ys = [i + off for i, d in enumerate(dims) if d in sub.index]
         xs = [sub.loc[d, "mean"] for d in dims if d in sub.index]
         ax.scatter(xs, ys, s=12 if sp != "primary" else 30, color="black" if sp == "primary" else cmap(j % 20),
-                   marker="D" if sp == "primary" else "o", label=sp, zorder=3 if sp == "primary" else 2)
+                   marker="D" if sp == "primary" else "o", label=_spec_label(sp), zorder=3 if sp == "primary" else 2)
     ax.axvline(0, color=GREY, ls="--", lw=0.9)
     ax.set_yticks(range(len(dims)))
     ax.set_yticklabels([DIM_LABELS.get(d, d) for d in dims])
     ax.set_xlabel("Model-level mean asymmetry a")
-    ax.legend(fontsize=6, frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.4, -0.12))
+    ax.legend(fontsize=8, frameon=False, ncol=2, loc="upper center", bbox_to_anchor=(0.4, -0.10))
     _save(fig, outdir, "S1_Fig")
 
 
