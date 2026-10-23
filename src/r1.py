@@ -9,7 +9,9 @@ collect(): builds data/r1/prompts/grid_r1.jsonl and queries the SAME checkpoints
   C. the June rating prompts with the June budget (max_tokens 12).
 Each model's endpoint is chosen by the rule in the config and pinned (data/r1/endpoints/).
 status(): counts per model and part (no responses are shown).
-analyze(): writes data/r1/results/R1_*.csv, R1_summary.md and S2_Fig.
+analyze(): writes data/r1/results/R1_*.csv, R1_summary.md and S2_Fig. Differences between conditions
+(150 vs 12 tokens; joint vs isolated rating, overall and by language) are also tested as paired
+model-level differences (R1_budget_paired.csv, R1_joint_minus_isolated*.csv; second revision).
 
 Comparisons with June are at the model level (same checkpoint): model x dimension asymmetry at
 150 and 12 tokens, and prompt-level mean ratings at 12 tokens (June prompts, June budget).
@@ -327,6 +329,43 @@ def _model_level_diff(df, ref_a, ref_b, value="strict_value", scale=6.0, by=("di
     return t, md
 
 
+def _paired_table(df, col, dims, extra=None, conds=None):
+    """Paired comparison of two conditions, one row per dimension (second revision, Editor comments 1 and 2).
+
+    `df` holds one row per model and dimension with the model's paired difference in `col`
+    (condition a minus condition b). Each row gives the model-level summary of these differences
+    (full_summary: mean, t(G-1) 95% CI and p, models sharing the sign, exact sign-flip and wild
+    bootstrap p), the smallest and largest model difference, and, for each entry of `conds`
+    ({label: column}), the model-level mean and t(G-1) 95% CI of that condition on the same models.
+    p_t_BH: Benjamini-Hochberg over the dimensions of the table. No equivalence margin is used, so a
+    difference that is not distinguishable from zero is no detected change, not evidence of no change.
+    """
+    rows = []
+    for d in dims:
+        sub = df[df["dimension"] == d].dropna(subset=[col])
+        v = sub[col].values.astype(float)
+        row = dict(extra or {})
+        row["dimension"] = d
+        row.update(full_summary(v))
+        row["min_model_diff"] = float(v.min()) if len(v) else np.nan
+        row["max_model_diff"] = float(v.max()) if len(v) else np.nan
+        for lab, c in (conds or {}).items():
+            s = t_summary(sub[c].values)
+            row.update({f"{lab}_mean": s["mean"], f"{lab}_ci_lo": s["ci_lo"], f"{lab}_ci_hi": s["ci_hi"]})
+        rows.append(row)
+    t = pd.DataFrame(rows)
+    t["p_t_BH"] = bh(t["p_t"].values)
+    return t
+
+
+def _fmt_paired(r):
+    """One dimension of a _paired_table row for R1_summary.md."""
+    if pd.isna(r["mean"]):
+        return f"{r['dimension']} NA"
+    return (f"{r['dimension']} {r['mean']:+.3f} [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}], adj. p {fmt_p(r['p_t_BH'])}, "
+            f"{int(r['k_same_sign'])}/{int(r['G'])}")
+
+
 def analyze(mock=False):
     cfg, june, r1 = _roots(mock)
     config.use_root(str(r1.relative_to(config.ROOT)))
@@ -484,6 +523,33 @@ def analyze(mock=False):
                 lines.append(f"- Joint vs isolated (model x dimension): r = {np.corrcoef(jj['a_joint'], jj['a_isolated'])[0, 1]:.2f}; "
                              f"sign agreement {100 * (np.sign(jj['a_joint']) == np.sign(jj['a_isolated'])).mean():.0f}%; "
                              f"joint parse rate {100 * joint['parsed'].mean():.1f}%")
+            # 5b. paired differences between the formats (second revision, Editor comment 2): for each
+            # model and dimension, joint minus isolated asymmetry, on the model-level values above
+            dims = config.EXP["analysis"]["dimension_order"]
+            jj["diff"] = jj["a_joint"] - jj["a_isolated"]
+            jd = _paired_table(jj, "diff", dims, conds={"joint": "a_joint", "isolated": "a_isolated"})
+            jd.to_csv(out / "R1_joint_minus_isolated.csv", index=False)
+            lines.append("- Joint minus isolated, paired model-level difference [95% CI], BH over 8 dimensions, "
+                         "models sharing the sign: " + "; ".join(_fmt_paired(r) for _, r in jd.iterrows()))
+            # the same within each language, on the model x dimension x language values present in both formats
+            _, iml = _model_level_diff(iso_same, "ai", "human", by=("dimension", "language"))
+            jl = jg["a_joint"].dropna().reset_index()
+            ml = jl.merge(iml.rename(columns={"a": "a_isolated"}), on=["model", "dimension", "language"])
+            ml["diff"] = ml["a_joint"] - ml["a_isolated"]
+            ml.to_csv(out / "R1_joint_minus_isolated_model_level_by_language.csv", index=False)
+            if len(ml):
+                jdl = pd.concat([_paired_table(ml[ml["language"] == lg], "diff", dims, extra={"language": lg},
+                                               conds={"joint": "a_joint", "isolated": "a_isolated"})
+                                 for lg in sorted(ml["language"].unique())], ignore_index=True)
+                jdl.to_csv(out / "R1_joint_minus_isolated_by_language.csv", index=False)
+                for lg, sub in jdl.groupby("language"):
+                    lines.append(f"- Joint minus isolated, {lg} prompts: " +
+                                 "; ".join(_fmt_paired(r) for _, r in sub.iterrows()))
+                # robustness: differences formed within each language, then averaged per model (a model
+                # without a complete cell in one language then contributes the other language only)
+                mm = ml.groupby(["model", "dimension"], as_index=False)["diff"].mean()
+                _paired_table(mm, "diff", dims).to_csv(out / "R1_joint_minus_isolated_language_matched.csv",
+                                                       index=False)
 
     # 6. Chinese: individual vs humankind
     zi = anc_valid[anc_valid["language"] == "zh"]
@@ -603,6 +669,31 @@ def analyze(mock=False):
         v150 = a150["valid"].mean() * 100
         v12 = b12["valid"].mean() * 100
         lines.append(f"- Valid rating responses: {v12:.1f}% at 12 tokens vs {v150:.1f}% at 150 tokens (same prompts, same month)")
+        # 8b. paired model-level differences between the conditions, with BH over the eight dimensions
+        # (second revision, Editor comment 1). The same differences as budget_effect_* and drift_* in
+        # R1_budget_asymmetry.csv, with adjustment, models sharing the sign and the range of the model
+        # differences. No equivalence margin was specified; to show which changes the comparison can
+        # exclude, the larger absolute 95% confidence limit is set against the June estimate.
+        dims = config.EXP["analysis"]["dimension_order"]
+        cmp_ = [("r1_150_minus_r1_12_tokens", "r1_150_tokens", "r1_12_tokens")]
+        if "june_12_tokens" in mds:
+            cmp_.append(("r1_12_tokens_minus_june", "r1_12_tokens", "june_12_tokens"))
+        bp = []
+        for name, c1, c2 in cmp_:
+            dd = both[["model", "dimension", c1, c2]].dropna()
+            dd = dd.assign(diff=dd[c1] - dd[c2])
+            bp.append(_paired_table(dd, "diff", dims, extra={"comparison": name},
+                                    conds={"condition_a": c1, "condition_b": c2}))
+        bp = pd.concat(bp, ignore_index=True)
+        bp["max_abs_ci_limit"] = bp[["ci_lo", "ci_hi"]].abs().max(axis=1)
+        if "june_12_tokens" in mds:
+            jmean = both.groupby("dimension")["june_12_tokens"].mean()
+            bp["june_12_tokens_mean"] = bp["dimension"].map(jmean)
+            bp["max_abs_ci_limit_over_abs_june"] = bp["max_abs_ci_limit"] / bp["june_12_tokens_mean"].abs()
+        bp.to_csv(out / "R1_budget_paired.csv", index=False)
+        for name, sub in bp.groupby("comparison", sort=False):
+            lines.append(f"- {name.replace('_', ' ')}, paired model-level difference [95% CI], BH over 8 dimensions, "
+                         "models sharing the sign: " + "; ".join(_fmt_paired(r) for _, r in sub.iterrows()))
 
     # 9. dimension pattern: revision round vs June, on the same set of models
     jt_p = june / "results" / "S_model_by_dimension.csv"
@@ -646,8 +737,9 @@ def analyze(mock=False):
     except Exception as e:
         print(f"[r1] Fig 5 skipped: {e}")
     lines += ["", "Tables: R1_replication.csv, R1_article_effect_en.csv, R1_referent_profiles.csv, R1_anchor_spread*.csv, "
-              "R1_anchored_asymmetry.csv, R1_joint_*.csv, R1_zh_*.csv, R1_rerun_*.csv, R1_outcomes.csv, "
-              "R1_budget_*.csv, R1_june_vs_r1_*.csv, R1_environment.csv"]
+              "R1_anchored_asymmetry.csv, R1_joint_*.csv (paired: R1_joint_minus_isolated*.csv), R1_zh_*.csv, "
+              "R1_rerun_*.csv, R1_outcomes.csv, R1_budget_*.csv (paired: R1_budget_paired.csv), R1_june_vs_r1_*.csv, "
+              "R1_environment.csv"]
     with open(out / "R1_summary.md", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     print("\n".join(lines))

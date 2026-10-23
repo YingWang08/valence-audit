@@ -1,7 +1,7 @@
 {
   "title": "Data and code for: Human-AI rating asymmetries across evaluative dimensions in instruction-tuned open-weight language models (PLOS ONE revision)",
   "upload_type": "dataset",
-  "description": "Prompt grids, all raw responses of the audited open-weight language models (including the two excluded models and the attempted-but-unavailable model identifiers), per-response and per-cell measurements, result tables, figures, and the complete Python and R code that regenerates every number, table and figure of the manuscript and its S1 File. Data: CC BY 4.0. Code: MIT License. Version 2.0.0 corresponds to the first revision of manuscript PONE-D-26-32490; see CHANGELOG.md for all changes relative to version 1.0.0.",
+  "description": "Prompt grids, all raw responses of the audited open-weight language models (including the two excluded models and the attempted-but-unavailable model identifiers), per-response and per-cell measurements, result tables, figures, and the complete Python and R code that regenerates every number, table and figure of the manuscript and its S1 File. Data: CC BY 4.0. Code: MIT License. Version 2.1.0 corresponds to the second revision of manuscript PONE-D-26-32490 and adds paired comparisons between the revision-round conditions; version 2.0.0 corresponded to the first revision. See CHANGELOG.md for all changes relative to version 1.0.0.",
   "creators": [
     {
       "name": "Tian, Wenjun",
@@ -12,6 +12,6 @@
   "license": "cc-by-4.0",
   "access_right": "open",
   "language": "eng",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "keywords": ["large language models", "model audit", "human-AI evaluation", "rating asymmetry"]
 }

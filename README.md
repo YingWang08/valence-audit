@@ -71,10 +71,11 @@ src/
   stats_utils.py           t(G-1), exact sign-flip, Webb wild cluster bootstrap, BH, d_z
   analyze.py               June tables (Tables 1-4, S1 File tables, run manifest)
   figures.py               Fig1, Fig2, Fig3, Fig4, S1_Fig
-  r1.py                    revision-round collection and analysis (Table 5 sources, Fig5, S2_Fig)
+  r1.py                    revision-round collection and analysis (Tables 5 and 6, Fig5, S2_Fig)
 tools/                     token-log diagnosis, raw-response examples, parser validation
                            (validation.py, coding_manual_zh.md), back-translation
-                           (back_translate.py), June empty-response scripts, serving notebook
+                           (back_translate.py), June empty-response scripts, serving notebook,
+                           Table 6 printout (print_paired_tables.py)
 tests/                     parser unit tests (strict and corrected parser)
 data/
   prompts/grid.jsonl       June prompt grid
@@ -100,6 +101,7 @@ python run_all.py --test          # parser unit tests
 python run_all.py --reanalyze     # measure -> analyze -> figures from data/raw
 Rscript analyze_lme4.R            # mixed models
 python run_all.py --analyze-r1    # revision-round analyses from data/r1/raw
+python -m tools.print_paired_tables # Table 6 (paired differences between conditions) from data/r1/results
 python -m tools.diagnose_usage    # token-limit hits in the June collection
 python -m tools.dump_raw_examples # raw-response examples for the S1 File
 python -m tools.validation score  # parser validation from the deposited coding (single blinded coder)
@@ -141,6 +143,7 @@ Files are in `data/results/` unless another directory is given; revision-round f
 | Table 5, Revision round, 12 tokens | `src/r1.py` | `R1_budget_asymmetry.csv` (`r1_12_tokens_mean`, `r1_12_tokens_k`; the asterisks are the Benjamini-Hochberg adjustment of `r1_12_tokens_p_t` over the eight dimensions) |
 | Table 5, Joint rating | `src/r1.py` | `R1_joint_vs_isolated.csv` (`joint_mean`, `joint_k`, `joint_p_t_BH`) |
 | Table 5, Chinese, 人类 and 一个人 | `src/r1.py` | `R1_zh_asymmetry_with_humankind.csv`, `R1_zh_asymmetry_with_individual.csv` (`mean`, `k_same_sign`, `p_t_BH`) |
+| Table 6, paired differences between revision-round conditions | `src/r1.py`; printed by `python -m tools.print_paired_tables` | output limit: `R1_budget_paired.csv` (rows with `comparison` = `r1_150_minus_r1_12_tokens`; `max_abs_ci_limit_over_abs_june` compares the larger confidence limit with the June estimate); joint minus isolated: `R1_joint_minus_isolated.csv` (both languages), `R1_joint_minus_isolated_by_language.csv` (English and Chinese; model level in `R1_joint_minus_isolated_model_level_by_language.csv`), `R1_joint_minus_isolated_language_matched.csv` (differences formed within language); columns `mean`, `ci_lo`, `ci_hi`, `k_same_sign`, `G`, `p_t_BH` |
 | Fig 5 | `src/r1.py` | `R1_fig5_conditions.csv`; `data/r1/results/figures/Fig5.tif` |
 | Results, Revision-round checks | `src/r1.py` | replication `R1_replication*.csv`, `R1_june_vs_r1_dimension_pattern.csv`; output limit `R1_budget_*.csv`; time and serving environment `R1_june_vs_r1_prompt_level*.csv`, `R1_environment.csv`; anchors `R1_referent_profiles.csv`, `R1_anchored_*.csv`, `R1_anchor_spread*.csv`; joint rating `R1_joint_*.csv`; Chinese referent `R1_zh_*.csv`; article `R1_article_effect_en.csv`; excluded reasoning models `R1_rerun_excluded_*.csv`, `R1_H2_with_rerun_models.csv`; outcomes `R1_outcomes.csv`; overview `R1_summary.md` |
 | S2 Fig | `src/r1.py` | `R1_referent_profiles.csv`; `data/r1/results/figures/S2_Fig.tif` |

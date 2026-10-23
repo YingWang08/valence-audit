@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.1.0 (second revision of PONE-D-26-32490)
+
+Adds the paired comparisons between revision-round conditions requested in the second round of
+review (Table 6 of the second revision). No existing table, figure or number changes; the
+regenerated files differ from 2.0.0 only by the new tables, the new lines of `R1_summary.md` and
+`run_manifest.json`.
+
+- `src/r1.py`: differences between conditions are tested as paired model-level differences:
+  for each model and dimension, the asymmetry in one condition minus that in the other; the
+  model differences are summarized like every other model-level estimate (`full_summary`: mean,
+  t(G-1) 95% confidence interval and p, models sharing the sign, exact sign-flip and wild
+  bootstrap p), with Benjamini-Hochberg adjustment over the eight dimensions within each
+  comparison and language, and with the smallest and largest model difference. No equivalence
+  margin was specified, so a difference that is not distinguishable from zero is reported as no
+  detected change, not as evidence of no change.
+  - `R1_budget_paired.csv`: revision round at 150 minus 12 tokens (same prompts and month) and
+    revision round at 12 tokens minus June. These are the differences of
+    `R1_budget_asymmetry.csv` (`budget_effect_*`, `drift_*`), now with adjustment; the larger
+    absolute confidence limit is also given relative to the June estimate
+    (`max_abs_ci_limit_over_abs_june`), which shows what size of change the comparison can exclude.
+  - `R1_joint_minus_isolated.csv`: joint minus isolated rating, on the model-level values of
+    `R1_joint_vs_isolated_model_level.csv`; `R1_joint_minus_isolated_by_language.csv` and
+    `R1_joint_minus_isolated_model_level_by_language.csv`: the same within English and Chinese
+    prompts; `R1_joint_minus_isolated_language_matched.csv`: differences formed within each
+    language and then averaged per model. Mixtral-8x7B has no complete English isolated cell in
+    moral judgment, reliability, trustworthiness and intrinsic worth, so its isolated values for
+    these dimensions in `R1_joint_vs_isolated_model_level.csv` rest on Chinese prompts.
+- `tools/print_paired_tables.py`: prints Table 6 and the numbers quoted with it.
+
 ## 2.0.0 (first revision of PONE-D-26-32490)
 
 All numbers, tables and figures of the revised manuscript and S1 File are produced by
